@@ -283,7 +283,7 @@ if !errorlevel! neq 0 (
     echo [ERR] Failed to clone bonaktan/Flight-Management-System.git & pause & exit /b 1
 )
 cd Flight-Management-System/frontend
-npm install
+call npm install
 if !errorlevel! neq 0 (
     pwd
     echo [ERR] Failed to install frontend Packages.
@@ -316,4 +316,4 @@ echo     5. To run Frontend in Dev Mode: cd frontend ^&^& npm run dev
 echo ============================================================
 echo.
 pause
-endlocal
+exit /b 1
