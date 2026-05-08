@@ -1,6 +1,5 @@
 {
   "cmake.configureArgs": ["-DCMAKE_TOOLCHAIN_FILE=C:\\FlightMgmtTools\\BuildTools\\VC\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake", "-DVCPKG_INSTALLED_DIR=C:\\FlightMgmtTools\\vcpkg\\installed", "-DCMAKE_PREFIX_PATH=C:\\vcpkg\\installed\\x64-windows"],
-  "cmake.generator": "Visual Studio 17 2022",
+  "cmake.generator": "Visual Studio 18 2026",
   "cmake.buildDirectory": "${workspaceFolder}/backend/build",
-  "cmake.sourceDirectory": "a:/Projects/Programs/Acad-COMP002/Flight-Management-System/backend"
 }

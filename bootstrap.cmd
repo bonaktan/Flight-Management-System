@@ -1,6 +1,6 @@
 @echo off
 setlocal EnableDelayedExpansion
-title Drogon Bootstrap - VS 2022
+title Drogon Bootstrap - VS 2026
 
 :: ============================================================
 ::  bootstrap-drogon.cmd
@@ -11,8 +11,6 @@ title Drogon Bootstrap - VS 2022
 :: ============================================================
 
 :: ── Run with Administrator privileges ─────────────────────
-@echo off
-:: Check for permissions
 >nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 
 :: If error flag set, we do not have admin.
