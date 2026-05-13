@@ -1,15 +1,31 @@
-import js from "@eslint/js";
-import globals from "globals";
-import markdown from "@eslint/markdown";
+import eslintReact from "@eslint-react/eslint-plugin";
 import css from "@eslint/css";
-import { defineConfig } from "eslint/config";
+import eslintJs from "@eslint/js";
+import markdown from "@eslint/markdown";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
+import { defineConfig } from "eslint/config";
+import globals from "globals";
+
 export default defineConfig([
     {
-        files: ["**/*.{js,mjs,cjs}"],
-        plugins: { js },
-        extends: ["js/recommended"],
-        languageOptions: { globals: globals.browser },
+        files: ["**/*.js", "**/*.jsx"],
+        extends: [eslintJs.configs.recommended, eslintReact.configs.recommended],
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+            },
+            parserOptions: {
+                ecmaFeatures: {
+                    jsx: true,
+                },
+            },
+        },
+
+        // Custom rule overrides
+        rules: {
+            "@eslint-react/no-missing-key": "warn",
+            "no-unused-vars": "warn",
+        },
     },
     {
         files: ["**/*.md"],
