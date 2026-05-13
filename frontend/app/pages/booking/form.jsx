@@ -1,3 +1,10 @@
+import { NavLink } from "react-router";
+
 export default function BookingForm() {
-    return <p>Booking - Form</p>;
+    return (
+        <div>
+            <p>Booking - Form (Step 1)</p>
+            <NavLink to="/booking/details">Next</NavLink>
+        </div>
+    );
 }

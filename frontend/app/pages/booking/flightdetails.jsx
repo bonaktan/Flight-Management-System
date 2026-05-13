@@ -1,3 +1,10 @@
+import { NavLink } from "react-router";
+
 export default function BookingFlightDetails() {
-    return <p>Booking - Flight Details</p>;
+    return (
+        <div>
+            <p>Booking - Flight Details (Step 2)</p>
+            <NavLink to="/booking/payment">Next</NavLink>
+        </div>
+    );
 }

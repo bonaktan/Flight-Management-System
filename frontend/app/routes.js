@@ -1,4 +1,4 @@
-import { index, layout, prefix, route } from "@react-router/dev/routes";
+import { index, layout, route } from "@react-router/dev/routes";
 
 export default [
     layout("components/layout.jsx", [
@@ -17,15 +17,15 @@ export default [
 
         route("booking", "pages/booking/layout.jsx", [
             route("form", "pages/booking/form.jsx"),
-            route("flightdetails", "pages/booking/flightdetails.jsx"),
+            route("details", "pages/booking/flightdetails.jsx"),
             route("payment", "pages/booking/payment.jsx"),
-            route("confirmationn", "pages/booking/confirmation.jsx"),
+            route("confirmation", "pages/booking/confirmation.jsx"),
         ]),
 
         route("search", "pages/search/layout.jsx", [
             index("pages/search/main.jsx"),
-            route("flightdetails", "pages/search/flightdetails.jsx"),
-            route("searchdetails", "pages/search/searchdetails.jsx"),
+            route("flight", "pages/search/flightdetails.jsx"),
+            route("details", "pages/search/searchdetails.jsx"),
         ]),
     ]),
 

@@ -1,3 +1,10 @@
+import { NavLink } from "react-router";
+
 export default function Home() {
-    return <p>Welcome</p>;
+    return (
+        <div>
+            <p>Home</p>
+            <NavLink to="/search">Search for Flights</NavLink>
+        </div>
+    );
 }

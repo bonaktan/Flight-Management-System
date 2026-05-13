@@ -1,3 +1,10 @@
+import { NavLink } from "react-router";
+
 export default function SearchDetails() {
-    return <p>Search - Details</p>;
+    return (
+        <div>
+            <p>Search - Details</p>
+            <NavLink to="/search">Go back</NavLink>
+        </div>
+    );
 }
