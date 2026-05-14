@@ -1,0 +1,14 @@
+CompileFlags:
+    Add:
+        - -isystem
+        - A:\\Programs\\MSYS2\\mingw64\\include
+        - -isystem
+        - A:\Programs\MSYS2\mingw64\include\c++\16.1.0
+        - -isystem
+        - A:\Programs\MSYS2\mingw64\include\c++\16.1.0\x86_64-w64-mingw32
+
+Diagnostics:
+    UnusedIncludes: None
+    Suppress: "*"
+    ClangTidy:
+        Remove: "*"
