@@ -1,5 +1,17 @@
 {
-  "cmake.configureArgs": ["-DCMAKE_TOOLCHAIN_FILE=C:\\FlightMgmtTools\\BuildTools\\VC\\vcpkg\\scripts\\buildsystems\\vcpkg.cmake", "-DVCPKG_INSTALLED_DIR=C:\\FlightMgmtTools\\vcpkg\\installed", "-DCMAKE_PREFIX_PATH=C:\\vcpkg\\installed\\x64-windows"],
-  "cmake.generator": "Visual Studio 18 2026",
-  "cmake.buildDirectory": "${workspaceFolder}/backend/build",
+    "cmake.configureArgs": ["-DCMAKE_PREFIX_PATH=\"A:/Programs/MSYS2/mingw64/include\""],
+    "cmake.generator": "Ninja",
+    "cmake.buildDirectory": "${workspaceFolder}/backend/build",
+    "cmake.sourceDirectory": "${workspaceFolder}/backend",
+    "clangd.arguments": ["--compile-commands-dir=${workspaceFolder}/backend/build", "--header-insertion=never"],
+
+    // C++ Configuration
+    "eslint.workingDirectories": ["./frontend"],
+
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[markdown]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }
