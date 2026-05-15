@@ -1,5 +1,4 @@
 {
-    "cmake.configureArgs": ["-DCMAKE_PREFIX_PATH=\"A:/Programs/MSYS2/mingw64/include\""],
     "cmake.generator": "Ninja",
     "cmake.buildDirectory": "${workspaceFolder}/backend/build",
     "cmake.sourceDirectory": "${workspaceFolder}/backend",
@@ -13,5 +12,6 @@
     },
     "[markdown]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
-    }
+    },
+    "discord.enabled": false
 }

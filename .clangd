@@ -1,11 +1,18 @@
+# warn: change the paths kung san mo man gusto patakbuhin to
+
 CompileFlags:
+    Compiler: A:/Programs/MSYS2/mingw64/bin/g++.exe
     Add:
         - -isystem
-        - A:\\Programs\\MSYS2\\mingw64\\include
+        - A:/Programs/MSYS2/mingw64/include
         - -isystem
-        - A:\Programs\MSYS2\mingw64\include\c++\16.1.0
+        - A:/Programs/MSYS2/mingw64/include/c++/16.1.0
         - -isystem
-        - A:\Programs\MSYS2\mingw64\include\c++\16.1.0\x86_64-w64-mingw32
+        - A:/Programs/MSYS2/mingw64/include/c++/16.1.0/x86_64-w64-mingw32
+        - -isystem
+        #     - A:/Programs/MSYS2/mingw64/x86_64-w64-mingw32/include  # Add this
+        - -ferror-limit=0
+        - --target=x86_64-w64-mingw32
 
 Diagnostics:
     UnusedIncludes: None
