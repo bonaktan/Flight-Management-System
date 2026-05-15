@@ -74,3 +74,6 @@ target_sources(${PROJECT_NAME}
 # ##############################################################################
 
 add_subdirectory(test)
+
+
+configure_file(config.json config.json COPYONLY)

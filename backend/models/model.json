@@ -1,31 +1,35 @@
 {
-    "rdbms": "postgresql",
-    "host": "127.0.0.1",
-    "port": 5432,
-    "dbname": "",
-    "schema": "skybridge",
-    "user": "",
-    "password": "",
-    "client_encoding": "",
-    "tables": [],
-    "convert": {
-        "enabled": false,
-        "items": []
-    },
-    "relationships": {
-        "enabled": false,
-        "items": []
-    },
-    "restful_api_controllers": {
-        "enabled": false,
-        "resource_uri": "/*",
-        "class_name": "Restful*Ctrl",
-        "filters": [],
-        "db_client": {
-            "name": "default",
-            "is_fast": false
-        },
-        "directory": "controllers",
-        "generate_base_only": false
+    "listeners": [
+        {
+            "address": "127.0.0.1",
+            "port": 8080,
+            "https": false
+        }
+    ],
+    "db_clients": [
+        {
+            "name": "main",
+            "rdbms": "postgresql",
+            "host": "127.0.0.1",
+            "port": "5432",
+            "dbname": "skybridge",
+            "user": "skybridge",
+            "password": "skybridge",
+            "schema": "public",
+            "is_fast": false,
+            "number_of_connections": 5,
+            "timeout": 10,
+            "client_encoding": "utf8"
+        }
+    ],
+    "app": {
+        "number_of_threads": 4,
+        "load_libs": [],
+        "log": {
+            "log_path": "./logs",
+            "logfile_base_name": "drogon",
+            "log_size_limit": 100000000,
+            "log_level": "INFO"
+        }
     }
 }

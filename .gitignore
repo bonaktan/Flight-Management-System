@@ -1,4 +1,4 @@
-
+.env
 bootstrap.cmd
 node_modules
 .eslintcache
