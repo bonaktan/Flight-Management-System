@@ -2,6 +2,7 @@
 #include <ftxui/screen/screen.hpp>
 #include <ftxui/screen/string.hpp>
 #include <iostream>
+#include <cstdlib>
 
 using namespace ftxui;
 int main() {
