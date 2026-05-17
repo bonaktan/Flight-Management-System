@@ -1,0 +1,60 @@
+{
+    "listeners": [
+        {
+            "address": "127.0.0.1",
+            "port": 8080,
+            "https": false
+        }
+    ],
+    "db_clients": [
+        {
+            "name": "main",
+            "rdbms": "postgresql",
+
+            "is_fast": false,
+            "number_of_connections": 5,
+            "timeout": 10,
+            "client_encoding": "utf8",
+            "host": "192.168.1.2",
+            "port": 5432,
+            "dbname": "skybridge",
+            "user": "skybridge",
+            "passwd": "skybridge"
+        }
+    ],
+    "app": {
+        "number_of_threads": 4,
+        "load_libs": [],
+        "log": {
+            "log_path": "./logs",
+            "logfile_base_name": "drogon",
+            "log_size_limit": 100000000,
+            "log_level": "DEBUG",
+            "access_log": [
+                {
+                    "log_path": "",
+                    "log_format": "$request_date $method $url [$body_length] ($remote_addr) $status $processing_time",
+                    "log_file": ""
+                },
+                {
+                    "log_path": "./logs",
+                    "log_format": "$request_date $method $url [$body_length] ($remote_addr) $status $processing_time",
+                    "log_file": "access.log"
+                }
+            ]
+        }
+    },
+    "plugins": [
+        {
+            "name": "drogon::plugin::AccessLogger",
+            "is_auto_run": true,
+            "config": {
+                "use_local_time": true,
+                "log_path": "./logs",
+                "log_format": "$request $status",
+                "show_microseconds": true,
+                "use_real_ip": true
+            }
+        }
+    ]
+}

@@ -1,17 +1,22 @@
 #include <drogon/drogon.h>
-
 int main() {
-  drogon::app()
-      .registerHandler(
-          "/hello",
-          [](const drogon::HttpRequestPtr&,
-             std::function<void(const drogon::HttpResponsePtr&)>&& callback) {
-            Json::Value body;
-            body["message"] = "Hello from Drogon on VS 2026";
-            auto r = drogon::HttpResponse::newHttpJsonResponse(body);
-            callback(r);
-          },
-          {drogon::Get})
-      .addListener("0.0.0.0", 8080)
-      .run();
+    drogon::app().loadConfigFile("config.json");
+    drogon::app().setTermSignalHandler([]() {
+        LOG_INFO << "Shutting down...";
+        drogon::app().quit();
+    });
+
+    drogon::app().getLoop()->queueInLoop([]() {
+        drogon::orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
+        try {
+            drogon::orm::Result result = dbClient->execSqlSync("SELECT version();");
+            std::cout << "Database is Ready" << std::endl;
+        } catch (drogon::orm::DrogonDbException& e) {
+            std::cerr << "error:" << e.base().what() << std::endl;
+            // TODO: close the app, you cant live w/o the db :)
+        }
+    });
+    std::cout << "Backend running on http://localhost:8080" << std::endl;
+    drogon::app().run();
+    return 0;
 }

@@ -1,0 +1,10 @@
+# warn: change the paths kung san mo man gusto patakbuhin to
+
+# CompileFlags:
+#     # Compiler: A:/Programs/MSYS2/mingw64/bin/g++.exe
+
+
+Diagnostics:
+    UnusedIncludes: None
+    ClangTidy:
+        Remove: "*"
