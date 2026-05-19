@@ -25,11 +25,11 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 64M     # Maximum 512MB RAM
+                    cpus: '0.50' 
+                    memory: 64M
                 reservations:
-                    cpus: '0.25'     # Guaranteed 25% of a core
-                    memory: 32M     # Guaranteed 256MB RAM
+                    cpus: '0.25'
+                    memory: 32M
         restart: always
     nginx:
         image: nginx:alpine
@@ -54,11 +54,11 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 64M     # Maximum 512MB RAM
+                    cpus: '0.50'
+                    memory: 64M
                 reservations:
-                    cpus: '0.25'     # Guaranteed 25% of a core
-                    memory: 32M     # Guaranteed 256MB RAM
+                    cpus: '0.25'
+                    memory: 32M
         restart: always
     frontend:
         build: ./frontend/
@@ -76,11 +76,11 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 128M     # Maximum 512MB RAM
+                    cpus: '0.50'
+                    memory: 128M
                 reservations:
-                    cpus: '0.25'     # Guaranteed 25% of a core
-                    memory: 64M     # Guaranteed 256MB RAM
+                    cpus: '0.25'
+                    memory: 64M
         restart: always
 
     # --- Backend Services ---
@@ -102,11 +102,11 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 64M     # Maximum 512MB RAM
+                    cpus: '0.50'
+                    memory: 64M
                 reservations:
-                    cpus: '0.25'     # Guaranteed 25% of a core
-                    memory: 32M     # Guaranteed 256MB RAM
+                    cpus: '0.25'
+                    memory: 32M
         restart: always
     database:
         image: postgres:18-alpine
@@ -120,7 +120,6 @@ services:
         volumes:
             - skybridge_postgres_data:/var/lib/postgresql
         networks:
-            - frontend_net # WARNING: TEMPORARY
             - backend_net
         logging:
             driver: "json-file"
@@ -131,11 +130,11 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 128M     # Maximum 512MB RAM
+                    cpus: '0.50'
+                    memory: 256M
                 reservations:
-                    cpus: '0.25'     # Guaranteed 25% of a core
-                    memory: 32M     # Guaranteed 256MB RAM
+                    cpus: '0.25'
+                    memory: 32M
         restart: always
         
 
