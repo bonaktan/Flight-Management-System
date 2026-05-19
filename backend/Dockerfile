@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     uuid-dev \
     zlib1g-dev \
     libssl-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Drogon (cached separately)
@@ -30,8 +31,6 @@ RUN git clone https://github.com/drogonframework/drogon.git && \
 # Copy only dependency files first (cached separately from source)
 WORKDIR /app
 COPY CMakeLists.txt ./
-COPY vcpkg.json* ./
-COPY conanfile.* ./
 
 # Configure CMake to download dependencies
 RUN mkdir build && cd build && \
@@ -51,22 +50,25 @@ RUN cd build && \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
     .. && \
-    ninja && ls
+    ninja && ls -la && pwd
 
 # Runtime stage
 # BUG: its not running the backend, idk why
-FROM alpine:latest
+FROM debian:bookworm-slim
 
-RUN apk add --no-cache \
-    libstdc++ \
-    libgcc \
-    libuuid \
-    jsoncpp \
-    openssl
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    libjsoncpp25 \
+    uuid-runtime \
+    libssl3 \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /app/build/SkyBridgeAirways-Backend /app/
-
+# Copy Drogon libraries
+COPY --from=builder /usr/local/lib /usr/local/lib
+COPY --from=builder /app/build/SkyBridgeAirways-Backend /app/build/config.json /app/
+RUN ldconfig && mkdir /app/logs
 WORKDIR /app
 EXPOSE 8080
 
-CMD ["/app/SkyBridgeAirways-Backend"]
+CMD ["./SkyBridgeAirways-Backend"]

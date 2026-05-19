@@ -6,47 +6,64 @@ networks:
 
 services:
     # --- Frontend Services ---
-    # cloudflared:
-    #     image: cloudflare/cloudflared:latest
-    #     command: tunnel run
-    #     environment:
-    #         - TUNNEL_TOKEN=${TUNNEL_TOKEN}
-    #     depends_on:
-    #         - nginx
-    #     networks:
-    #         - frontend_net
-    #     logging:
-    #         driver: "json-file"
-    #         options:
-    #             max-size: "10m"
-    #             max-file: "3"
-    #             labels: "service=cloudflared"
-    #     restart: always
-    # nginx:
-    #     image: nginx:alpine
-    #     expose:
-    #         - "80"
-    #     volumes:
-    #         - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    #         - skybridge_nginx_logs:/var/log/nginx
-    #     depends_on:
-    #         - backend
-    #         - frontend
-    #     networks:
-    #         - frontend_net
-    #     logging:
-    #         driver: "json-file"
-    #         options:
-    #             max-size: "10m"
-    #             max-file: "3"
-    #             labels: "service=nginx"
-    #     user: "101:101"  # nginx:nginx user in alpine image
-    #     restart: always
+    cloudflared:
+        image: cloudflare/cloudflared:latest
+        command: tunnel run
+        environment:
+            - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+        depends_on:
+            - nginx
+        networks:
+            - frontend_net
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
+                labels: "service=cloudflared"
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'     # Maximum of 50% of a single CPU core
+                    memory: 128M     # Maximum 512MB RAM
+                reservations:
+                    cpus: '0.25'     # Guaranteed 25% of a core
+                    memory: 32M     # Guaranteed 256MB RAM
+        restart: always
+    nginx:
+        image: nginx:alpine
+        container_name: skybridge_nginx
+        ports:
+            - 8080:8080
+        volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf:ro
+            - skybridge_nginx_logs:/var/log/nginx:rw
+        depends_on:
+            - backend
+            - frontend
+        networks:
+            - frontend_net
+            - backend_net
+        logging:
+            driver: "json-file"
+            options:
+                max-size: "10m"
+                max-file: "3"
+                labels: "service=nginx"
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'     # Maximum of 50% of a single CPU core
+                    memory: 128M     # Maximum 512MB RAM
+                reservations:
+                    cpus: '0.25'     # Guaranteed 25% of a core
+                    memory: 32M     # Guaranteed 256MB RAM
+        restart: always
     frontend:
         build: ./frontend/
-        container_name: skybride_frontend
-        ports:
-            - 3000:3000
+        container_name: skybridge_frontend
+        expose:
+            - "3000"
         networks:
             - frontend_net
         logging:
@@ -55,16 +72,24 @@ services:
                 max-size: "10m"
                 max-file: "3"
                 labels: "service=frontend"
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'     # Maximum of 50% of a single CPU core
+                    memory: 256M     # Maximum 512MB RAM
+                reservations:
+                    cpus: '0.25'     # Guaranteed 25% of a core
+                    memory: 64M     # Guaranteed 256MB RAM
         restart: always
 
     # --- Backend Services ---
     backend:
         build: ./backend/
         container_name: skybridge_backend
-        ports:
-            - 8080:8080
+        expose:
+            - "8080"
         depends_on:
-            - postgres
+            - database
         networks:
             - backend_net
         logging:
@@ -73,13 +98,24 @@ services:
                 max-size: "10m"
                 max-file: "3"
                 labels: "service=backend"
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'     # Maximum of 50% of a single CPU core
+                    memory: 128M     # Maximum 512MB RAM
+                reservations:
+                    cpus: '0.25'     # Guaranteed 25% of a core
+                    memory: 32M     # Guaranteed 256MB RAM
         restart: always
-    postgres:
+    database:
         image: postgres:18-alpine
+        container_name: skybridge_postgres
+        ports:
+            - 5432:15432
         environment:
-            - POSTGRES_USER=${POSTGRES_USER:-user}
-            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
-            - POSTGRES_DB=${POSTGRES_DB:-dbname}
+            - POSTGRES_USER=${DATABASE_USER:-user}
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-password}
+            - POSTGRES_DB=${DATABASE_DB:-dbname}
         volumes:
             - skybridge_postgres_data:/var/lib/postgresql/data
         networks:
@@ -91,7 +127,16 @@ services:
                 max-size: "10m"
                 max-file: "3"
                 labels: "service=postgres"
+        deploy:
+            resources:
+                limits:
+                    cpus: '0.50'     # Maximum of 50% of a single CPU core
+                    memory: 128M     # Maximum 512MB RAM
+                reservations:
+                    cpus: '0.25'     # Guaranteed 25% of a core
+                    memory: 32M     # Guaranteed 256MB RAM
         restart: always
+        
 
 volumes:
     skybridge_postgres_data:
