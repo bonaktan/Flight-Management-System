@@ -8,6 +8,7 @@ services:
     # --- Frontend Services ---
     cloudflared:
         image: cloudflare/cloudflared:latest
+        container_name: skybridge_cloudflared
         command: tunnel run
         environment:
             - TUNNEL_TOKEN=${TUNNEL_TOKEN}
@@ -25,7 +26,7 @@ services:
             resources:
                 limits:
                     cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 128M     # Maximum 512MB RAM
+                    memory: 64M     # Maximum 512MB RAM
                 reservations:
                     cpus: '0.25'     # Guaranteed 25% of a core
                     memory: 32M     # Guaranteed 256MB RAM
@@ -54,7 +55,7 @@ services:
             resources:
                 limits:
                     cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 128M     # Maximum 512MB RAM
+                    memory: 64M     # Maximum 512MB RAM
                 reservations:
                     cpus: '0.25'     # Guaranteed 25% of a core
                     memory: 32M     # Guaranteed 256MB RAM
@@ -76,7 +77,7 @@ services:
             resources:
                 limits:
                     cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 256M     # Maximum 512MB RAM
+                    memory: 128M     # Maximum 512MB RAM
                 reservations:
                     cpus: '0.25'     # Guaranteed 25% of a core
                     memory: 64M     # Guaranteed 256MB RAM
@@ -102,7 +103,7 @@ services:
             resources:
                 limits:
                     cpus: '0.50'     # Maximum of 50% of a single CPU core
-                    memory: 128M     # Maximum 512MB RAM
+                    memory: 64M     # Maximum 512MB RAM
                 reservations:
                     cpus: '0.25'     # Guaranteed 25% of a core
                     memory: 32M     # Guaranteed 256MB RAM
@@ -117,7 +118,7 @@ services:
             - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-password}
             - POSTGRES_DB=${DATABASE_DB:-dbname}
         volumes:
-            - skybridge_postgres_data:/var/lib/postgresql/data
+            - skybridge_postgres_data:/var/lib/postgresql
         networks:
             - frontend_net # WARNING: TEMPORARY
             - backend_net
