@@ -1,5 +1,6 @@
 import { NavLink } from "react-router";
 import InputField from "../components/input";
+import { useState } from "react";
 
 const apiOutput = {
     modes: {
@@ -14,26 +15,32 @@ const apiOutput = {
         {
             name: "Manila",
             description: "Lorem ipsum dolor sit amet",
+            image: "/pubs/sample1.png",
         },
         {
             name: "Cebu",
             description: "Lorem ipsum dolor sit amet",
+            image: "/pubs/sample2.png",
         },
         {
             name: "Boracay",
             description: "Lorem ipsum dolor sit amet",
+            image: "/pubs/sample3.png",
         },
         {
             name: "New York",
             description: "Lorem ipsum dolor sit amet",
+            image: "/pubs/sample4.png",
         },
         {
             name: "Seoul",
             description: "Lorem ipsum dolor sit amet",
+            image: "/pubs/sample5.png",
         },
         {
             name: "Tokyo",
             description: "Lorem ipsum dolor sit amet",
+            image: "/pubs/sample6.png",
         },
     ],
 };
@@ -45,14 +52,7 @@ export default function Home() {
                 <Hero />
                 <Search />
             </div>
-            <div id="misc">
-                <p className="text-center">Visit now!</p>
-                <div className="grid grid-cols-2 lg:grid-cols-3 lg:gap-10 gap-5 m-10 place-items-center-safe">
-                    {apiOutput.fly_to.map((destination) => (
-                        <HomepageCard key={destination.name} destination={destination} />
-                    ))}
-                </div>
-            </div>
+            <HomepageCard places={apiOutput.fly_to} />
         </div>
     );
 }
@@ -96,13 +96,35 @@ function Search() {
     );
 }
 
-function HomepageCard({ destination }) {
+function HomepageCard({ places }) {
+    const [selectedPlace, setSelectedPlace] = useState(0);
     return (
-        <div className="bg-white rounded-xl overflow-hidden shadow-md w-full max-w-lg">
-            <div className="lg:aspect-video aspect-square bg-blue-400"></div>
-            <div className="p-6">
-                <p className="lg:text-xl text-lg mb-2">{destination.name}</p>
-                <p className="lg:text-lg text-sm">{destination.description}</p>
+        <div className="relative h-[75vh]">
+            <div className="relative h-full w-full">
+                <button
+                    className="absolute right-0 top-0 flex h-full items-center justify-center px-2 hover:bg-gray-100"
+                    disabled={selectedPlace >= places.length - 1}
+                    onClick={() => {
+                        setSelectedPlace(selectedPlace + 1);
+                        console.log(selectedPlace);
+                    }}>
+                    <span className="rotate-90 transform whitespace-nowrap text-sm">next</span>
+                </button>
+
+                <div style={{ backgroundImage: `url(${places[selectedPlace].image})` }} className="p-6 h-full w-full"></div>
+            </div>
+            <div className="absolute top-0 left-0 h-full w-1/2 bg-linear-to-r from-white from-50% to-transparent">
+                <button
+                    className="absolute left-0 top-0 flex h-full items-center justify-center px-2 hover:bg-gray-100"
+                    disabled={selectedPlace <= 0}
+                    onClick={() => setSelectedPlace(selectedPlace - 1)}>
+                    <span className="rotate-90 transform whitespace-nowrap text-sm">prev</span>
+                </button>
+
+                <div className="p-6">
+                    <h1 className="text-2xl font-bold">{places[selectedPlace].name}</h1>
+                    <p className="mt-2">{places[selectedPlace].description}</p>
+                </div>
             </div>
         </div>
     );
