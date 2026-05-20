@@ -1,22 +1,24 @@
-FROM node:20-alpine AS development-dependencies-env
-COPY . /app
-WORKDIR /app
+FROM node:26-alpine AS development-dependencies-env
+COPY frontend/package.json /app/frontend/
+COPY package.json package-lock.json /app/
+WORKDIR /app/
 RUN npm ci
 
-FROM node:20-alpine AS production-dependencies-env
-COPY ./package.json package-lock.json /app/
-WORKDIR /app
+FROM node:26-alpine AS production-dependencies-env
+COPY frontend/package.json /app/frontend/
+COPY package.json package-lock.json /app/
+WORKDIR /app/
 RUN npm ci --omit=dev
 
-FROM node:20-alpine AS build-env
-COPY . /app/
+FROM node:26-alpine AS build-env
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
-WORKDIR /app
+COPY frontend /app/frontend
+WORKDIR /app/frontend
 RUN npm run build
 
-FROM node:20-alpine
-COPY ./package.json package-lock.json /app/
-COPY --from=production-dependencies-env /app/node_modules /app/node_modules
-COPY --from=build-env /app/build /app/build
-WORKDIR /app
+FROM node:26-alpine AS serve-env
+COPY --from=production-dependencies-env /app /app/
+COPY --from=build-env /app/frontend/server.js /app/frontend/package.json /app/frontend/
+COPY --from=build-env /app/frontend/build /app/frontend/build
+WORKDIR /app/frontend
 CMD ["npm", "run", "start"]

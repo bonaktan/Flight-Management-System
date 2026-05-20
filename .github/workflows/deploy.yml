@@ -1,0 +1,20 @@
+name: SkyBridge Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: bash
+        working-directory: /srv/Flight-Management-System
+    steps:
+    - name: Pull Repository
+      run: git pull
+    - name: Rebuild Everything
+      run: docker compose build
+    - name: Restart Containers
+      run: docker compose up -d
