@@ -18,6 +18,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /tmp
 RUN git clone https://github.com/drogonframework/drogon.git && \
     cd drogon && \
+    git checkout 4c5430757ea5451a7c38fbbef4b4bef7dbb47f2f && \
     git submodule update --init && \
     mkdir build && cd build && \
     cmake -G Ninja \
@@ -50,7 +51,7 @@ RUN cd build && \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
     .. && \
-    ninja && ls -la && pwd
+    ninja
 
 # Runtime stage
 # BUG: its not running the backend, idk why
@@ -58,10 +59,12 @@ FROM debian:bookworm-slim
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y \
-    libjsoncpp25 \
-    uuid-runtime \
-    libssl3 \
-    libpq5 \
+    libjsoncpp-dev \
+    uuid-dev \
+    zlib1g-dev \
+    openssl \ 
+    libssl-dev \
+    libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Drogon libraries

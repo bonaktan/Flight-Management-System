@@ -25,10 +25,10 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50' 
+                    cpus: "0.50"
                     memory: 64M
                 reservations:
-                    cpus: '0.25'
+                    cpus: "0.25"
                     memory: 32M
         restart: always
     nginx:
@@ -54,19 +54,24 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'
+                    cpus: "0.50"
                     memory: 64M
                 reservations:
-                    cpus: '0.25'
+                    cpus: "0.25"
                     memory: 32M
         restart: always
     frontend:
-        build: ./frontend/
+        build:
+            context: ./
+            dockerfile: ./frontend/Dockerfile
         container_name: skybridge_frontend
         expose:
             - "3000"
         networks:
             - frontend_net
+        environment:
+            - HUSKY=0
+
         logging:
             driver: "json-file"
             options:
@@ -76,10 +81,10 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'
+                    cpus: "0.50"
                     memory: 128M
                 reservations:
-                    cpus: '0.25'
+                    cpus: "0.25"
                     memory: 64M
         restart: always
 
@@ -102,17 +107,17 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'
+                    cpus: "0.50"
                     memory: 64M
                 reservations:
-                    cpus: '0.25'
+                    cpus: "0.25"
                     memory: 32M
         restart: always
     database:
         image: postgres:18-alpine
         container_name: skybridge_postgres
-        ports:
-            - 5432:15432
+        expose:
+            - "5432"
         environment:
             - POSTGRES_USER=${DATABASE_USER:-user}
             - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-password}
@@ -130,13 +135,12 @@ services:
         deploy:
             resources:
                 limits:
-                    cpus: '0.50'
+                    cpus: "0.50"
                     memory: 256M
                 reservations:
-                    cpus: '0.25'
+                    cpus: "0.25"
                     memory: 32M
         restart: always
-        
 
 volumes:
     skybridge_postgres_data:
