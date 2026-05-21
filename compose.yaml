@@ -71,6 +71,7 @@ services:
             - frontend_net
         environment:
             - HUSKY=0
+            - VITE_BACKEND_URL=${VITE_BACKEND_URL}
 
         logging:
             driver: "json-file"

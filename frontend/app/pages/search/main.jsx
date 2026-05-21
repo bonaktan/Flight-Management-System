@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 import axios from "axios";
-const apiUrl = "http://localhost:8080";
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 export default function Search() {
     const [apiReturn, setApiReturn] = useState([]);
     useEffect(() => {
