@@ -14,7 +14,8 @@ const apiOutput = {
     fly_to: [
         {
             name: "Manila",
-            description: "Lorem ipsum dolor sit amet",
+            description:
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non enim dignissim leo commodo iaculis vitae eget erat. Nullam dignissim volutpat vestibulum. Quisque dignissim ligula eget velit lacinia tincidunt. Nam blandit diam eget lectus convallis, sit amet tristique lorem tincidunt. Nullam dapibus fringilla laoreet. Vivamus luctus id turpis in rutrum. In at cursus turpis. Cras accumsan, urna non porta rutrum, magna est porta quam, at suscipit enim felis dignissim lorem. Curabitur eu maximus diam. Proin nec mauris pulvinar, egestas augue non, vehicula neque. Maecenas at libero ligula. ",
             image: "/pubs/sample1.png",
         },
         {
@@ -60,8 +61,8 @@ export default function Home() {
 function Hero() {
     return (
         <div className="flex-1 flex flex-col items-center justify-center">
-            <p class="lg:text-5xl text-3xl">SkyBridge Airways</p>
-            <p class="lg:text-3xl text-xl">ang tagline na hindi matino!</p>
+            <p className="lg:text-5xl text-3xl">SkyBridge Airways</p>
+            <p className="lg:text-3xl text-xl">ang tagline na hindi matino!</p>
         </div>
     );
 }
@@ -123,7 +124,7 @@ function HomepageCard({ places }) {
 
                 <div className="p-6">
                     <h1 className="text-2xl font-bold">{places[selectedPlace].name}</h1>
-                    <p className="mt-2">{places[selectedPlace].description}</p>
+                    <p className="mt-2 w-1/2">{places[selectedPlace].description}</p>
                 </div>
             </div>
         </div>
