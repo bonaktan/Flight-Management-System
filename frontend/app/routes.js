@@ -22,11 +22,7 @@ export default [
             route("confirmation", "pages/booking/confirmation.jsx"),
         ]),
 
-        route("search", "pages/search/layout.jsx", [
-            index("pages/search/main.jsx"),
-            route("flight", "pages/search/flightdetails.jsx"),
-            route("details", "pages/search/searchdetails.jsx"),
-        ]),
+        route("search", "pages/search/layout.jsx", [index("pages/search/main.jsx")]),
     ]),
 
     route("/login", "./pages/account/auth/login.jsx"),

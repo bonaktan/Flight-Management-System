@@ -68,17 +68,21 @@ function Hero() {
 }
 
 function Search() {
+    const [selectedMode, setSelectedMode] = useState(0);
     return (
         <div id="searchbar" className="flex flex-col flex-1 align-center justify-center">
             <p className="text-center">Book a Flight</p>
             <div id="route_select" className="flex gap-2 justify-center ">
-                {Object.entries(apiOutput.modes).map(([key, value]) => (
-                    <div key={key} className="border p-2 w-32 text-center">
+                {Object.entries(apiOutput.modes).map(([key, value], i) => (
+                    <div
+                        onClick={() => setSelectedMode(i)}
+                        key={key}
+                        className={`border p-2 w-32 text-center cursor-pointer ${selectedMode == i ? "bg-blue-200" : ""}`}>
                         {value.name}
                     </div>
                 ))}
             </div>
-            <div id="input_fields" className="flex lg:flex-row flex-col gap-4 justify-center m-10 mb-2">
+            <div id="input_fields" className="flex lg:flex-row flex-col gap-4 justify-center mx-10">
                 <div id="places" className="flex lg:flex-row flex-col flex-1 justify-center">
                     <InputField name="Origin" icon="flight_takeoff" />
                     <InputField name="Destination" icon="flight_land" />
@@ -87,11 +91,11 @@ function Search() {
                     <InputField name="Departure Date" icon="calendar_month" />
                     <InputField name="Return Date" icon="calendar_month" />
                 </div>
-            </div>
-            <div className="m-10 mt-1 flex justify-center">
-                <NavLink to="/search" className="border p-2 flex-1 text-center">
-                    Search for Flights
-                </NavLink>
+                <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5">
+                    <NavLink to="/search" className="border p-2 flex-1 text-center align-center w-75">
+                        Search
+                    </NavLink>
+                </div>
             </div>
         </div>
     );
@@ -102,31 +106,29 @@ function HomepageCard({ places }) {
     return (
         <div className="relative h-[75vh]">
             <div className="relative h-full w-full">
-                <button
-                    className="absolute right-0 top-0 flex h-full items-center justify-center px-2 hover:bg-gray-100"
-                    disabled={selectedPlace >= places.length - 1}
-                    onClick={() => {
-                        setSelectedPlace(selectedPlace + 1);
-                        console.log(selectedPlace);
-                    }}>
-                    <span className="rotate-90 transform whitespace-nowrap text-sm">next</span>
-                </button>
-
-                <div style={{ backgroundImage: `url(${places[selectedPlace].image})` }} className="p-6 h-full w-full"></div>
+                <div style={{ backgroundImage: `url(${places[selectedPlace].image})` }} className="p-6 h-full w-full lg:bg-right bg-center"></div>
             </div>
-            <div className="absolute top-0 left-0 h-full w-1/2 bg-linear-to-r from-white from-50% to-transparent">
-                <button
-                    className="absolute left-0 top-0 flex h-full items-center justify-center px-2 hover:bg-gray-100"
-                    disabled={selectedPlace <= 0}
-                    onClick={() => setSelectedPlace(selectedPlace - 1)}>
-                    <span className="rotate-90 transform whitespace-nowrap text-sm">prev</span>
-                </button>
-
+            <div className="absolute top-0 left-0 lg:h-full lg:w-1/2 w-full h-1/2 lg:bg-linear-to-r bg-linear-to-b from-white lg:from-50% from-70% to-transparent">
                 <div className="p-6">
                     <h1 className="text-2xl font-bold">{places[selectedPlace].name}</h1>
-                    <p className="mt-2 w-1/2">{places[selectedPlace].description}</p>
+                    <p className="mt-2 lg:w-1/2 lg:h-auto h-1/2">{places[selectedPlace].description}</p>
                 </div>
             </div>
+            <button
+                className="absolute right-0 top-0 flex h-full items-center justify-center px-2 hover:text-bold hover:text-shadow-md hover:text-shadow-white cursor-pointer"
+                disabled={selectedPlace >= places.length - 1}
+                onClick={() => {
+                    setSelectedPlace(selectedPlace + 1);
+                    console.log(selectedPlace);
+                }}>
+                <span className="rotate-90 transform whitespace-nowrap text-sm">next</span>
+            </button>
+            <button
+                className="absolute left-0 top-0 flex h-full items-center justify-center px-2 hover:text-bold hover:text-shadow-md hover:text-shadow-white cursor-pointer"
+                disabled={selectedPlace <= 0}
+                onClick={() => setSelectedPlace(selectedPlace - 1)}>
+                <span className="rotate-90 transform whitespace-nowrap text-sm">prev</span>
+            </button>
         </div>
     );
 }
