@@ -54,24 +54,28 @@ RUN cd build && \
     ninja
 
 # Runtime stage
-# BUG: its not running the backend, idk why
 FROM debian:bookworm-slim
-
 # Install runtime dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update -q && apt-get install -qy \
     libjsoncpp-dev \
     uuid-dev \
     zlib1g-dev \
-    openssl \ 
+    openssl \
     libssl-dev \
     libpq-dev \
+    jq \
     && rm -rf /var/lib/apt/lists/*
+RUN useradd -s /bin/bash skybridge_backend && mkdir /app && \
+    chmod 744 -R /app && \
+    chown skybridge_backend:skybridge_backend /app 
 
 # Copy Drogon libraries
 COPY --from=builder /usr/local/lib /usr/local/lib
-COPY --from=builder /app/build/SkyBridgeAirways-Backend /app/build/config.json /app/
-RUN ldconfig && mkdir /app/logs
-WORKDIR /app
-EXPOSE 8080
+RUN ldconfig
 
-CMD ["./SkyBridgeAirways-Backend"]
+COPY --from=builder --chown=skybridge_backend:skybridge_backend --chmod=744 /app/build/SkyBridgeAirways-Backend /app/build/config.json /app/run.sh /app/
+USER skybridge_backend
+RUN mkdir -p /app/logs 
+WORKDIR /app
+
+CMD ["./run.sh"]

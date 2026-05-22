@@ -44,7 +44,6 @@ services:
             - frontend
         networks:
             - frontend_net
-            - backend_net
         logging:
             driver: "json-file"
             options:
@@ -97,7 +96,14 @@ services:
         depends_on:
             - database
         networks:
+            - frontend_net
             - backend_net
+        environment:
+            - POSTGRES_USER
+            - POSTGRES_PASSWORD
+            - POSTGRES_DB
+            - POSTGRES_HOST
+            - POSTGRES_PORT
         logging:
             driver: "json-file"
             options:
@@ -119,9 +125,9 @@ services:
         expose:
             - "5432"
         environment:
-            - POSTGRES_USER=${DATABASE_USER:-user}
-            - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-password}
-            - POSTGRES_DB=${DATABASE_DB:-dbname}
+            - POSTGRES_USER
+            - POSTGRES_PASSWORD
+            - POSTGRES_DB
         volumes:
             - skybridge_postgres_data:/var/lib/postgresql
         networks:
