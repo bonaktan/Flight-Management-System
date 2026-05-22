@@ -54,24 +54,26 @@ RUN cd build && \
     ninja
 
 # Runtime stage
-# BUG: its not running the backend, idk why
 FROM debian:bookworm-slim
-
+ARG POSTGRES_HOST POSTGRES_PORT POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DB
 # Install runtime dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update -q && apt-get install -qy \
     libjsoncpp-dev \
     uuid-dev \
     zlib1g-dev \
     openssl \ 
     libssl-dev \
     libpq-dev \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Drogon libraries
 COPY --from=builder /usr/local/lib /usr/local/lib
+RUN ldconfig && mkdir -p /app/logs
 COPY --from=builder /app/build/SkyBridgeAirways-Backend /app/build/config.json /app/
-RUN ldconfig && mkdir /app/logs
+RUN jq '.db_clients[0] |= (.host = env.POSTGRES_HOST | .port = (env.POSTGRES_PORT | tonumber) | .passwd = env.POSTGRES_PASSWORD | .dbname = env.POSTGRES_DB | .user = env.POSTGRES_USER)' \
+  /app/config.json > /app/config.tmp && mv /app/config.tmp /app/config.json && cat /app/config.json && jq -n '$ENV'
+
 WORKDIR /app
-EXPOSE 8080
 
 CMD ["./SkyBridgeAirways-Backend"]
