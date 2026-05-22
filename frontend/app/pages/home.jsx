@@ -16,32 +16,32 @@ const apiOutput = {
             name: "Manila",
             description:
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non enim dignissim leo commodo iaculis vitae eget erat. Nullam dignissim volutpat vestibulum. Quisque dignissim ligula eget velit lacinia tincidunt. Nam blandit diam eget lectus convallis, sit amet tristique lorem tincidunt. Nullam dapibus fringilla laoreet. Vivamus luctus id turpis in rutrum. In at cursus turpis. Cras accumsan, urna non porta rutrum, magna est porta quam, at suscipit enim felis dignissim lorem. Curabitur eu maximus diam. Proin nec mauris pulvinar, egestas augue non, vehicula neque. Maecenas at libero ligula. ",
-            image: "/pubs/sample1.png",
+            image: "/pubs/manila.jpg",
         },
         {
             name: "Cebu",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/sample2.png",
+            image: "/pubs/cebu.jpg",
         },
         {
             name: "Boracay",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/sample3.png",
+            image: "/pubs/boracay.jpg",
         },
         {
             name: "New York",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/sample4.png",
+            image: "/pubs/new york.jpg",
         },
         {
             name: "Seoul",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/sample5.png",
+            image: "/pubs/seoul.jpg",
         },
         {
             name: "Tokyo",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/sample6.png",
+            image: "/pubs/tokyo.jpg",
         },
     ],
 };
