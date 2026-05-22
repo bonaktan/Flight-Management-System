@@ -60,7 +60,7 @@ RUN apt-get update -q && apt-get install -qy \
     libjsoncpp-dev \
     uuid-dev \
     zlib1g-dev \
-    openssl \ 
+    openssl \
     libssl-dev \
     libpq-dev \
     jq \
