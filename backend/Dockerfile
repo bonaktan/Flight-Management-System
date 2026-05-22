@@ -55,7 +55,6 @@ RUN cd build && \
 
 # Runtime stage
 FROM debian:bookworm-slim
-ARG POSTGRES_HOST POSTGRES_PORT POSTGRES_USER POSTGRES_PASSWORD POSTGRES_DB
 # Install runtime dependencies
 RUN apt-get update -q && apt-get install -qy \
     libjsoncpp-dev \
@@ -66,14 +65,17 @@ RUN apt-get update -q && apt-get install -qy \
     libpq-dev \
     jq \
     && rm -rf /var/lib/apt/lists/*
+RUN useradd -s /bin/bash skybridge_backend && mkdir /app && \
+    chmod 744 -R /app && \
+    chown skybridge_backend:skybridge_backend /app 
 
 # Copy Drogon libraries
 COPY --from=builder /usr/local/lib /usr/local/lib
-RUN ldconfig && mkdir -p /app/logs
-COPY --from=builder /app/build/SkyBridgeAirways-Backend /app/build/config.json /app/
-RUN jq '.db_clients[0] |= (.host = env.POSTGRES_HOST | .port = (env.POSTGRES_PORT | tonumber) | .passwd = env.POSTGRES_PASSWORD | .dbname = env.POSTGRES_DB | .user = env.POSTGRES_USER)' \
-  /app/config.json > /app/config.tmp && mv /app/config.tmp /app/config.json && cat /app/config.json && jq -n '$ENV'
+RUN ldconfig
 
+COPY --from=builder --chown=skybridge_backend:skybridge_backend --chmod=744 /app/build/SkyBridgeAirways-Backend /app/build/config.json /app/run.sh /app/
+USER skybridge_backend
+RUN mkdir -p /app/logs 
 WORKDIR /app
 
-CMD ["./SkyBridgeAirways-Backend"]
+CMD ["./run.sh"]
