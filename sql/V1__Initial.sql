@@ -1,5 +1,3 @@
-START TRANSACTION;
-
 -- Core entities
 CREATE TABLE account (
     id BIGSERIAL PRIMARY KEY,
@@ -19,7 +17,7 @@ CREATE TABLE airport (
 CREATE TABLE staff (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
-    current_location TEXT NOT NULL,
+    current_location TEXT NOT NULL REFERENCES airport(id),
     role TEXT NOT NULL,
     schedule JSONB,
     created_at TIMESTAMPTZ DEFAULT NOW()
@@ -42,7 +40,7 @@ CREATE TABLE flight (
     id TEXT NOT NULL PRIMARY KEY,
     departure_airport_id TEXT NOT NULL REFERENCES airport(id),
     arrival_airport_id TEXT NOT NULL REFERENCES airport(id),
-    base_ticket_price NUMERIC(10, 2) NOT NULL,
+    base_ticket_price NUMERIC(10, 2) NOT NULL CHECK (base_ticket_price >= 0),
     flight_time INTERVAL NOT NULL,
     departure TIMESTAMPTZ NOT NULL,
     frequency INTERVAL NOT NULL,
@@ -58,7 +56,7 @@ CREATE TABLE seat_class (
     id BIGSERIAL PRIMARY KEY,
     class_name TEXT NOT NULL,
     amt_of_seats INTEGER NOT NULL CHECK (amt_of_seats > 0),
-    markup_price NUMERIC(10, 2) NOT NULL,
+    markup_price NUMERIC(10, 2) NOT NULL CHECK (markup_price >= 0),
     airplane_id TEXT NOT NULL REFERENCES airplane(id),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -74,10 +72,10 @@ CREATE TABLE booking (
     passenger_id BIGINT NOT NULL REFERENCES passenger(id),
     flight_id TEXT NOT NULL REFERENCES flight(id),
     account_id BIGINT REFERENCES account(id),
-    calculated_price NUMERIC(10, 2) NOT NULL,
+    calculated_price NUMERIC(10, 2) NOT NULL CHECK (calculated_price >= 0),
     payment_option TEXT NOT NULL,
     payment_detail JSONB NOT NULL,
-    booking_status TEXT DEFAULT 'pending',
+    booking_status TEXT DEFAULT 'pending' CHECK (booking_status IN ('pending', 'confirmed', 'cancelled')),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -95,5 +93,3 @@ CREATE INDEX idx_bookings_flight ON booking(flight_id);
 CREATE INDEX idx_flight_departure ON flight(departure_airport_id);
 CREATE INDEX idx_flight_arrival ON flight(arrival_airport_id);
 CREATE INDEX idx_flight_date ON flight(departure);
-
-COMMIT
