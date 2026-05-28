@@ -2,7 +2,7 @@ networks:
     frontend_net:
         driver: bridge
     backend_net:
-        driver: bridge
+        driver: internal
 
 services:
     # --- Frontend Services ---
@@ -124,10 +124,16 @@ services:
         container_name: skybridge_postgres
         expose:
             - "5432"
+        ports:
+            - ${DATABASE_PORT:-5432}:5432
         environment:
-            - POSTGRES_USER
-            - POSTGRES_PASSWORD
-            - POSTGRES_DB
+            - POSTGRES_USER=${DATABASE_USER:-skybridge}
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-skybridge}
+            - POSTGRES_DB=${DATABASE_DB:-skybridge}
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-skybridge} -d ${DATABASE_DB:-skybridge}"]
+            interval: 5s
+            retries: 5
         volumes:
             - skybridge_postgres_data:/var/lib/postgresql
         networks:
@@ -147,7 +153,23 @@ services:
                     cpus: "0.25"
                     memory: 32M
         restart: always
-
+    
+    db_migration:
+        image: flyway/flyway:10
+        container_name: skybridge_db-migration
+        command: migrate -X
+        volumes:
+        - ./sql:/flyway/sql
+        environment:
+            FLYWAY_URL: jdbc:postgresql://database:5432/${DATABASE_DB:-skybridge}
+            FLYWAY_USER: ${DATABASE_USER:-skybridge}
+            FLYWAY_PASSWORD: ${DATABASE_PASSWORD:-skybridge}
+            FLYWAY_BASELINE_ON_MIGRATE: true
+        depends_on:
+            database:
+                condition: service_healthy
+        networks:
+            - backend_net
 volumes:
     skybridge_postgres_data:
     skybridge_nginx_logs:
