@@ -34,7 +34,7 @@ CREATE TABLE passenger (
     contact_email TEXT NOT NULL,
     emergency_contact_name TEXT NOT NULL,
     emergency_contact_email TEXT NOT NULL,
-    associated_to BIGSERIAL NOT NULL REFERENCES account(id),
+    associated_to BIGINT NOT NULL REFERENCES account(id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -44,7 +44,7 @@ CREATE TABLE flight (
     arrival_airport_id TEXT NOT NULL REFERENCES airport(id),
     base_ticket_price NUMERIC(10, 2) NOT NULL,
     flight_time INTERVAL NOT NULL,
-    departure TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    departure TIMESTAMPTZ NOT NULL,
     frequency INTERVAL NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     CHECK (departure_airport_id != arrival_airport_id)
