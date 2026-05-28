@@ -2,7 +2,7 @@ networks:
     frontend_net:
         driver: bridge
     backend_net:
-        driver: internal
+        driver: bridge
 
 services:
     # --- Frontend Services ---
@@ -153,13 +153,13 @@ services:
                     cpus: "0.25"
                     memory: 32M
         restart: always
-    
+
     db_migration:
         image: flyway/flyway:10
         container_name: skybridge_db-migration
         command: migrate -X
         volumes:
-        - ./sql:/flyway/sql
+            - ./sql:/flyway/sql
         environment:
             FLYWAY_URL: jdbc:postgresql://database:5432/${DATABASE_DB:-skybridge}
             FLYWAY_USER: ${DATABASE_USER:-skybridge}
