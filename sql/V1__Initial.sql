@@ -1,4 +1,5 @@
 START TRANSACTION;
+
 -- Core entities
 CREATE TABLE account (
     id BIGSERIAL PRIMARY KEY,
@@ -43,7 +44,7 @@ CREATE TABLE flight (
     arrival_airport_id TEXT NOT NULL REFERENCES airport(id),
     base_ticket_price NUMERIC(10, 2) NOT NULL,
     flight_time INTERVAL NOT NULL,
-    departure TINESTAMP WITHOUT TIME ZONE NOT NULL,
+    departure TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     frequency INTERVAL NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     CHECK (departure_airport_id != arrival_airport_id)
@@ -51,16 +52,17 @@ CREATE TABLE flight (
 CREATE TABLE airplane (
     id TEXT NOT NULL PRIMARY KEY,
     model TEXT NOT NULL,
-    location TEXT REFERENCES airport(id),
+    location TEXT REFERENCES airport(id)
 );
 CREATE TABLE seat_class (
     id BIGSERIAL PRIMARY KEY,
     class_name TEXT NOT NULL,
     amt_of_seats INTEGER NOT NULL CHECK (amt_of_seats > 0),
     markup_price NUMERIC(10, 2) NOT NULL,
-    airplane_id TEXT NOT NULL REFERENCES airplane(id);
+    airplane_id TEXT NOT NULL REFERENCES airplane(id),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
 -- Junction tables
 CREATE TABLE flight_staff (
     flight_id TEXT REFERENCES flight(id) ON DELETE CASCADE,
@@ -85,12 +87,13 @@ CREATE TABLE airport_flight (
     relationship_type TEXT NOT NULL,
     PRIMARY KEY (airport_id, flight_id, relationship_type)
 );
+
 -- Indexes
 CREATE INDEX idx_passengers_email ON passenger(contact_email);
 CREATE INDEX idx_bookings_passenger ON booking(passenger_id);
 CREATE INDEX idx_bookings_flight ON booking(flight_id);
 CREATE INDEX idx_flight_departure ON flight(departure_airport_id);
 CREATE INDEX idx_flight_arrival ON flight(arrival_airport_id);
-CREATE INDEX idx_flight_date ON flight(departure_date);
+CREATE INDEX idx_flight_date ON flight(departure);
 
 COMMIT

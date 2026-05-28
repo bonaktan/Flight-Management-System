@@ -125,10 +125,16 @@ services:
         container_name: skybridge_postgres
         expose:
             - "5432"
+        ports:
+            - 5432:${DATABASE_PORT:-5432}
         environment:
-            - POSTGRES_USER
-            - POSTGRES_PASSWORD
-            - POSTGRES_DB
+            - POSTGRES_USER=${DATABASE_USER:-user}
+            - POSTGRES_PASSWORD=${DATABASE_PASSWORD:-password}
+            - POSTGRES_DB=${DATABASE_DB:-dbname}
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USER:-user} -d ${DATABASE_DB:-dbname}"]
+            interval: 5s
+            retries: 5
         volumes:
             - skybridge_postgres_data:/var/lib/postgresql
         networks:
@@ -148,7 +154,23 @@ services:
                     cpus: "0.25"
                     memory: 32M
         restart: always
-
+    
+    db_migration:
+        image: flyway/flyway:10
+        container_name: skybridge_db-migration
+        command: migrate -X
+        volumes:
+        - ./sql:/flyway/sql   # <-- point to your schema folder
+        environment:
+            FLYWAY_URL: jdbc:postgresql://database:${DATABASE_PORT:-5432}/${DATABASE_DB:-skybridge}
+            FLYWAY_USER: ${DATABASE_USER:-skybridge}
+            FLYWAY_PASSWORD: ${DATABASE_PASSWORD:-skybridge}
+            FLYWAY_BASELINE_ON_MIGRATE: true   # safe for existing DBs
+        depends_on:
+            database:
+                condition: service_healthy
+        networks:
+            - backend_net
 volumes:
     skybridge_postgres_data:
     skybridge_nginx_logs:
