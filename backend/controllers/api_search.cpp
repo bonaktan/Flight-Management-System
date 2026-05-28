@@ -26,6 +26,7 @@ void search::flights(const HttpRequestPtr& req,
         [callback](const drogon::orm::DrogonDbException& e) {
             Json::Value jsonResponse;
             jsonResponse["databaseError"] = true;
+            LOG_ERROR << e.base().what();
             HttpResponsePtr resp =
                 HttpResponse::newHttpJsonResponse(jsonResponse);
             resp->setStatusCode(k500InternalServerError);

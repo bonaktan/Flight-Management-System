@@ -1,6 +1,9 @@
+// responsibiltity: fetching flight data from backend and displaying it in a list of cards
+
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router";
 import axios from "axios";
+import { OverlayBase, OverlayModal, OverlaySidebar } from "../../components/overlay";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 export default function Search() {
     const [apiReturn, setApiReturn] = useState([]);
