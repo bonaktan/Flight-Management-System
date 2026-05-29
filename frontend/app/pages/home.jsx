@@ -1,6 +1,9 @@
 import { NavLink } from "react-router";
 import InputField from "../components/input";
 import { useState } from "react";
+import SelectionField from "../components/selection";
+import hero from "../../public/hero.jpg";
+import "./stylesheets/home.css";
 
 const apiOutput = {
     modes: {
@@ -49,7 +52,8 @@ const apiOutput = {
 export default function Home() {
     return (
         <div>
-            <div id="hero" className="h-[75dvh] flex flex-col">
+            <div id="hero" className={`h-[75dvh] flex flex-col`}>
+                {/* <div className="w-full h-full bg-wine-core opacity-60 absolute z-2"/> */}
                 <Hero />
                 <Search />
             </div>
@@ -58,11 +62,13 @@ export default function Home() {
     );
 }
 
+// Photo by <a href="https://unsplash.com/@brokk?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">alexey starki</a> on <a href="https://unsplash.com/photos/white-airplane-under-blue-sky-during-daytime-91ykdj2WQeg?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
+
 function Hero() {
     return (
-        <div className="flex-1 flex flex-col items-center justify-center">
-            <p className="lg:text-5xl text-3xl">SkyBridge Airways</p>
-            <p className="lg:text-3xl text-xl">ang tagline na hindi matino!</p>
+        <div className="flex-1 flex flex-col items-center justify-center text-wine-tint z-4">
+            <p className="lg:text-5xl text-3xl tracking-wider">SkyBridge Airways</p>
+            <p className="lg:text-3xl text-xl">Bridging the skies.</p>
         </div>
     );
 }
@@ -70,26 +76,36 @@ function Hero() {
 function Search() {
     const [selectedMode, setSelectedMode] = useState(0);
     return (
-        <div id="searchbar" className="flex flex-col flex-1 align-center justify-center">
-            <p className="text-center">Book a Flight</p>
-            <div id="route_select" className="flex gap-2 justify-center ">
-                {Object.entries(apiOutput.modes).map(([key, value], i) => (
-                    <div
-                        onClick={() => setSelectedMode(i)}
-                        key={key}
-                        className={`border p-2 w-32 text-center cursor-pointer ${selectedMode == i ? "bg-blue-200" : ""}`}>
-                        {value.name}
-                    </div>
-                ))}
-            </div>
-            <div id="input_fields" className="flex lg:flex-row flex-col gap-4 justify-center mx-10">
-                <div id="places" className="flex lg:flex-row flex-col flex-1 justify-center">
-                    <InputField name="Origin" icon="flight_takeoff" />
-                    <InputField name="Destination" icon="flight_land" />
+        <div id="searchbar" className="flex justify-center items-center flex-col gap-2 mx-2 mb-2 z-4">
+            <p className="font-medium text-4xl text-wine-tint">Book a Flight</p>
+            <div className="flex gap-2 shadow-md border w-9/12 flex-col bg-wine-tint border-gray-200 rounded-md p-2">
+                <div id="route_select" className="rounded-sm flex h-10 justify-center align-center border">
+                    {Object.entries(apiOutput.modes).map(([key, value], i) => (
+                        <button
+                            onClick={() => setSelectedMode(i)}
+                            key={key}
+                            className={`transition flex justify-center items-center w-32 text-center cursor-pointer ${selectedMode == i ? "bg-wine-deep text-wine-tint" : ""}`}>
+                            {value.name}
+                        </button>
+                    ))}
                 </div>
-                <div id="dates" className="flex lg:flex-row flex-col flex-1 justify-center">
-                    <InputField name="Departure Date" icon="calendar_month" />
-                    <InputField name="Return Date" icon="calendar_month" />
+                <div id="input_fields" className="flex w-full gap-1 lg:flex-row flex-col justify-center">
+                    <div id="places" className="flex w-full gap-1 lg:flex-rowflex-col">
+                        <SelectionField name="Origin">
+                            <option value="" disabled selected>
+                                -Select Origin-
+                            </option>
+                        </SelectionField>
+                        <SelectionField name="Destination">
+                            <option value="" disabled selected>
+                                -Selection Destination-
+                            </option>
+                        </SelectionField>
+                    </div>
+                    <div id="dates" className="flex w-full gap-1 lg:flex-row flex-col justify-center">
+                        <InputField type="date" name="Departure Date" />
+                        <InputField type="date" name="Return Date" />
+                    </div>
                 </div>
                 <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5">
                     <NavLink to="/search" className="border p-2 flex-1 text-center align-center w-75">
@@ -108,8 +124,8 @@ function HomepageCard({ places }) {
             <div className="relative h-full w-full">
                 <div style={{ backgroundImage: `url(${places[selectedPlace].image})` }} className="p-6 h-full w-full lg:bg-right bg-center"></div>
             </div>
-            <div className="absolute top-0 left-0 lg:h-full lg:w-1/2 w-full h-1/2 lg:bg-linear-to-r bg-linear-to-b from-white lg:from-50% from-70% to-transparent">
-                <div className="p-6">
+            <div className="absolute top-0 left-0 lg:h-full lg:w-full w-full h-1/2 lg:bg-linear-to-r bg-linear-to-b from-wine-tint lg:from-30% from-70% to-transparent">
+                <div className="ml-10 p-6 text-wine-core">
                     <h1 className="text-2xl font-bold">{places[selectedPlace].name}</h1>
                     <p className="mt-2 lg:w-1/2 lg:h-auto h-1/2">{places[selectedPlace].description}</p>
                 </div>

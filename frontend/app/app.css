@@ -6,8 +6,33 @@
 @theme {
     --font-poppins: "Poppins", sans-serif;
     --font-material: "Material", sans-serif;
+    --color-navy-core: #08415c;
+    --color-navy-deep: #042c42;
+    --color-navy-tint: #c8dde8;
+    --color-wine-core: #9b2335;
+    --color-wine-deep: #6b1523;
+    --color-wine-tint: #f2d4d8;
+    --color-dusk-slate: #4a6572;
+    --color-dusk-amber: #e8a87c;
+    --color-dusk-canvas: #eee5e9;
+}
+
+:root {
+    --navy-core: #08415c;
+    --navy-deep: #042c42;
+    --navy-tint: #c8dde8;
+    --wine-core: #9b2335;
+    --wine-deep: #6b1523;
+    --wine-tint: #f2d4d8;
+    --dusk-slate: #4a6572;
+    --dusk-amber: #e8a87c;
+    --dusk-canvas: #eee5e9;
 }
 
 body {
     @apply font-poppins lg:text-lg text-base flex flex-col min-h-screen;
+}
+
+.transition {
+    transition: all 0.5s cubic-bezier(0.75, 0, 0.25, 1);
 }

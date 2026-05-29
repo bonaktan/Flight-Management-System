@@ -1,0 +1,13 @@
+#hero {
+    background-color: var(--color-wine-core);
+}
+#hero::after {
+    content: "";
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 0;
+    background-position: center;
+    background-size: cover;
+    mix-blend-mode: luminosity;
+}

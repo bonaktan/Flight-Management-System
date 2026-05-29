@@ -1,10 +1,10 @@
 export default function InputField({ name, icon, ...props }) {
     return (
         <div className="flex flex-col w-full">
-            <label className="text-base">{name}</label>
-            <div className="flex-1 h-10 p-1 border flex gap-1 items-center">
+            <label className="">{name}</label>
+            <div className="h-10 p-1 border flex gap-1 items-center rounded-sm w-full">
                 <p className="material-symbols-outlined select-none">{icon}</p>
-                <input className="flex-1 focus:outline-none" {...props} />
+                <input className="w-full focus:outline-none" {...props} />
             </div>
         </div>
     );
