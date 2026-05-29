@@ -23,8 +23,9 @@ aux_source_directory(controllers CTL_SRC)
 aux_source_directory(filters FILTER_SRC)
 aux_source_directory(plugins PLUGIN_SRC)
 aux_source_directory(models MODEL_SRC)
-
-add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} ${MODEL_SRC})
+aux_source_directory(utils UTILS_SRC)
+aux_source_directory(schema SCHEMA_SRC)
+add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} ${MODEL_SRC} ${UTILS_SRC} ${SCHEMA_SRC})
 
 # ##############################################################################
 # If you include the drogon source code locally in your project, use this method
@@ -36,6 +37,27 @@ add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} $
 find_package(Drogon CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
 
+include(FetchContent)
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+FetchContent_MakeAvailable(json)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  valijson
+  GIT_REPOSITORY https://github.com/tristanpenman/valijson.git
+  GIT_TAG v1.0.6
+  GIT_SHALLOW TRUE
+  GIT_SUBMODULES ""
+)
+
+set(valijson_BUILD_TESTS OFF CACHE BOOL "Don't build valijson tests" FORCE)
+set(valijson_BUILD_EXAMPLES OFF CACHE BOOL "Don't build valijson examples" FORCE)
+
+FetchContent_MakeAvailable(valijson)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ValiJSON::valijson)
 # ##############################################################################
 
 if (CMAKE_CXX_STANDARD LESS 17)
@@ -58,7 +80,9 @@ target_sources(${PROJECT_NAME}
                ${CTL_SRC}
                ${FILTER_SRC}
                ${PLUGIN_SRC}
-               ${MODEL_SRC})
+               ${MODEL_SRC}
+               ${SCHEMA_SRC}
+               ${UTILS_SRC})
 
 add_subdirectory(test)
 
