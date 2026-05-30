@@ -42,3 +42,7 @@ drogon::HttpResponsePtr Utils::error(const std::string& message,
     resp->setStatusCode(statusCode);
     return resp;
 }
+
+bool Utils::is_valid_input(const std::string& input, const std::regex& pattern) {
+    return std::regex_match(input, pattern);
+}

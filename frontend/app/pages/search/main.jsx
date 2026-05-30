@@ -1,30 +1,28 @@
 // responsibiltity: fetching flight data from backend and displaying it in a list of cards
 
 import { useEffect, useState, use } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useLoaderData } from "react-router";
 import axios from "axios";
 import { SearchParametersContext } from "./searchContext";
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export default function Search() {
-    const [apiReturn, setApiReturn] = useState(null);
     const searchParams = use(SearchParametersContext);
     // todo: passengers are not yet handled
-    useEffect(() => {
-        axios
-            .post(`${apiUrl}/api/search/flights`, {
-                origin: searchParams.get("origin"),
-                destination: searchParams.get("destination"),
-                departure_date: searchParams.get("departure_date"),
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                passengers: 1,
-            })
-            .then((ret) => {
-                setApiReturn(ret.data);
-                console.log(ret);
-            });
-    }, [searchParams]);
-    return <>{apiReturn ? apiReturn.map((flight) => <FlightCard key={flight.id} flight={flight} />) : <p>No Flights are found.</p>}</>;
+
+    if (searchParams.loading) {
+        return <p>Loading...</p>;
+    }
+    return (
+        <>
+            {searchParams.apiReturn ? (
+                searchParams.apiReturn.map((flight) => <FlightCard key={flight.id} flight={flight} />)
+            ) : searchParams.apiError ? (
+                <p>Error occurred while fetching flight data. Error: {searchParams.apiError.error}</p>
+            ) : (
+                <p>No Flights are found.</p>
+            )}
+        </>
+    );
 }
 
 function FlightCard({ flight }) {
@@ -50,7 +48,6 @@ function FlightCard({ flight }) {
                     <p>Base Price: {flight.base_ticket_price} PHP</p>
                     <p>Departure Time: {flight.departure}</p>
                     <p>Flight Time: {flight.flight_time}</p>
-                    <p>Frequency: {flight.frequency} (supposed to be used for calculations) </p>
                 </div>
             ) : (
                 <></>
