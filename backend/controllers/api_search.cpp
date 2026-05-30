@@ -15,7 +15,7 @@ void search::flights(const HttpRequestPtr& req,
                 rowResult["id"] = row["id"].as<std::string>();
                 rowResult["departure_airport_id"] = row["departure_airport_id"].as<std::string>();
                 rowResult["arrival_airport_id"] = row["arrival_airport_id"].as<std::string>();
-                rowResult["base_ticket_price"] = row["base_ticket_price"].as<float>();
+                rowResult["base_ticket_price"] = row["base_ticket_price"].as<double>();
                 rowResult["flight_time"] = row["flight_time"].as<std::string>();
                 rowResult["departure"] = row["departure"].as<std::string>();
                 rowResult["frequency"] = row["frequency"].as<std::string>();
