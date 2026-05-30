@@ -1,8 +1,12 @@
-export default function SelectionField({ name, children }) {
+import "./stylesheets/selection.css";
+
+export default function SelectionField({ name, children, selDesign, labDesign }) {
     return (
         <div className="w-full">
-            <label>{name}</label>
-            <select className="h-10 border rounded-sm w-full">{children}</select>
+            <label className={labDesign}>{name}</label>
+            <select id="" className={`h-10 border border-black rounded-sm w-full ${selDesign}`}>
+                {children}
+            </select>
         </div>
     );
 }

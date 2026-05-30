@@ -1,5 +1,5 @@
 #hero {
-    background-color: var(--color-wine-core);
+    background-color: var(--color-blaze-core);
 }
 #hero::after {
     content: "";

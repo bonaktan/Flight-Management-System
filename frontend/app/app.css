@@ -15,6 +15,16 @@
     --color-dusk-slate: #4a6572;
     --color-dusk-amber: #e8a87c;
     --color-dusk-canvas: #eee5e9;
+
+    --color-blaze-core: #e8621a;
+    --color-blaze-deep: #c94e0a;
+    --color-blaze-tint: #ffe8d6;
+    --color-altitude-ink: #1b2b3a;
+    --color-altitude-mid: #5b7a8e;
+    --color-altitude-haze: #8fbcd4;
+    --color-cloud-warm: #fff8f4;
+    --color-cloud-blush: #f0ddd5;
+    --color-cloud-pop: #d63a6a;
 }
 
 :root {
