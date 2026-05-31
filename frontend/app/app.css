@@ -1,1 +1,48 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined");
+
 @import "tailwindcss";
+
+@theme {
+    --font-poppins: "Poppins", sans-serif;
+    --font-material: "Material", sans-serif;
+    --color-navy-core: #08415c;
+    --color-navy-deep: #042c42;
+    --color-navy-tint: #c8dde8;
+    --color-wine-core: #9b2335;
+    --color-wine-deep: #6b1523;
+    --color-wine-tint: #f2d4d8;
+    --color-dusk-slate: #4a6572;
+    --color-dusk-amber: #e8a87c;
+    --color-dusk-canvas: #eee5e9;
+
+    --color-blaze-core: #e8621a;
+    --color-blaze-deep: #c94e0a;
+    --color-blaze-tint: #ffe8d6;
+    --color-altitude-ink: #1b2b3a;
+    --color-altitude-mid: #5b7a8e;
+    --color-altitude-haze: #8fbcd4;
+    --color-cloud-warm: #fff8f4;
+    --color-cloud-blush: #f0ddd5;
+    --color-cloud-pop: #d63a6a;
+}
+
+:root {
+    --navy-core: #08415c;
+    --navy-deep: #042c42;
+    --navy-tint: #c8dde8;
+    --wine-core: #9b2335;
+    --wine-deep: #6b1523;
+    --wine-tint: #f2d4d8;
+    --dusk-slate: #4a6572;
+    --dusk-amber: #e8a87c;
+    --dusk-canvas: #eee5e9;
+}
+
+body {
+    @apply font-poppins lg:text-lg text-base flex flex-col min-h-screen;
+}
+
+.transition {
+    transition: all 0.5s cubic-bezier(0.75, 0, 0.25, 1);
+}
