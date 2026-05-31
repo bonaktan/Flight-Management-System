@@ -1,21 +1,40 @@
+import { createRequestHandler } from "@react-router/express";
 import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import crypto from "crypto";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(express.static("build/client"));
 
-// Serve static files from the React build directory
-app.use(express.static(path.join(__dirname, "build", "client")));
+app.use((req, res, next) => {
+    res.locals.cspNonce = crypto.randomBytes(16).toString("base64");
 
-// Handle React routing - return index.html for all routes
-app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "build", "client", "index.html"));
+    res.setHeader(
+        "Content-Security-Policy",
+        [
+            "default-src 'self'",
+            `script-src 'self' 'nonce-${res.locals.cspNonce}'`,
+            `style-src 'self' https://fonts.googleapis.com 'nonce-${res.locals.cspNonce}'`,
+            "img-src 'self' data: https:",
+            "font-src 'self' https://fonts.gstatic.com",
+            "connect-src 'self'",
+            "frame-ancestors 'self'",
+        ].join("; "),
+    );
+
+    next();
 });
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.use(
+    createRequestHandler({
+        build: await import("./build/server/index.js"),
+        getLoadContext(req, res) {
+            return {
+                cspNonce: res.locals.cspNonce,
+            };
+        },
+    }),
+);
+
+app.listen(3000, () => {
+    console.log("App listening on http://localhost:3000");
 });

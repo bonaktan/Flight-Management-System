@@ -1,8 +1,12 @@
 import { Meta, Outlet, Scripts, ScrollRestoration, Links } from "react-router";
-
 import "./app.css";
 
-export function Layout({ children }) {
+export async function loader({ context }) {
+    return { cspNonce: context.cspNonce };
+}
+
+export default function Root({ loaderData }) {
+    const { cspNonce } = loaderData;
     return (
         <html lang="en">
             <head>
@@ -12,14 +16,10 @@ export function Layout({ children }) {
                 <Links />
             </head>
             <body>
-                {children}
-                <ScrollRestoration />
-                <Scripts />
+                <Outlet />
+                <ScrollRestoration nonce={cspNonce} />
+                <Scripts nonce={cspNonce} />
             </body>
         </html>
     );
-}
-
-export default function App() {
-    return <Outlet />;
 }

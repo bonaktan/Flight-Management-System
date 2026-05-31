@@ -4,6 +4,12 @@ import { useState } from "react";
 import SelectionField from "../components/selection";
 import hero from "../../public/hero.jpg";
 import "./stylesheets/home.css";
+import manila from "../assets/pubs/manila.jpg";
+import cebu from "../assets/pubs/cebu.jpg";
+import boracay from "../assets/pubs/boracay.jpg";
+import newYork from "../assets/pubs/new york.jpg";
+import seoul from "../assets/pubs/seoul.jpg";
+import tokyo from "../assets/pubs/tokyo.jpg";
 
 const apiOutput = {
     modes: {
@@ -17,34 +23,33 @@ const apiOutput = {
     fly_to: [
         {
             name: "Manila",
-            description:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non enim dignissim leo commodo iaculis vitae eget erat. Nullam dignissim volutpat vestibulum. Quisque dignissim ligula eget velit lacinia tincidunt. Nam blandit diam eget lectus convallis, sit amet tristique lorem tincidunt. Nullam dapibus fringilla laoreet. Vivamus luctus id turpis in rutrum. In at cursus turpis. Cras accumsan, urna non porta rutrum, magna est porta quam, at suscipit enim felis dignissim lorem. Curabitur eu maximus diam. Proin nec mauris pulvinar, egestas augue non, vehicula neque. Maecenas at libero ligula. ",
-            image: "/pubs/manila.jpg",
+            description: "Lorem ipsum dolor sit amet.",
+            image: manila,
         },
         {
             name: "Cebu",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/cebu.jpg",
+            image: cebu,
         },
         {
             name: "Boracay",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/boracay.jpg",
+            image: boracay,
         },
         {
             name: "New York",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/new york.jpg",
+            image: newYork,
         },
         {
             name: "Seoul",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/seoul.jpg",
+            image: seoul,
         },
         {
             name: "Tokyo",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/tokyo.jpg",
+            image: tokyo,
         },
     ],
 };
@@ -122,7 +127,7 @@ function HomepageCard({ places }) {
     return (
         <div className="relative h-[75vh]">
             <div className="relative h-full w-full">
-                <div style={{ backgroundImage: `url(${places[selectedPlace].image})` }} className="p-6 h-full w-full lg:bg-right bg-center"></div>
+                <img src={places[selectedPlace].image} alt={places[selectedPlace].name} className="h-full w-full lg:bg-right bg-center"></img>
             </div>
             <div className="absolute top-0 left-0 lg:h-full lg:w-full w-full h-1/2 lg:bg-linear-to-r bg-linear-to-b from-cloud-warm lg:from-30% from-80% to-transparent">
                 <div className="ml-10 p-6">

@@ -1,3 +1,5 @@
+ARG VITE_BACKEND_URL
+
 FROM node:26-alpine AS development-dependencies-env
 COPY frontend/package.json /app/frontend/
 COPY package.json package-lock.json /app/
@@ -11,6 +13,7 @@ WORKDIR /app/
 RUN npm ci --omit=dev
 
 FROM node:26-alpine AS build-env
+ENV VITE_BACKEND_URL=${VITE_BACKEND_URL}
 COPY --from=development-dependencies-env /app/node_modules /app/node_modules
 COPY frontend /app/frontend
 WORKDIR /app/frontend
