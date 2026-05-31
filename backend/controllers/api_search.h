@@ -18,6 +18,6 @@ class search : public drogon::HttpController<search> {
                  std::function<void(const HttpResponsePtr&)>&& callback);
 
    private:
-    const valijson::Schema& flightSchema();
+    const valijson::Schema& flight_schema();
 };
 }  // namespace api

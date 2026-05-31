@@ -25,7 +25,8 @@ aux_source_directory(plugins PLUGIN_SRC)
 aux_source_directory(models MODEL_SRC)
 aux_source_directory(utils UTILS_SRC)
 aux_source_directory(schema SCHEMA_SRC)
-add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} ${MODEL_SRC} ${UTILS_SRC} ${SCHEMA_SRC})
+aux_source_directory(controllers/admin ADMINCTL_SRC)
+add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${ADMINCTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} ${MODEL_SRC} ${UTILS_SRC} ${SCHEMA_SRC})
 
 # ##############################################################################
 # If you include the drogon source code locally in your project, use this method
@@ -78,6 +79,7 @@ target_sources(${PROJECT_NAME}
                PRIVATE
                ${SRC_DIR}
                ${CTL_SRC}
+               ${ADMINCTL_SRC}
                ${FILTER_SRC}
                ${PLUGIN_SRC}
                ${MODEL_SRC}
