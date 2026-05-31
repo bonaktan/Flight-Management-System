@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.15)
 project(SkyBridgeAirways-Backend CXX)
 
 include(CheckIncludeFileCXX)
@@ -6,8 +6,15 @@ include(CheckIncludeFileCXX)
 check_include_file_cxx(any HAS_ANY)
 check_include_file_cxx(string_view HAS_STRING_VIEW)
 check_include_file_cxx(coroutine HAS_COROUTINE)
-set(CMAKE_CXX_STANDARD 20)
-
+if (NOT "${CMAKE_CXX_STANDARD}" STREQUAL "")
+    # Do nothing
+elseif (HAS_ANY AND HAS_STRING_VIEW AND HAS_COROUTINE)
+    set(CMAKE_CXX_STANDARD 20)
+elseif (HAS_ANY AND HAS_STRING_VIEW)
+    set(CMAKE_CXX_STANDARD 17)
+else ()
+    set(CMAKE_CXX_STANDARD 14)
+endif ()
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -18,8 +25,7 @@ aux_source_directory(plugins PLUGIN_SRC)
 aux_source_directory(models MODEL_SRC)
 aux_source_directory(utils UTILS_SRC)
 aux_source_directory(schema SCHEMA_SRC)
-aux_source_directory(controllers/admin ADMINCTL_SRC)
-add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${ADMINCTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} ${MODEL_SRC} ${UTILS_SRC} ${SCHEMA_SRC})
+add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} ${MODEL_SRC} ${UTILS_SRC} ${SCHEMA_SRC})
 
 # ##############################################################################
 # If you include the drogon source code locally in your project, use this method
@@ -31,10 +37,33 @@ add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${ADMINCTL_SRC} ${FILTER_SRC}
 find_package(Drogon CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
 
+include(FetchContent)
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+FetchContent_MakeAvailable(json)
+target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  valijson
+  GIT_REPOSITORY https://github.com/tristanpenman/valijson.git
+  GIT_TAG v1.0.6
+  GIT_SHALLOW TRUE
+  GIT_SUBMODULES ""
+)
+
+set(valijson_BUILD_TESTS OFF CACHE BOOL "Don't build valijson tests" FORCE)
+set(valijson_BUILD_EXAMPLES OFF CACHE BOOL "Don't build valijson examples" FORCE)
+
+FetchContent_MakeAvailable(valijson)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE ValiJSON::valijson)
 # ##############################################################################
 
-if (CMAKE_CXX_STANDARD LESS 20)
-    message(FATAL_ERROR "c++20 or higher is required")
+if (CMAKE_CXX_STANDARD LESS 17)
+    message(FATAL_ERROR "c++17 or higher is required")
+elseif (CMAKE_CXX_STANDARD LESS 20)
+    message(STATUS "use c++17")
 else ()
     message(STATUS "use c++20")
 endif ()
@@ -49,12 +78,10 @@ target_sources(${PROJECT_NAME}
                PRIVATE
                ${SRC_DIR}
                ${CTL_SRC}
-               ${ADMINCTL_SRC}
                ${FILTER_SRC}
                ${PLUGIN_SRC}
                ${MODEL_SRC}
                ${SCHEMA_SRC}
-               
                ${UTILS_SRC})
 
 add_subdirectory(test)
