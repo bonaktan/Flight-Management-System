@@ -18,5 +18,3 @@ jobs:
               run: docker compose build
             - name: Restart Containers
               run: docker compose up -d
-            - name: Reload nginx
-              run: docker compose exec nginx nginx -s reload
