@@ -12,7 +12,7 @@ namespace api {
 class search : public drogon::HttpController<search> {
    public:
     METHOD_LIST_BEGIN
-    METHOD_ADD(search::flights, "/flights", Get);
+    METHOD_ADD(search::flights, "/flights", Post);
     METHOD_LIST_END
     void flights(const HttpRequestPtr& req,
                  std::function<void(const HttpResponsePtr&)>&& callback);

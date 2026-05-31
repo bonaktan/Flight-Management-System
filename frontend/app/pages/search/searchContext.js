@@ -1,5 +1,4 @@
 import { createContext } from "react";
 
-const OverlayContext = createContext({});
-
-export default OverlayContext;
+export const OverlayContext = createContext({});
+export const SearchParametersContext = createContext({});

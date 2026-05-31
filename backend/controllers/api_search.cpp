@@ -12,6 +12,8 @@ using namespace api;
  *  - timezone: string (±HH:MM)
  *  - passengers: int
 */
+// BUG: apparently this is  bug, but i should not use json body data inside a GET request. sooo refactor the code to take it url query parameters instead. also update the frontend to match this change. 
+// TEMPORARY FIX: swapped to a post request temporarily instead of a get request
 // TODO: do search sorting and filtering options 
 // (such as sort for price, flight length, etc, filter for x class only) 
 void search::flights(const HttpRequestPtr& req,
@@ -22,6 +24,7 @@ void search::flights(const HttpRequestPtr& req,
         callback(Skybridge::Utils::error("Invalid JSON", k400BadRequest));
         return;
     }
+    std::cout << "Received search request: " << (*json).toStyledString() << std::endl;
     std::vector<std::string> errors = Skybridge::Utils::validateRequest(*json, flightSchema());
     if (!errors.empty()) {
         Json::Value body;

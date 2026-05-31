@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { Form } from "react-router";
 import InputField from "../components/input";
 import { useState } from "react";
 import SelectionField from "../components/selection";
@@ -75,6 +75,7 @@ function Hero() {
 
 function Search() {
     const [selectedMode, setSelectedMode] = useState(0);
+    // TODO: oneway/roundtrip flight handling, for now its still hardcoded to be one-way
     return (
         <div id="searchbar" className="flex justify-center items-center flex-col gap-2 mx-2 mb-2 z-4">
             <p className="font-medium md:text-4xl text-cloud-warm">Book a Flight</p>
@@ -102,16 +103,22 @@ function Search() {
                             </option>
                         </SelectionField>
                     </div>
-                    <div id="dates" className="flex w-full gap-1 lg:flex-row flex-col justify-center">
-                        <InputField type="date" name="Departure Date" />
-                        <InputField type="date" name="Return Date" />
+                </div>
+                <Form action="/search" id="input_fields" className="flex lg:flex-row flex-col gap-4 justify-center mx-10">
+                    <div id="places" className="flex lg:flex-row flex-col flex-1 justify-center">
+                        <InputField label="Origin" icon="flight_takeoff" required />
+                        <InputField label="Destination" icon="flight_land" required />
                     </div>
-                </div>
-                <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5">
-                    <NavLink to="/search" className="border flex justify-center items-center w-75 rounded-sm ">
-                        Search
-                    </NavLink>
-                </div>
+                    <div id="dates" className="flex lg:flex-row flex-col flex-1 justify-center">
+                        <InputField label="Departure Date" icon="calendar_month" required />
+                        <InputField label="Return Date" icon="calendar_month" required />
+                    </div>
+                    <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5">
+                        <button type="submit" className="border p-2 flex-1 text-center align-center w-75">
+                            Search
+                        </button>
+                    </div>
+                </Form>
             </div>
         </div>
     );

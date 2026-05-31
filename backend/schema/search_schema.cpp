@@ -29,7 +29,7 @@ const valijson::Schema& api::search::flightSchema() {
         p["departure_date"]["type"]    = "string";
         p["departure_date"]["pattern"] = "^\\d{4}-\\d{2}-\\d{2}$";
         p["timezone"]["type"]          = "string";
-        p["timezone"]["pattern"]       = "^\\+\\d{2}:\\d{2}$";
+        p["timezone"]["pattern"]       = "^[A-Za-z_]+(?:\\/[A-Za-z_+-]+)+$";
         p["passengers"]["type"]    = "integer";
         p["passengers"]["minimum"] = 1;
         p["passengers"]["maximum"] = 9;

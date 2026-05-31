@@ -1,25 +1,30 @@
 // responsibiltity: fetching flight data from backend and displaying it in a list of cards
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { NavLink } from "react-router";
 import axios from "axios";
-import { OverlayBase, OverlayModal, OverlaySidebar } from "../../components/overlay";
+import { SearchParametersContext } from "./searchContext";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
 export default function Search() {
-    const [apiReturn, setApiReturn] = useState([]);
+    const [apiReturn, setApiReturn] = useState(null);
+    const searchParams = use(SearchParametersContext);
+    // todo: passengers are not yet handled
     useEffect(() => {
-        axios.get(`${apiUrl}/api/search/flights`).then((ret) => {
-            setApiReturn(ret.data);
-            console.log(ret);
-        });
-    }, []);
-    return (
-        <>
-            {apiReturn.map((flight) => (
-                <FlightCard key={flight.id} flight={flight} />
-            ))}
-        </>
-    );
+        axios
+            .post(`${apiUrl}/api/search/flights`, {
+                origin: searchParams.get("origin"),
+                destination: searchParams.get("destination"),
+                departure_date: searchParams.get("departure_date"),
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                passengers: 1,
+            })
+            .then((ret) => {
+                setApiReturn(ret.data);
+                console.log(ret);
+            });
+    }, [searchParams]);
+    return <>{apiReturn ? apiReturn.map((flight) => <FlightCard key={flight.id} flight={flight} />) : <p>No Flights are found.</p>}</>;
 }
 
 function FlightCard({ flight }) {
