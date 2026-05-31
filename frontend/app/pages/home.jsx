@@ -127,7 +127,7 @@ function HomepageCard({ places }) {
     return (
         <div className="relative h-[75vh]">
             <div className="relative h-full w-full">
-                <img src={places[selectedPlace].image} alt={places[selectedPlace].name} className="h-full w-full lg:bg-right bg-center"></img>
+                <img src={places[selectedPlace].image} alt={places[selectedPlace].name} className="h-full w-full object-cover lg:object-right object-center" />
             </div>
             <div className="absolute top-0 left-0 lg:h-full lg:w-full w-full h-1/2 lg:bg-linear-to-r bg-linear-to-b from-cloud-warm lg:from-30% from-80% to-transparent">
                 <div className="ml-10 p-6">
