@@ -10,4 +10,3 @@ export default function SelectionField({ name, children, selDesign, labDesign, .
         </div>
     );
 }
-}

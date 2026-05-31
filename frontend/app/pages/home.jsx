@@ -78,7 +78,7 @@ function Search() {
     return (
         <div id="searchbar" className="flex justify-center items-center flex-col gap-2 mx-2 mb-2 z-4">
             <p className="font-medium md:text-4xl text-cloud-warm">Book a Flight</p>
-            <div className="flex gap-2 shadow-md border w-9/12 flex-col bg-cloud-warm border-gray-200 rounded-md p-2">
+            <div className="flex gap-2 shadow-md border lg:w-9/12 w-full flex-col bg-cloud-warm border-gray-200 rounded-md p-4">
                 <div id="route_select" className="rounded-sm flex h-10  align-center">
                     {Object.entries(apiOutput.modes).map(([key, value], i) => (
                         <button
@@ -91,16 +91,15 @@ function Search() {
                 </div>
                 <div id="input_fields" className="flex w-full gap-1 lg:flex-row flex-col justify-center">
                     <div id="places" className="flex w-full gap-1 lg:flex-rowflex-col">
-                        <SelectionField name="Origin" labDesign={`text-blaze-deep`} selDesign="bg-cloud-blush text-altitude-ink">
-                            <option value="" disabled selected>
+                        <SelectionField name="Origin" labDesign={`text-blaze-deep`} selDesign="bg-cloud-blush text-altitude-ink" defaultValue="">
+                            <option value="" disabled>
                                 -Select Origin-
                             </option>
                         </SelectionField>
-                        <SelectionField name="Destination" labDesign={`text-blaze-deep`} selDesign="bg-cloud-blush text-altitude-ink">
-                            <option value="" disabled selected>
-                                -Selection Destination-
+                        <SelectionField name="Destination" labDesign={`text-blaze-deep`} selDesign="bg-cloud-blush text-altitude-ink" defaultValue="">
+                            <option value="" disabled>
+                                -Select Destination-
                             </option>
-                            <option value="manila">Manila</option>
                         </SelectionField>
                     </div>
                     <div id="dates" className="flex w-full gap-1 lg:flex-row flex-col justify-center">
