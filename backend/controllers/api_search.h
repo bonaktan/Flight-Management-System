@@ -21,6 +21,6 @@ class search : public drogon::HttpController<search>
     void airplanes(const HttpRequestPtr& req,
                      std::function<void(const HttpResponsePtr&)>&& callback);
    private:
-    const valijson::Schema& flightSchema();
+    const valijson::Schema& flight_schema();
 };
 }

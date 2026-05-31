@@ -1,8 +1,6 @@
 #include "../../utils/utils.h"
 #include "../api_admin.h"
 
-
-
 void api::admin::add_flight(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)>&& callback) {
@@ -44,4 +42,28 @@ void api::admin::add_flight(
         (*json)["flight_time"].asString(),
         (*json)["start_of_operations"].asString(),
         (*json)["frequency"].asString());
+}
+
+void api::admin::delete_flight(const HttpRequestPtr& req,
+              std::function<void(const HttpResponsePtr&)>&& callback,
+              std::string id) {
+    orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
+    dbClient->execSqlAsync(
+        "DELETE FROM flight WHERE id = $1;",
+        [callback](const drogon::orm::Result& result) {
+            if (result.affectedRows() == 0) {
+                callback(Skybridge::Utils::error("Flight not found",
+                                                 k404NotFound,
+                                                 Json::Value()));
+                return;
+            }
+            Json::Value jsonResponse;
+            jsonResponse["message"] = "Flight deleted successfully";
+            callback(HttpResponse::newHttpJsonResponse(jsonResponse));
+        },
+        [callback](const drogon::orm::DrogonDbException& e) {
+            callback(Skybridge::Utils::error("Database error",
+                                             k500InternalServerError,
+                                             Json::Value(e.base().what())));
+        }, id);
 }
