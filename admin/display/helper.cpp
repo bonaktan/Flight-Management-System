@@ -1,10 +1,10 @@
 #include <iostream>
 #include <iomanip>
 #include "./display.h"
-using namespace std;
 
+using namespace Skybridge;
 // UTILITIES
-void clearScreen() {
+void Display::clearScreen() {
 #ifdef _WIN32
     system("cls");
 #else
@@ -12,23 +12,23 @@ void clearScreen() {
 #endif
 }
 
-void pause() {
-    cout << "\n  Press Enter to continue...";
-    cin.get();
+void Display::pause() {
+    std::cout << "\n  Press Enter to continue...";
+    std::cin.get();
 }
 
-void printHeader(const string& title) {
-    cout << "\n";
-    cout << "  *------------------------------------------*\n";
-    cout << "  |  " << left << setw(42) << title << "|\n";
-    cout << "  *------------------------------------------*\n\n";
+void Display::printHeader(const std::string& title) {
+    std::cout << "\n";
+    std::cout << "  *------------------------------------------*\n";
+    std::cout << "  |  " << std::left << std::setw(42) << title << "|\n";
+    std::cout << "  *------------------------------------------*\n\n";
 }
 
-void printDivider() {
-    cout << "  ------------------------------------------\n";
+void Display::printDivider() {
+    std::cout << "  ------------------------------------------\n";
 }
 
-string bookingStatusToStr(Structs::BookingStatus s) {
+std::string Display::bookingStatusToStr(Structs::BookingStatus s) {
     switch (s) {
         case Structs::BookingStatus::PENDING:
             return "pending";
@@ -40,7 +40,7 @@ string bookingStatusToStr(Structs::BookingStatus s) {
     return "pending";
 }
 
-Structs::BookingStatus strToBookingStatus(const string& s) {
+Structs::BookingStatus Display::strToBookingStatus(const std::string& s) {
     if (s == "confirmed") return Structs::BookingStatus::CONFIRMED;
     if (s == "cancelled") return Structs::BookingStatus::CANCELLED;
     return Structs::BookingStatus::PENDING;

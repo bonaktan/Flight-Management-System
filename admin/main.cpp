@@ -1,31 +1,23 @@
-// #include <algorithm>
-// #include <fstream>
-// #include <iomanip>
-// #include <iostream>
-// #include <limits>
-// #include <sstream>
-// #include <string>
-// #include <vector>
 #include "main.h"
 
+#include "./display/display.h"
+#include "api/api.h"
 // MAIN
 int main() {
-    if (!authenticate()) return 1;
-    pause();
-    loadAll();
-    mainMenu();
+    if (!Skybridge::Menu::authenticate()) return 1;
+    Skybridge::Display::pause();
+    Skybridge::Data::loadAll();
+    Skybridge::Menu::mainMenu();
     return 0;
 }
 
-void loadAll() {
-    loadAccounts();
-    loadAirports();
-    loadStaffs();
-    loadPassengers();
-    loadFlights();
-    loadAirplanes();
-    loadSeatClasses();
-    loadBookings();
-    loadFlightStaffs();
-    loadAirportFlights();
+void Skybridge::Data::loadAll() {
+    API::Account::load();
+    API::Airport::load();
+    API::Airplane::load();
+    API::Booking::load();
+    API::Passenger::load();
+    API::Flight::load();
+    API::SeatClass::load();
+    API::Staff::load();
 }

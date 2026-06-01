@@ -101,27 +101,31 @@ struct AirportFlight {
 }  // namespace Structs
 
 namespace Data {
-const std::string FILE_ACCOUNTS = "accounts.txt";
-const std::string FILE_AIRPORTS = "airports.txt";
-const std::string FILE_STAFFS = "staffs.txt";
-const std::string FILE_PASSENGERS = "passengers.txt";
-const std::string FILE_FLIGHTS = "flights.txt";
-const std::string FILE_AIRPLANES = "airplanes.txt";
-const std::string FILE_SEATCLASSES = "seat_classes.txt";
-const std::string FILE_BOOKINGS = "bookings.txt";
-const std::string FILE_FLIGHTSTAFF = "flight_staff.txt";
-const std::string FILE_AIRPORTFLIGHT = "airport_flight.txt";
+void loadAll();
 
-std::vector<Structs::Account> accounts;
-std::vector<Structs::Airport> airports;
-std::vector<Structs::Staff> staffs;
-std::vector<Structs::Passenger> passengers;
-std::vector<Structs::Flight> flights;
-std::vector<Structs::Airplane> airplanes;
-std::vector<Structs::SeatClass> seatClasses;
-std::vector<Structs::Booking> bookings;
-std::vector<Structs::FlightStaff> flightStaffs;
-std::vector<Structs::AirportFlight> airportFlights;
+// Constants: inline so each TU shares one definition
+inline const std::string FILE_ACCOUNTS     = "accounts.txt";
+inline const std::string FILE_AIRPORTS     = "airports.txt";
+inline const std::string FILE_STAFFS       = "staffs.txt";
+inline const std::string FILE_PASSENGERS   = "passengers.txt";
+inline const std::string FILE_FLIGHTS      = "flights.txt";
+inline const std::string FILE_AIRPLANES    = "airplanes.txt";
+inline const std::string FILE_SEATCLASSES  = "seat_classes.txt";
+inline const std::string FILE_BOOKINGS     = "bookings.txt";
+inline const std::string FILE_FLIGHTSTAFF  = "flight_staff.txt";
+inline const std::string FILE_AIRPORTFLIGHT = "airport_flight.txt";
+
+// Vectors: extern = declare only; defined once in data.cpp
+extern std::vector<Structs::Account>       accounts;
+extern std::vector<Structs::Airport>       airports;
+extern std::vector<Structs::Staff>         staffs;
+extern std::vector<Structs::Passenger>     passengers;
+extern std::vector<Structs::Flight>        flights;
+extern std::vector<Structs::Airplane>      airplanes;
+extern std::vector<Structs::SeatClass>     seatClasses;
+extern std::vector<Structs::Booking>       bookings;
+extern std::vector<Structs::FlightStaff>   flightStaffs;
+extern std::vector<Structs::AirportFlight> airportFlights;
 }  // namespace Data
 }  // namespace Skybridge
 

@@ -1,9 +1,14 @@
 #include <iostream>
-#include "./display.h"
+
+#include "../api/api.h"
 #include "../controls/controls.h"
+#include "./display.h"
+
 using namespace Skybridge;
-void subMenu(const std::string& title, void (*viewFn)(), void (*addFn)(),
-             void (*modFn)(), void (*delFn)()) {
+using namespace API;
+
+void Menu::subMenu(const std::string& title, void (*viewFn)(), void (*addFn)(),
+                   void (*modFn)(), void (*delFn)()) {
     while (true) {
         Display::clearScreen();
         Display::printHeader(title + " - TABLE MENU");
@@ -35,8 +40,7 @@ void subMenu(const std::string& title, void (*viewFn)(), void (*addFn)(),
     }
 }
 
-// MAIN MENU
-void mainMenu() {
+void Menu::mainMenu() {
     while (true) {
         Display::clearScreen();
         std::cout << "\n";
@@ -53,70 +57,60 @@ void mainMenu() {
         std::cout << "   [6]  Airplane\n";
         std::cout << "   [7]  Seat Class\n";
         std::cout << "   [8]  Booking\n";
-        std::cout << "   [9]  Flight Staff  (junction)\n";
-        std::cout << "  [10]  Airport Flight (junction)\n";
         std::cout << "\n   [0]  Exit\n\n";
         std::string ch = Input::getInput("Choice: ");
         if (ch == "1")
-            subMenu("ACCOUNT", viewAccounts, addAccount, modifyAccount,
-                    deleteAccount);
+            subMenu("ACCOUNT", Account::view, Account::add, Account::modify,
+                    Account::remove);
         else if (ch == "2")
-            subMenu("AIRPORT", viewAirports, addAirport, modifyAirport,
-                    deleteAirport);
+            subMenu("AIRPORT", Airport::view, Airport::add, Airport::modify,
+                    Airport::remove);
         else if (ch == "3")
-            subMenu("STAFF", viewStaffs, addStaff, modifyStaff, deleteStaff);
+            subMenu("STAFF", Staff::view, Staff::add, Staff::modify,
+                    Staff::remove);
         else if (ch == "4")
-            subMenu("PASSENGER", viewPassengers, addPassenger, modifyPassenger,
-                    deletePassenger);
+            subMenu("PASSENGER", Passenger::view, Passenger::add,
+                    Passenger::modify, Passenger::remove);
         else if (ch == "5")
-            subMenu("FLIGHT", viewFlights, addFlight, modifyFlight,
-                    deleteFlight);
+            subMenu("FLIGHT", Flight::view, Flight::add, Flight::modify,
+                    Flight::remove);
         else if (ch == "6")
-           subMenu("AIRPLANE", viewAirplanes, addAirplane, modifyAirplane,
-                    deleteAirplane);
+            subMenu("AIRPLANE", Airplane::view, Airplane::add, Airplane::modify,
+                    Airplane::remove);
         else if (ch == "7")
-            subMenu("SEAT CLASS", viewSeatClasses, addSeatClass,
-                    modifySeatClass, deleteSeatClass);
+            subMenu("SEAT CLASS", SeatClass::view, SeatClass::add,
+                    SeatClass::modify, SeatClass::remove);
         else if (ch == "8")
-            subMenu("BOOKING", viewBookings, addBooking, modifyBooking,
-                    deleteBooking);
-        else if (ch == "9")
-            subMenu("FLIGHT STAFF", viewFlightStaffs, addFlightStaff,
-                    modifyFlightStaff, deleteFlightStaff);
-        else if (ch == "10")
-            subMenu("AIRPORT FLIGHT", viewAirportFlights, addAirportFlight,
-                    modifyAirportFlight, deleteAirportFlight);
+            subMenu("BOOKING", Booking::view, Booking::add, Booking::modify,
+                    Booking::remove);
         else if (ch == "0") {
             std::cout << "\n  Goodbye!\n\n";
             break;
         } else {
-            clearScreen();
+            Display::clearScreen();
             std::cout << "\n  Invalid choice.\n";
-            pause();
+            Display::pause();
         }
     }
 }
 
-// PASSWORD
-bool authenticate() {
-    clearScreen();
+bool Menu::authenticate() {
+    Display::clearScreen();
     std::cout << "\n";
     std::cout << "  *------------------------------------------*\n";
     std::cout << "  |      AIRLINE MANAGEMENT SYSTEM           |\n";
     std::cout << "  |           Access Required                |\n";
     std::cout << "  *------------------------------------------*\n\n";
-    // Password here
-    const string CORRECT_PASSWORD = "12345678";
-    // For Attempt
+    const std::string CORRECT_PASSWORD = "12345678";
     int attempts = 3;
     while (attempts-- > 0) {
-        string pass = getInput("Password: ");
+        std::string pass = Input::getInput("Password: ");
         if (pass == CORRECT_PASSWORD) {
             std::cout << "\n  [OK] Access granted.\n";
             return true;
         }
         std::cout << "  [!!] Incorrect. " << attempts
-             << " attempt(s) remaining.\n\n";
+                  << " attempt(s) remaining.\n\n";
     }
     std::cout << "\n  Access denied. Exiting.\n\n";
     return false;

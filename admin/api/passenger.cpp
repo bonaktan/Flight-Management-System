@@ -1,23 +1,40 @@
-void savePassengers() {
-    ofstream f(FILE_PASSENGERS);
-    for (auto& p : passengers)
-        f << p.id << "|" << escape(p.frequent_flyer_code) << "|" << escape(p.title)
-          << "|" << escape(p.first_name) << "|" << escape(p.last_name) << "|"
-          << escape(p.birthdate) << "|" << escape(p.contact_email) << "|"
-          << escape(p.emergency_contact_name) << "|"
-          << escape(p.emergency_contact_email) << "|" << p.associated_to << "|"
-          << escape(p.created_at) << "|" << escape(p.updated_at) << "\n";
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "../controls/controls.h"
+#include "../display/display.h"
+#include "./api.h"
+
+using namespace Skybridge;
+
+void API::Passenger::save() {
+    std::ofstream f(Data::FILE_PASSENGERS);
+    for (auto& p : Data::passengers)
+        f << p.id << "|" << Escape::escape(p.frequent_flyer_code) << "|"
+          << Escape::escape(p.title) << "|" << Escape::escape(p.first_name)
+          << "|" << Escape::escape(p.last_name) << "|"
+          << Escape::escape(p.birthdate) << "|"
+          << Escape::escape(p.contact_email) << "|"
+          << Escape::escape(p.emergency_contact_name) << "|"
+          << Escape::escape(p.emergency_contact_email) << "|" << p.associated_to
+          << "|" << Escape::escape(p.created_at) << "|"
+          << Escape::escape(p.updated_at) << "\n";
 }
-void loadPassengers() {
-    passengers.clear();
-    ifstream f(FILE_PASSENGERS);
-    string line;
-    while (getline(f, line)) {
+
+void API::Passenger::load() {
+    Data::passengers.clear();
+    std::ifstream f(Data::FILE_PASSENGERS);
+    std::string line;
+    while (std::getline(f, line)) {
         if (line.empty()) continue;
-        auto t = splitLine(line);
+        auto t = Escape::splitLine(line);
         if (t.size() < 12) continue;
-        Passenger p;
-        p.id = stoll(t[0]);
+        Structs::Passenger p;
+        p.id = std::stoll(t[0]);
         p.frequent_flyer_code = t[1];
         p.title = t[2];
         p.first_name = t[3];
@@ -26,93 +43,101 @@ void loadPassengers() {
         p.contact_email = t[6];
         p.emergency_contact_name = t[7];
         p.emergency_contact_email = t[8];
-        p.associated_to = stoll(t[9]);
+        p.associated_to = std::stoll(t[9]);
         p.created_at = t[10];
         p.updated_at = t[11];
-        passengers.push_back(p);
+        Data::passengers.push_back(p);
     }
 }
 
-long long nextPassengerId() {
+long long API::Passenger::nextId() {
     long long mx = 0;
-    for (auto& p : passengers) mx = max(mx, p.id);
+    for (auto& p : Data::passengers) mx = std::max(mx, p.id);
     return mx + 1;
 }
 
-void viewPassengers() {
-    printHeader("PASSENGERS");
-    if (passengers.empty()) {
-        cout << "  No records found.\n";
+void API::Passenger::view() {
+    Display::printHeader("PASSENGERS");
+    if (Data::passengers.empty()) {
+        std::cout << "  No records found.\n";
         return;
     }
-    cout << "  " << left << setw(5) << "ID" << setw(8) << "Title" << setw(15)
-         << "First" << setw(15) << "Last" << setw(12) << "Birthdate" << setw(26)
-         << "Email" << setw(10) << "AcctID" << "\n";
-    printDivider();
-    for (auto& p : passengers)
-        cout << "  " << setw(5) << p.id << setw(8) << p.title << setw(15)
-             << p.first_name << setw(15) << p.last_name << setw(12)
-             << p.birthdate << setw(26) << p.contact_email << setw(10)
-             << p.associated_to << "\n";
+    std::cout << "  " << std::left << std::setw(5) << "ID" << std::setw(8)
+              << "Title" << std::setw(15) << "First" << std::setw(15) << "Last"
+              << std::setw(12) << "Birthdate" << std::setw(26) << "Email"
+              << std::setw(10) << "AcctID" << "\n";
+    Display::printDivider();
+    for (auto& p : Data::passengers)
+        std::cout << "  " << std::setw(5) << p.id << std::setw(8) << p.title
+                  << std::setw(15) << p.first_name << std::setw(15)
+                  << p.last_name << std::setw(12) << p.birthdate
+                  << std::setw(26) << p.contact_email << std::setw(10)
+                  << p.associated_to << "\n";
 }
-void addPassenger() {
-    printHeader("ADD PASSENGER");
-    Passenger p;
-    p.id = nextPassengerId();
-    p.frequent_flyer_code = getInput("Frequent Flyer Code (blank if none): ");
-    p.title = getInput("Title (Mr/Ms/Dr...): ");
-    p.first_name = getInput("First Name: ");
-    p.last_name = getInput("Last Name: ");
-    p.birthdate = getInput("Birthdate (YYYY-MM-DD): ");
-    p.contact_email = getInput("Contact Email: ");
-    p.emergency_contact_name = getInput("Emergency Contact Name: ");
-    p.emergency_contact_email = getInput("Emergency Contact Email: ");
-    p.associated_to = getLLInput("Associated Account ID: ");
+
+void API::Passenger::add() {
+    Display::printHeader("ADD PASSENGER");
+    Structs::Passenger p;
+    p.id = API::Passenger::nextId();
+    p.frequent_flyer_code =
+        Input::getInput("Frequent Flyer Code (blank if none): ");
+    p.title = Input::getInput("Title (Mr/Ms/Dr...): ");
+    p.first_name = Input::getInput("First Name: ");
+    p.last_name = Input::getInput("Last Name: ");
+    p.birthdate = Input::getInput("Birthdate (YYYY-MM-DD): ");
+    p.contact_email = Input::getInput("Contact Email: ");
+    p.emergency_contact_name = Input::getInput("Emergency Contact Name: ");
+    p.emergency_contact_email = Input::getInput("Emergency Contact Email: ");
+    p.associated_to = Input::getLLInput("Associated Account ID: ");
     p.created_at = p.updated_at = "NOW()";
-    passengers.push_back(p);
-    savePassengers();
-    cout << "\n  [OK] Passenger added with ID " << p.id << "\n";
+    Data::passengers.push_back(p);
+    API::Passenger::save();
+    std::cout << "\n  [OK] Passenger added with ID " << p.id << "\n";
 }
-void modifyPassenger() {
-    printHeader("MODIFY PASSENGER");
-    long long id = getLLInput("Enter Passenger ID to modify: ");
-    for (auto& p : passengers) {
+
+void API::Passenger::modify() {
+    Display::printHeader("MODIFY PASSENGER");
+    long long id = Input::getLLInput("Enter Passenger ID to modify: ");
+    for (auto& p : Data::passengers) {
         if (p.id == id) {
-            string v;
-            v = getInput("New FFC [" + p.frequent_flyer_code + "]: ");
+            std::string v;
+            v = Input::getInput("New FFC [" + p.frequent_flyer_code + "]: ");
             if (!v.empty()) p.frequent_flyer_code = v;
-            v = getInput("New Title [" + p.title + "]: ");
+            v = Input::getInput("New Title [" + p.title + "]: ");
             if (!v.empty()) p.title = v;
-            v = getInput("New First Name [" + p.first_name + "]: ");
+            v = Input::getInput("New First Name [" + p.first_name + "]: ");
             if (!v.empty()) p.first_name = v;
-            v = getInput("New Last Name [" + p.last_name + "]: ");
+            v = Input::getInput("New Last Name [" + p.last_name + "]: ");
             if (!v.empty()) p.last_name = v;
-            v = getInput("New Birthdate [" + p.birthdate + "]: ");
+            v = Input::getInput("New Birthdate [" + p.birthdate + "]: ");
             if (!v.empty()) p.birthdate = v;
-            v = getInput("New Email [" + p.contact_email + "]: ");
+            v = Input::getInput("New Email [" + p.contact_email + "]: ");
             if (!v.empty()) p.contact_email = v;
-            v = getInput("New Emrg Name [" + p.emergency_contact_name + "]: ");
+            v = Input::getInput("New Emrg Name [" + p.emergency_contact_name +
+                                "]: ");
             if (!v.empty()) p.emergency_contact_name = v;
-            v = getInput("New Emrg Email [" + p.emergency_contact_email +
-                         "]: ");
+            v = Input::getInput("New Emrg Email [" + p.emergency_contact_email +
+                                "]: ");
             if (!v.empty()) p.emergency_contact_email = v;
             p.updated_at = "NOW()";
-            savePassengers();
-            cout << "\n  [OK] Passenger updated.\n";
+            API::Passenger::save();
+            std::cout << "\n  [OK] Passenger updated.\n";
             return;
         }
     }
-    cout << "\n  [!!] Passenger not found.\n";
+    std::cout << "\n  [!!] Passenger not found.\n";
 }
-void deletePassenger() {
-    printHeader("DELETE PASSENGER");
-    long long id = getLLInput("Enter Passenger ID to delete: ");
-    auto it = remove_if(passengers.begin(), passengers.end(),
-                        [id](const Passenger& p) { return p.id == id; });
-    if (it != passengers.end()) {
-        passengers.erase(it, passengers.end());
-        savePassengers();
-        cout << "\n  [OK] Passenger deleted.\n";
+
+void API::Passenger::remove() {
+    Display::printHeader("DELETE PASSENGER");
+    long long id = Input::getLLInput("Enter Passenger ID to delete: ");
+    auto it = std::remove_if(
+        Data::passengers.begin(), Data::passengers.end(),
+        [id](const Structs::Passenger& p) { return p.id == id; });
+    if (it != Data::passengers.end()) {
+        Data::passengers.erase(it, Data::passengers.end());
+        API::Passenger::save();
+        std::cout << "\n  [OK] Passenger deleted.\n";
     } else
-        cout << "\n  [!!] Passenger not found.\n";
+        std::cout << "\n  [!!] Passenger not found.\n";
 }

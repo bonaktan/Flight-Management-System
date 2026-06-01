@@ -9,7 +9,7 @@
 
 using namespace Skybridge;
 
-void saveAccounts() {
+void API::Account::save() {
     std::ofstream f(Data::FILE_ACCOUNTS);
     for (auto& a : Data::accounts)
         f << a.id << "|" << Escape::escape(a.account_name) << "|"
@@ -19,7 +19,7 @@ void saveAccounts() {
           << "\n";
 }
 
-void loadAccounts() {
+void API::Account::load() {
     Data::accounts.clear();
     std::ifstream f(Data::FILE_ACCOUNTS);
     std::string line;
@@ -39,13 +39,13 @@ void loadAccounts() {
     }
 }
 
-long long nextAccountId() {
+long long API::Account::nextId() {
     long long mx = 0;
     for (auto& a : Data::accounts) mx = std::max(mx, a.id);
     return mx + 1;
 }
 
-void viewAccounts() {
+void API::Account::view() {
     Display::printHeader("ACCOUNTS");
     if (Data::accounts.empty()) {
         std::cout << "  No records found.\n";
@@ -61,21 +61,21 @@ void viewAccounts() {
                   << a.permissions << "\n";
 }
 
-void addAccount() {
+void API::Account::add() {
     Display::printHeader("ADD ACCOUNT");
     Structs::Account a;
-    a.id = nextAccountId();
+    a.id = API::Account::nextId();
     a.account_name = Input::getInput("Account Name: ");
     a.email = Input::getInput("Email: ");
     a.password_hash = Input::getInput("Password Hash: ");
     a.permissions = Input::getInput("Permissions (JSON string, e.g. {}): ");
     a.created_at = a.updated_at = "NOW()";
     Data::accounts.push_back(a);
-    saveAccounts();
+    API::Account::save();
     std::cout << "\n  [OK] Account added with ID " << a.id << "\n";
 }
 
-void modifyAccount() {
+void API::Account::modify() {
     Display::printHeader("MODIFY ACCOUNT");
     long long id = Input::getLLInput("Enter Account ID to modify: ");
     for (auto& a : Data::accounts) {
@@ -91,7 +91,7 @@ void modifyAccount() {
             v = Input::getInput("New Permissions [" + a.permissions + "]: ");
             if (!v.empty()) a.permissions = v;
             a.updated_at = "NOW()";
-            saveAccounts();
+            API::Account::save();
             std::cout << "\n  [OK] Account updated.\n";
             return;
         }
@@ -99,7 +99,7 @@ void modifyAccount() {
     std::cout << "\n  [!!] Account not found.\n";
 }
 
-void deleteAccount() {
+void API::Account::remove() {
     Display::printHeader("DELETE ACCOUNT");
     long long id = Input::getLLInput("Enter Account ID to delete: ");
     auto it =
@@ -107,7 +107,7 @@ void deleteAccount() {
                        [id](const Structs::Account& a) { return a.id == id; });
     if (it != Data::accounts.end()) {
         Data::accounts.erase(it, Data::accounts.end());
-        saveAccounts();
+        API::Account::save();
         std::cout << "\n  [OK] Account deleted.\n";
     } else
         std::cout << "\n  [!!] Account not found.\n";

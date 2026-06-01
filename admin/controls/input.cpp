@@ -2,17 +2,17 @@
 
 #include "./controls.h"
 
-using namespace std;
+using namespace Skybridge;
 
-string getInput(const string& prompt) {
-    string val;
-    cout << "  " << prompt;
-    getline(cin, val);
+std::string Input::getInput(const std::string& prompt) {
+    std::string val;
+    std::cout << "  " << prompt;
+    getline(std::cin, val);
     return val;
 }
 
-long long getLLInput(const string& prompt) {
-    string line = getInput(prompt);
+long long Input::getLLInput(const std::string& prompt) {
+    std::string line = getInput(prompt);
     try {
         return stoll(line);
     } catch (...) {
@@ -20,8 +20,8 @@ long long getLLInput(const string& prompt) {
     }
 }
 
-int getIntInput(const string& prompt) {
-    string line = getInput(prompt);
+int Input::getIntInput(const std::string& prompt) {
+    std::string line = Input::getInput(prompt);
     try {
         return stoi(line);
     } catch (...) {
@@ -29,8 +29,8 @@ int getIntInput(const string& prompt) {
     }
 }
 
-double getDoubleInput(const string& prompt) {
-    string line = getInput(prompt);
+double Input::getDoubleInput(const std::string& prompt) {
+    std::string line = Input::getInput(prompt);
     try {
         return stod(line);
     } catch (...) {

@@ -1,73 +1,92 @@
-void saveAirplanes() {
-    ofstream f(FILE_AIRPLANES);
-    for (auto& a : airplanes)
-        f << escape(a.id) << "|" << escape(a.model) << "|" << escape(a.location) << "\n";
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "../controls/controls.h"
+#include "../display/display.h"
+#include "./api.h"
+
+using namespace Skybridge;
+
+void API::Airplane::save() {
+    std::ofstream f(Data::FILE_AIRPLANES);
+    for (auto& a : Data::airplanes)
+        f << Escape::escape(a.id) << "|" << Escape::escape(a.model) << "|"
+          << Escape::escape(a.location) << "\n";
 }
-void loadAirplanes() {
-    airplanes.clear();
-    ifstream f(FILE_AIRPLANES);
-    string line;
-    while (getline(f, line)) {
+
+void API::Airplane::load() {
+    Data::airplanes.clear();
+    std::ifstream f(Data::FILE_AIRPLANES);
+    std::string line;
+    while (std::getline(f, line)) {
         if (line.empty()) continue;
-        auto t = splitLine(line);
+        auto t = Escape::splitLine(line);
         if (t.size() < 3) continue;
-        Airplane a;
+        Structs::Airplane a;
         a.id = t[0];
         a.model = t[1];
         a.location = t[2];
-        airplanes.push_back(a);
+        Data::airplanes.push_back(a);
     }
 }
 
-void viewAirplanes() {
-    printHeader("AIRPLANES");
-    if (airplanes.empty()) {
-        cout << "  No records found.\n";
+void API::Airplane::view() {
+    Display::printHeader("AIRPLANES");
+    if (Data::airplanes.empty()) {
+        std::cout << "  No records found.\n";
         return;
     }
-    cout << "  " << left << setw(15) << "ID" << setw(28) << "Model" << setw(12)
-         << "Location" << "\n";
-    printDivider();
-    for (auto& a : airplanes)
-        cout << "  " << setw(15) << a.id << setw(28) << a.model << setw(12)
-             << a.location << "\n";
+    std::cout << "  " << std::left << std::setw(15) << "ID" << std::setw(28)
+              << "Model" << std::setw(12) << "Location" << "\n";
+    Display::printDivider();
+    for (auto& a : Data::airplanes)
+        std::cout << "  " << std::setw(15) << a.id << std::setw(28) << a.model
+                  << std::setw(12) << a.location << "\n";
 }
-void addAirplane() {
-    printHeader("ADD AIRPLANE");
-    Airplane a;
-    a.id = getInput("Airplane ID (e.g. RP-C8888): ");
-    a.model = getInput("Model (e.g. Boeing 737): ");
-    a.location = getInput("Location (Airport ID, or blank): ");
-    airplanes.push_back(a);
-    saveAirplanes();
-    cout << "\n  [OK] Airplane added.\n";
+
+void API::Airplane::add() {
+    Display::printHeader("ADD AIRPLANE");
+    Structs::Airplane a;
+    a.id = Input::getInput("Airplane ID (e.g. RP-C8888): ");
+    a.model = Input::getInput("Model (e.g. Boeing 737): ");
+    a.location = Input::getInput("Location (Airport ID, or blank): ");
+    Data::airplanes.push_back(a);
+    API::Airplane::save();
+    std::cout << "\n  [OK] Airplane added.\n";
 }
-void modifyAirplane() {
-    printHeader("MODIFY AIRPLANE");
-    string id = getInput("Enter Airplane ID to modify: ");
-    for (auto& a : airplanes) {
+
+void API::Airplane::modify() {
+    Display::printHeader("MODIFY AIRPLANE");
+    std::string id = Input::getInput("Enter Airplane ID to modify: ");
+    for (auto& a : Data::airplanes) {
         if (a.id == id) {
-            string v;
-            v = getInput("New Model [" + a.model + "]: ");
+            std::string v;
+            v = Input::getInput("New Model [" + a.model + "]: ");
             if (!v.empty()) a.model = v;
-            v = getInput("New Location [" + a.location + "]: ");
+            v = Input::getInput("New Location [" + a.location + "]: ");
             if (!v.empty()) a.location = v;
-            saveAirplanes();
-            cout << "\n  [OK] Airplane updated.\n";
+            API::Airplane::save();
+            std::cout << "\n  [OK] Airplane updated.\n";
             return;
         }
     }
-    cout << "\n  [!!] Airplane not found.\n";
+    std::cout << "\n  [!!] Airplane not found.\n";
 }
-void deleteAirplane() {
-    printHeader("DELETE AIRPLANE");
-    string id = getInput("Enter Airplane ID to delete: ");
-    auto it = remove_if(airplanes.begin(), airplanes.end(),
-                        [&id](const Airplane& a) { return a.id == id; });
-    if (it != airplanes.end()) {
-        airplanes.erase(it, airplanes.end());
-        saveAirplanes();
-        cout << "\n  [OK] Airplane deleted.\n";
+
+void API::Airplane::remove() {
+    Display::printHeader("DELETE AIRPLANE");
+    std::string id = Input::getInput("Enter Airplane ID to delete: ");
+    auto it = std::remove_if(
+        Data::airplanes.begin(), Data::airplanes.end(),
+        [&id](const Structs::Airplane& a) { return a.id == id; });
+    if (it != Data::airplanes.end()) {
+        Data::airplanes.erase(it, Data::airplanes.end());
+        API::Airplane::save();
+        std::cout << "\n  [OK] Airplane deleted.\n";
     } else
-        cout << "\n  [!!] Airplane not found.\n";
+        std::cout << "\n  [!!] Airplane not found.\n";
 }

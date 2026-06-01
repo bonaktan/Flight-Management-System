@@ -1,77 +1,95 @@
-void saveAirports() {
-    ofstream f(FILE_AIRPORTS);
-    for (auto& a : airports)
-        f << escape(a.id) << "|" << escape(a.name) << "|" << a.capacity << "|"
-          << escape(a.created_at) << "\n";
+#include <algorithm>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <string>
+#include <vector>
+
+#include "../controls/controls.h"
+#include "../display/display.h"
+#include "./api.h"
+
+using namespace Skybridge;
+
+void API::Airport::save() {
+    std::ofstream f(Data::FILE_AIRPORTS);
+    for (auto& a : Data::airports)
+        f << Escape::escape(a.id) << "|" << Escape::escape(a.name) << "|"
+          << a.capacity << "|" << Escape::escape(a.created_at) << "\n";
 }
-void loadAirports() {
-    airports.clear();
-    ifstream f(FILE_AIRPORTS);
-    string line;
-    while (getline(f, line)) {
+
+void API::Airport::load() {
+    Data::airports.clear();
+    std::ifstream f(Data::FILE_AIRPORTS);
+    std::string line;
+    while (std::getline(f, line)) {
         if (line.empty()) continue;
-        auto t = splitLine(line);
+        auto t = Escape::splitLine(line);
         if (t.size() < 4) continue;
-        Airport a;
+        Structs::Airport a;
         a.id = t[0];
         a.name = t[1];
-        a.capacity = stoi(t[2]);
+        a.capacity = std::stoi(t[2]);
         a.created_at = t[3];
-        airports.push_back(a);
+        Data::airports.push_back(a);
     }
 }
 
-void viewAirports() {
-    printHeader("AIRPORTS");
-    if (airports.empty()) {
-        cout << "  No records found.\n";
+void API::Airport::view() {
+    Display::printHeader("AIRPORTS");
+    if (Data::airports.empty()) {
+        std::cout << "  No records found.\n";
         return;
     }
-    cout << "  " << left << setw(12) << "ID" << setw(32) << "Name" << setw(10)
-         << "Capacity" << "\n";
-    printDivider();
-    for (auto& a : airports)
-        cout << "  " << setw(12) << a.id << setw(32) << a.name << setw(10)
-             << a.capacity << "\n";
+    std::cout << "  " << std::left << std::setw(12) << "ID" << std::setw(32)
+              << "Name" << std::setw(10) << "Capacity" << "\n";
+    Display::printDivider();
+    for (auto& a : Data::airports)
+        std::cout << "  " << std::setw(12) << a.id << std::setw(32) << a.name
+                  << std::setw(10) << a.capacity << "\n";
 }
-void addAirport() {
-    printHeader("ADD AIRPORT");
-    Airport a;
-    a.id = getInput("Airport ID (e.g. MNL): ");
-    a.name = getInput("Airport Name: ");
-    a.capacity = getIntInput("Capacity: ");
+
+void API::Airport::add() {
+    Display::printHeader("ADD AIRPORT");
+    Structs::Airport a;
+    a.id = Input::getInput("Airport ID (e.g. MNL): ");
+    a.name = Input::getInput("Airport Name: ");
+    a.capacity = Input::getIntInput("Capacity: ");
     a.created_at = "NOW()";
-    airports.push_back(a);
-    saveAirports();
-    cout << "\n  [OK] Airport added.\n";
+    Data::airports.push_back(a);
+    API::Airport::save();
+    std::cout << "\n  [OK] Airport added.\n";
 }
-void modifyAirport() {
-    printHeader("MODIFY AIRPORT");
-    string id = getInput("Enter Airport ID to modify: ");
-    for (auto& a : airports) {
+
+void API::Airport::modify() {
+    Display::printHeader("MODIFY AIRPORT");
+    std::string id = Input::getInput("Enter Airport ID to modify: ");
+    for (auto& a : Data::airports) {
         if (a.id == id) {
-            string v;
-            v = getInput("New Name [" + a.name + "]: ");
+            std::string v;
+            v = Input::getInput("New Name [" + a.name + "]: ");
             if (!v.empty()) a.name = v;
-            string c =
-                getInput("New Capacity [" + to_string(a.capacity) + "]: ");
-            if (!c.empty()) a.capacity = stoi(c);
-            saveAirports();
-            cout << "\n  [OK] Airport updated.\n";
+            std::string c = Input::getInput("New Capacity [" +
+                                            std::to_string(a.capacity) + "]: ");
+            if (!c.empty()) a.capacity = std::stoi(c);
+            API::Airport::save();
+            std::cout << "\n  [OK] Airport updated.\n";
             return;
         }
     }
-    cout << "\n  [!!] Airport not found.\n";
+    std::cout << "\n  [!!] Airport not found.\n";
 }
-void deleteAirport() {
-    printHeader("DELETE AIRPORT");
-    string id = getInput("Enter Airport ID to delete: ");
-    auto it = remove_if(airports.begin(), airports.end(),
-                        [&id](const Airport& a) { return a.id == id; });
-    if (it != airports.end()) {
-        airports.erase(it, airports.end());
-        saveAirports();
-        cout << "\n  [OK] Airport deleted.\n";
+
+void API::Airport::remove() {
+    Display::printHeader("DELETE AIRPORT");
+    std::string id = Input::getInput("Enter Airport ID to delete: ");
+    auto it =
+        std::remove_if(Data::airports.begin(), Data::airports.end(),
+                       [&id](const Structs::Airport& a) { return a.id == id; });
+    if (it != Data::airports.end()) {
+        Data::airports.erase(it, Data::airports.end());
+        API::Airport::save();
+        std::cout << "\n  [OK] Airport deleted.\n";
     } else
-        cout << "\n  [!!] Airport not found.\n";
+        std::cout << "\n  [!!] Airport not found.\n";
 }
