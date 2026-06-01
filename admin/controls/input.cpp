@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "../display/display.h"
 #include "./controls.h"
+
 using namespace Skybridge;
 
 std::string Input::getInput(const std::string& prompt) {
@@ -16,8 +16,6 @@ long long Input::getLLInput(const std::string& prompt) {
     try {
         return stoll(line);
     } catch (...) {
-        std::cerr << "ERROR: Invalid Input entered." << std::endl;
-        Display::pause();
         return -1;
     }
 }
@@ -27,9 +25,7 @@ int Input::getIntInput(const std::string& prompt) {
     try {
         return stoi(line);
     } catch (...) {
-        std::cerr << "ERROR: Invalid Input entered." << std::endl;
-        Display::pause();
-        return -1;
+        return 0;
     }
 }
 
@@ -38,8 +34,6 @@ double Input::getDoubleInput(const std::string& prompt) {
     try {
         return stod(line);
     } catch (...) {
-        std::cerr << "ERROR: Invalid Input entered." << std::endl;
-        Display::pause();
         return 0.0;
     }
 }

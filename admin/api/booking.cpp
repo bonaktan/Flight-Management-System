@@ -28,27 +28,21 @@ void API::Booking::load() {
     std::ifstream f(Data::FILE_BOOKINGS);
     std::string line;
     while (std::getline(f, line)) {
-        try {
-            if (line.empty()) continue;
-            auto t = Escape::splitLine(line);
-            if (t.size() < 10) continue;
-            Structs::Booking b;
-            b.id = Input::getLLInput(t[0]);
-            b.passenger_id = Input::getLLInput(t[1]);
-            b.flight_id = t[2];
-            b.account_id = Input::getLLInput(t[3]);
-            b.calculated_price = Input::getDoubleInput(t[4]);
-            b.payment_option = t[5];
-            b.payment_detail = t[6];
-            b.booking_status = Display::strToBookingStatus(t[7]);
-            b.created_at = t[8];
-            b.updated_at = t[9];
-            Data::bookings.push_back(b);
-        } catch (std::invalid_argument) {
-            std::cerr << "Skipping Booking: Input - Not a Number" << std::endl;
-        } catch (std::out_of_range) {
-            std::cerr << "Skipping User: Input - Too Large: " << std::endl;
-        }
+        if (line.empty()) continue;
+        auto t = Escape::splitLine(line);
+        if (t.size() < 10) continue;
+        Structs::Booking b;
+        b.id = std::stoll(t[0]);
+        b.passenger_id = std::stoll(t[1]);
+        b.flight_id = t[2];
+        b.account_id = std::stoll(t[3]);
+        b.calculated_price = std::stod(t[4]);
+        b.payment_option = t[5];
+        b.payment_detail = t[6];
+        b.booking_status = Display::strToBookingStatus(t[7]);
+        b.created_at = t[8];
+        b.updated_at = t[9];
+        Data::bookings.push_back(b);
     }
 }
 
@@ -87,15 +81,7 @@ void API::Booking::add() {
     b.passenger_id = Input::getLLInput("Passenger ID: ");
     b.flight_id = Input::getInput("Flight ID: ");
     std::string ac = Input::getInput("Account ID (blank if none): ");
-    try {
-        b.account_id = ac.empty() ? -1 : Input::getLLInput(ac);
-    } catch (std::invalid_argument) {
-        std::cerr << "ERROR: Invalid ID - Not a Number" << std::endl;
-        return;
-    } catch (std::out_of_range) {
-        std::cerr << "ERROR: Invalid ID - Too Large: " << std::endl;
-        return;
-    }
+    b.account_id = ac.empty() ? -1 : std::stoll(ac);
     b.calculated_price = Input::getDoubleInput("Calculated Price: ");
     b.payment_option = Input::getInput("Payment Option (cash/card/etc): ");
     b.payment_detail =

@@ -32,21 +32,15 @@ void API::Flight::load() {
         auto t = Escape::splitLine(line);
         if (t.size() < 8) continue;
         Structs::Flight fl;
-        try {
-            fl.id = t[0];
-            fl.departure_airport_id = t[1];
-            fl.arrival_airport_id = t[2];
-            fl.base_ticket_price = Input::getDoubleInput(t[3]);
-            fl.flight_time = t[4];
-            fl.departure = t[5];
-            fl.frequency = t[6];
-            fl.created_at = t[7];
-            Data::flights.push_back(fl);
-        } catch (std::invalid_argument) {
-            std::cerr << "Skipping Flight: Input - Not a Number" << std::endl;
-        } catch (std::out_of_range) {
-            std::cerr << "Skipping Flight: Input - Too Large: " << std::endl;
-        }
+        fl.id = t[0];
+        fl.departure_airport_id = t[1];
+        fl.arrival_airport_id = t[2];
+        fl.base_ticket_price = std::stod(t[3]);
+        fl.flight_time = t[4];
+        fl.departure = t[5];
+        fl.frequency = t[6];
+        fl.created_at = t[7];
+        Data::flights.push_back(fl);
     }
 }
 
@@ -100,7 +94,7 @@ void API::Flight::modify() {
             if (!v.empty()) fl.arrival_airport_id = v;
             std::string pr = Input::getInput(
                 "New Price [" + std::to_string(fl.base_ticket_price) + "]: ");
-            if (!pr.empty()) fl.base_ticket_price = Input::getDoubleInput(pr);
+            if (!pr.empty()) fl.base_ticket_price = std::stod(pr);
             v = Input::getInput("New Flight Time [" + fl.flight_time + "]: ");
             if (!v.empty()) fl.flight_time = v;
             v = Input::getInput("New Departure [" + fl.departure + "]: ");

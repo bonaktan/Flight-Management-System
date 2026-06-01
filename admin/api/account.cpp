@@ -28,22 +28,14 @@ void API::Account::load() {
         auto t = Escape::splitLine(line);
         if (t.size() < 7) continue;
         Structs::Account a;
-        try {
-            a.id = Input::getLLInput(t[0]);
-            a.account_name = t[1];
-            a.email = t[2];
-            a.password_hash = t[3];
-            a.permissions = t[4];
-            a.created_at = t[5];
-            a.updated_at = t[6];
-            Data::accounts.push_back(a);
-        } catch (std::invalid_argument) {
-            std::cerr << "Skipping User: User ID - Not a Number: " << t[0]
-                      << std::endl;
-        } catch (std::out_of_range) {
-            std::cerr << "Skipping User: Invalid User ID - Too Large: " << t[0]
-                      << std::endl;
-        }
+        a.id = stoll(t[0]);
+        a.account_name = t[1];
+        a.email = t[2];
+        a.password_hash = t[3];
+        a.permissions = t[4];
+        a.created_at = t[5];
+        a.updated_at = t[6];
+        Data::accounts.push_back(a);
     }
 }
 

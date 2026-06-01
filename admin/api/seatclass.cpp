@@ -29,21 +29,13 @@ void API::SeatClass::load() {
         auto t = Escape::splitLine(line);
         if (t.size() < 6) continue;
         Structs::SeatClass sc;
-        try {
-            sc.id = Input::getLLInput(t[0]);
-            sc.class_name = t[1];
-            sc.amt_of_seats = Input::getIntInput(t[2]);
-            sc.markup_price = Input::getDoubleInput(t[3]);
-            sc.airplane_id = t[4];
-            sc.created_at = t[5];
-            Data::seatClasses.push_back(sc);
-        } catch (std::invalid_argument) {
-            std::cerr << "Skipping Seat Class: Input - Not a Number"
-                      << std::endl;
-        } catch (std::out_of_range) {
-            std::cerr << "Skipping Seat Class: Input - Too Large: "
-                      << std::endl;
-        }
+        sc.id = std::stoll(t[0]);
+        sc.class_name = t[1];
+        sc.amt_of_seats = std::stoi(t[2]);
+        sc.markup_price = std::stod(t[3]);
+        sc.airplane_id = t[4];
+        sc.created_at = t[5];
+        Data::seatClasses.push_back(sc);
     }
 }
 
@@ -94,46 +86,20 @@ void API::SeatClass::modify() {
             if (!v.empty()) sc.class_name = v;
             std::string s = Input::getInput(
                 "New # Seats [" + std::to_string(sc.amt_of_seats) + "]: ");
-            if (!s.empty()) {
-                try {
-                    sc.amt_of_seats = Input::getIntInput(s);
-                } catch (std::invalid_argument) {
-                    std::cerr << "ERROR: Invalid Input - Not a Number"
-                              << std::endl;
-                    return;
-                } catch (std::out_of_range) {
-                    std::cerr << "ERROR: Invalid Input - Too Large: "
-                              << std::endl;
-                    return;
-                }
-            }
+            if (!s.empty()) sc.amt_of_seats = std::stoi(s);
             std::string m = Input::getInput(
                 "New Markup Price [" + std::to_string(sc.markup_price) + "]: ");
-            if (!m.empty()) {
-                try {
-                    sc.markup_price = Input::getDoubleInput(m);
-                }
-
-                catch (std::invalid_argument) {
-                    std::cerr << "ERROR: Invalid Input - Not a Number"
-                              << std::endl;
-                    return;
-                } catch (std::out_of_range) {
-                    std::cerr << "ERROR: Invalid Input - Too Large: "
-                              << std::endl;
-                    return;
-                }
-                v = Input::getInput("New Airplane ID [" + sc.airplane_id +
-                                    "]: ");
-                if (!v.empty()) sc.airplane_id = v;
-                API::SeatClass::save();
-                std::cout << "\n  [OK] Seat Class updated.\n";
-                return;
-            }
+            if (!m.empty()) sc.markup_price = std::stod(m);
+            v = Input::getInput("New Airplane ID [" + sc.airplane_id + "]: ");
+            if (!v.empty()) sc.airplane_id = v;
+            API::SeatClass::save();
+            std::cout << "\n  [OK] Seat Class updated.\n";
+            return;
         }
-        std::cout << "\n  [!!] Seat Class not found.\n";
     }
+    std::cout << "\n  [!!] Seat Class not found.\n";
 }
+
 void API::SeatClass::remove() {
     Display::printHeader("DELETE SEAT CLASS");
     long long id = Input::getLLInput("Enter Seat Class ID to delete: ");
