@@ -22,7 +22,7 @@ int main() {
            const drogon::HttpResponsePtr& resp) {
             resp->addHeader("Access-Control-Allow-Origin", "http://localhost:5173");
         });
-    std::cout << "Backend running on http://localhost:8080" << std::endl;
+    std::cout << "Backend now running." << std::endl;
     drogon::app().run();
     return 0;
 }

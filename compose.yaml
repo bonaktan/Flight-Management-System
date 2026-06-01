@@ -63,6 +63,8 @@ services:
         build:
             context: ./
             dockerfile: ./frontend/Dockerfile
+            args:
+                - VITE_BACKEND_URL=${VITE_BACKEND_URL}
         container_name: skybridge_frontend
         expose:
             - "3000"
@@ -70,7 +72,6 @@ services:
             - frontend_net
         environment:
             - HUSKY=0
-            - VITE_BACKEND_URL=${VITE_BACKEND_URL}
 
         logging:
             driver: "json-file"
