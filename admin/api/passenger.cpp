@@ -34,19 +34,25 @@ void API::Passenger::load() {
         auto t = Escape::splitLine(line);
         if (t.size() < 12) continue;
         Structs::Passenger p;
-        p.id = std::stoll(t[0]);
-        p.frequent_flyer_code = t[1];
-        p.title = t[2];
-        p.first_name = t[3];
-        p.last_name = t[4];
-        p.birthdate = t[5];
-        p.contact_email = t[6];
-        p.emergency_contact_name = t[7];
-        p.emergency_contact_email = t[8];
-        p.associated_to = std::stoll(t[9]);
-        p.created_at = t[10];
-        p.updated_at = t[11];
-        Data::passengers.push_back(p);
+        try {
+            p.id = Input::getLLInput(t[0]);
+            p.frequent_flyer_code = t[1];
+            p.title = t[2];
+            p.first_name = t[3];
+            p.last_name = t[4];
+            p.birthdate = t[5];
+            p.contact_email = t[6];
+            p.emergency_contact_name = t[7];
+            p.emergency_contact_email = t[8];
+            p.associated_to = Input::getLLInput(t[9]);
+            p.created_at = t[10];
+            p.updated_at = t[11];
+            Data::passengers.push_back(p);
+        } catch (std::invalid_argument) {
+            std::cerr << "Skipping Passenger: Input - Not a Number" << std::endl;
+        } catch (std::out_of_range) {
+            std::cerr << "Skipping User: Input - Too Large: " << std::endl;
+        }
     }
 }
 

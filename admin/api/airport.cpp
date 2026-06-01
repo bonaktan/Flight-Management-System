@@ -27,11 +27,17 @@ void API::Airport::load() {
         auto t = Escape::splitLine(line);
         if (t.size() < 4) continue;
         Structs::Airport a;
-        a.id = t[0];
-        a.name = t[1];
-        a.capacity = std::stoi(t[2]);
-        a.created_at = t[3];
-        Data::airports.push_back(a);
+        try {
+            a.id = t[0];
+            a.name = t[1];
+            a.capacity = Input::getIntInput(t[2]);
+            a.created_at = t[3];
+            Data::airports.push_back(a);
+        } catch (std::invalid_argument) {
+            std::cerr << "Skipping Airport: Input - Not a Number" << std::endl;
+        } catch (std::out_of_range) {
+            std::cerr << "Skipping Airport: Input - Too Large: " << std::endl;
+        }
     }
 }
 
@@ -71,7 +77,19 @@ void API::Airport::modify() {
             if (!v.empty()) a.name = v;
             std::string c = Input::getInput("New Capacity [" +
                                             std::to_string(a.capacity) + "]: ");
-            if (!c.empty()) a.capacity = std::stoi(c);
+            if (!c.empty()) {
+                try {
+                    a.capacity = Input::getIntInput(c);
+                } catch (std::invalid_argument) {
+                    std::cerr << "ERROR: Invalid Input - Not a Number"
+                              << std::endl;
+                    return;
+                } catch (std::out_of_range) {
+                    std::cerr << "ERROR: Invalid Input - Too Large: "
+                              << std::endl;
+                    
+                }
+            }
             API::Airport::save();
             std::cout << "\n  [OK] Airport updated.\n";
             return;

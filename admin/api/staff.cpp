@@ -29,13 +29,19 @@ void API::Staff::load() {
         auto t = Escape::splitLine(line);
         if (t.size() < 6) continue;
         Structs::Staff s;
-        s.id = std::stoll(t[0]);
-        s.name = t[1];
-        s.current_location = t[2];
-        s.role = t[3];
-        s.schedule = t[4];
-        s.created_at = t[5];
-        Data::staffs.push_back(s);
+        try {
+            s.id = Input::getLLInput(t[0]);
+            s.name = t[1];
+            s.current_location = t[2];
+            s.role = t[3];
+            s.schedule = t[4];
+            s.created_at = t[5];
+            Data::staffs.push_back(s);
+        } catch (std::invalid_argument) {
+            std::cerr << "Skipping Staff: Input - Not a Number" << std::endl;
+        } catch (std::out_of_range) {
+            std::cerr << "Skipping Staff: Input - Too Large: " << std::endl;
+        }
     }
 }
 
