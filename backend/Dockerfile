@@ -14,8 +14,19 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Drogon (cached separately)
 WORKDIR /tmp
+
+# Install libbcrypt (https://github.com/trusch/libbcrypt)
+RUN git clone https://github.com/trusch/libbcrypt && \
+    cd libbcrypt && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install && \
+    ldconfig
+# Install Drogon (cached separately)
+
 RUN git clone https://github.com/drogonframework/drogon.git && \
     cd drogon && \
     git checkout 4c5430757ea5451a7c38fbbef4b4bef7dbb47f2f && \

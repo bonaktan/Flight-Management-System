@@ -26,7 +26,8 @@ aux_source_directory(models MODEL_SRC)
 aux_source_directory(utils UTILS_SRC)
 aux_source_directory(schema SCHEMA_SRC)
 aux_source_directory(controllers/admin ADMINCTL_SRC)
-add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${ADMINCTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} ${MODEL_SRC} ${UTILS_SRC} ${SCHEMA_SRC})
+aux_source_directory(controllers/auth AUTHCTL_SRC)
+add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${ADMINCTL_SRC} ${AUTHCTL_SRC} ${FILTER_SRC} ${PLUGIN_SRC} ${MODEL_SRC} ${UTILS_SRC} ${SCHEMA_SRC})
 
 # ##############################################################################
 # If you include the drogon source code locally in your project, use this method
@@ -37,13 +38,20 @@ add_executable(${PROJECT_NAME} main.cpp ${CTL_SRC} ${ADMINCTL_SRC} ${FILTER_SRC}
 # and comment out the following lines
 find_package(Drogon CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Drogon::Drogon)
-
 include(FetchContent)
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
-FetchContent_MakeAvailable(json)
-target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
+FetchContent_Declare(jwt-cpp 
+    GIT_REPOSITORY https://github.com/Thalhammer/jwt-cpp.git
+    GIT_TAG 08bcf77a687fb06e34138e9e9fa12a4ecbe12332 # v0.7.0 release
+)
+set(JWT_BUILD_EXAMPLES OFF CACHE BOOL "disable building examples" FORCE)
+Fetchcontent_MakeAvailable(jwt-cpp)
+ 
+target_link_libraries(${PROJECT_NAME} PRIVATE jwt-cpp::jwt-cpp)
 
-include(FetchContent)
+# nlohhman_json is also used but its already included in jwt-cpp
+# FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+# FetchContent_MakeAvailable(json)
+# target_link_libraries(${PROJECT_NAME} PRIVATE nlohmann_json::nlohmann_json)
 
 FetchContent_Declare(
   valijson
@@ -59,6 +67,16 @@ set(valijson_BUILD_EXAMPLES OFF CACHE BOOL "Don't build valijson examples" FORCE
 FetchContent_MakeAvailable(valijson)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ValiJSON::valijson)
+
+FetchContent_Declare(
+    libbcrypt
+    GIT_REPOSITORY https://github.com/trusch/libbcrypt.git
+    GIT_TAG        master
+)
+FetchContent_MakeAvailable(libbcrypt)
+target_link_libraries(${PROJECT_NAME} PRIVATE bcrypt)
+
+
 # ##############################################################################
 
 if (CMAKE_CXX_STANDARD LESS 17)
@@ -84,7 +102,8 @@ target_sources(${PROJECT_NAME}
                ${PLUGIN_SRC}
                ${MODEL_SRC}
                ${SCHEMA_SRC}
-               ${UTILS_SRC})
+               ${UTILS_SRC}
+               ${AUTHCTL_SRC})
 
 add_subdirectory(test)
 
