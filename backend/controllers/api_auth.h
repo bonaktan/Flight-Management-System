@@ -16,19 +16,31 @@ class auth : public drogon::HttpController<auth> {
    public:
     METHOD_LIST_BEGIN
     METHOD_ADD(auth::signup, "/signup", Post);
+    METHOD_ADD(auth::login, "/login", Post);
+    METHOD_ADD(auth::logout, "/logout", Post);
+    METHOD_ADD(auth::authenticate, "/authenticate", Post);
     // METHOD_ADD(health::healthcheck, "/", Get);
     METHOD_LIST_END
 
     void signup(const HttpRequestPtr& req,
                 std::function<void(const HttpResponsePtr&)>&& callback);
+    void login(const HttpRequestPtr& req,
+               std::function<void(const HttpResponsePtr&)>&& callback);
+    void logout(const HttpRequestPtr& req,
+                std::function<void(const HttpResponsePtr&)>&& callback);
+    void authenticate(const HttpRequestPtr& req,
+                      std::function<void(const HttpResponsePtr&)>&& callback);
 
    private:
     const valijson::Schema& signup_schema();
+    const valijson::Schema& login_schema();
+
     const static std::string generateCsrfToken();
-    const static std::string generateToken(long long userId, const std::string& username,
-                                     const std::string& csrf);
+    const static std::string generateToken(long long userId,
+                                           const std::string& username,
+                                           const std::string& csrf);
     static void setAuthCookies(const drogon::HttpResponsePtr& resp,
-                            const std::string& jwt,
-                            const std::string& csrf);
+                               const std::string& jwt, const std::string& csrf);
+    static void clearAuthCookies(const drogon::HttpResponsePtr& resp);
 };
 }  // namespace api

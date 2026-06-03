@@ -32,21 +32,30 @@ const std::string auth::generateToken(long long userId, const std::string& usern
 void auth::setAuthCookies(const drogon::HttpResponsePtr& resp,
                             const std::string& jwt,
                             const std::string& csrf) {
-    std::cout << "test" << std::endl;
     drogon::Cookie authCookie("auth_token", jwt);
     authCookie.setHttpOnly(true);
-    authCookie.setSecure(false); // WARNING: testing purposes
+    authCookie.setSecure(true);
     authCookie.setSameSite(drogon::Cookie::SameSite::kLax);
     authCookie.setMaxAge(3600);
     authCookie.setPath("/");
     resp->addCookie(authCookie);
 
-    // csrf_token is intentionally NOT HttpOnly — React reads it client-side
     drogon::Cookie csrfCookie("csrf_token", csrf);
     csrfCookie.setHttpOnly(false);
-    csrfCookie.setSecure(false);
+    csrfCookie.setSecure(true);
     csrfCookie.setSameSite(drogon::Cookie::SameSite::kLax);
     csrfCookie.setMaxAge(3600);
     csrfCookie.setPath("/");
     resp->addCookie(csrfCookie);
+}
+
+void auth::clearAuthCookies(const drogon::HttpResponsePtr& resp) {
+    for (const auto& name : {"auth_token", "csrf_token"}) {
+        drogon::Cookie c(name, "");
+        c.setHttpOnly(true);
+        c.setSecure(true);
+        c.setMaxAge(0);
+        c.setPath("/");
+        resp->addCookie(c);
+    }
 }
