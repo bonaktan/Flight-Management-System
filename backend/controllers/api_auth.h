@@ -9,8 +9,10 @@ using namespace drogon;
 namespace api {
 // CRITICAL: find an envfile parser to get envvars for this shit. THIS IS
 // HARDCODED TEMPORARILY.
-const static std::string JWT_SECRET =
-    "ded74b5520e3804b76a3f482c1d85439e4724b6f8f435c1cf50961c793d97744";
+const static std::string JWT_SECRET = []() {
+    const char* env = std::getenv("BACKEND_JWT_SECRET");
+    return env ? std::string(env) : "ded74b5520e3804b76a3f482c1d85439e4724b6f8f435c1cf50961c793d97744";
+}();
 
 class auth : public drogon::HttpController<auth> {
    public:

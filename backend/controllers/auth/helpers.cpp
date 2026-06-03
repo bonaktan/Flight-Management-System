@@ -1,7 +1,8 @@
 #include <random>
 #include <string>
-#include "jwt-cpp/jwt.h"
+
 #include "../api_auth.h"
+#include "jwt-cpp/jwt.h"
 
 using namespace api;
 
@@ -16,8 +17,9 @@ const std::string auth::generateCsrfToken() {
     return t;
 }
 
-const std::string auth::generateToken(long long userId, const std::string& username,
-                                 const std::string& csrf) {
+const std::string auth::generateToken(long long userId,
+                                      const std::string& username,
+                                      const std::string& csrf) {
     return jwt::create()
         .set_issuer("skybridge")
         .set_subject(std::to_string(userId))
@@ -30,8 +32,7 @@ const std::string auth::generateToken(long long userId, const std::string& usern
 }
 
 void auth::setAuthCookies(const drogon::HttpResponsePtr& resp,
-                            const std::string& jwt,
-                            const std::string& csrf) {
+                          const std::string& jwt, const std::string& csrf) {
     drogon::Cookie authCookie("auth_token", jwt);
     authCookie.setHttpOnly(true);
     authCookie.setSecure(true);
@@ -50,12 +51,5 @@ void auth::setAuthCookies(const drogon::HttpResponsePtr& resp,
 }
 
 void auth::clearAuthCookies(const drogon::HttpResponsePtr& resp) {
-    for (const auto& name : {"auth_token", "csrf_token"}) {
-        drogon::Cookie c(name, "");
-        c.setHttpOnly(true);
-        c.setSecure(true);
-        c.setMaxAge(0);
-        c.setPath("/");
-        resp->addCookie(c);
-    }
+    setAuthCookies(resp, "", "");
 }

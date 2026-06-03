@@ -33,13 +33,12 @@ void auth::signup(const HttpRequestPtr& req,
         "$2, $3) RETURNING id;",
         [name, email, callback](const drogon::orm::Result& result) {
             Json::Value jsonResponse;
+            
             long long account_id;
             jsonResponse["success"] = true;
             jsonResponse["name"] = name;
 
-            for (const orm::Row& row : result) {
-                account_id = row["id"].as<long long>();
-            }
+            
             std::string csrf = generateCsrfToken();
             std::string token = generateToken(account_id, email, csrf);
 
@@ -54,6 +53,7 @@ void auth::signup(const HttpRequestPtr& req,
             if (msg.find("duplicate key value") != std::string_view::npos) {
                 callback(Skybridge::Utils::error("Email already exists.",
                                                  drogon::k409Conflict));
+                return;
             }
             callback(Skybridge::Utils::error("Database error",
                                              k500InternalServerError,
@@ -94,7 +94,7 @@ void auth::login(const HttpRequestPtr& req,
             std::string email = (*json)["email"].asString();
 
             static const std::string kDummyHash =
-                "!!@%^!$#t4ng1n4m0jh3p0yd1z0n4mp4ng3tngp4gmumukh4m0%^!#$@$#!%@";
+                "$2a$12$xdeF5EDQbf2PPqXq4sbIG.C2kqNSUCemfZt9gybFAMUphoWu6gVES";
             const std::string& storedHash =
                 userFound ? result[0]["password_hash"].as<std::string>()
                           : kDummyHash;
