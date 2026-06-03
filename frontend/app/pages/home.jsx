@@ -112,11 +112,7 @@ function Search() {
                         <InputField type="date" name="Return Date" />
                     </div>
                 </div>
-                <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5">
-                    <NavLink to="/search" className="border flex justify-center items-center w-75 rounded-sm ">
-                        Search
-                    </NavLink>
-                </div>
+                <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5"></div>
             </div>
         </div>
     );

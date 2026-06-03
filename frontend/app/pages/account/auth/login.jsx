@@ -1,23 +1,51 @@
-import { NavLink, Form } from "react-router";
+import { NavLink, Form, redirect, useNavigate } from "react-router";
 import InputField from "../../../components/input";
+import { useState } from "react";
+import axios from "axios";
 
 export default function Login() {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+    function login(e) {
+        e.preventDefault();
+        axios
+            .post("/api/auth/login", {
+                email: username,
+                password: password,
+            })
+            .then((e) => {
+                console.log(e);
+                navigate("/"); // TODO: this shall be replaced w/ the last went link
+            })
+            .catch((e) => {
+                console.error(e);
+            });
+    }
+
     return (
         <>
             <p className="text-2xl text-center p-4">Login</p>
-            <Form className="flex flex-col">
+            <div className="flex flex-col">
                 <div className="my-5">
                     <div className="my-2">
-                        <InputField icon="mail" type="email" name="Email" required />
+                        <InputField value={username} onChange={(e) => setUsername(e.target.value)} icon="mail" type="email" name="Email" required />
                     </div>
                     <div className="my-2">
-                        <InputField icon="key" type="password" name="Password" required />
+                        <InputField
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            icon="key"
+                            type="password"
+                            name="Password"
+                            required
+                        />
                     </div>
                 </div>
-                <button type="submit" className="p-3 bg-red-400">
+                <button onClick={login} className="p-3 bg-red-400">
                     Login
                 </button>
-            </Form>
+            </div>
             <p className="text-center pt-10">
                 Don't have an account? <NavLink to="/auth/signup">Sign up here</NavLink>.
             </p>

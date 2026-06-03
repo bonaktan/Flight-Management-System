@@ -1,5 +1,8 @@
 import { NavLink, Outlet } from "react-router";
+import { authMiddleware } from "../../middleware/auth.middleware";
+import { AuthContext } from "../../middleware/context";
 
+export const middleware = [authMiddleware];
 export default function BookingLayout() {
     return (
         <div>

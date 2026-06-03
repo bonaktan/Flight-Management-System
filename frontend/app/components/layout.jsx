@@ -43,6 +43,10 @@ function Footer() {
     );
 }
 
+// export function loader({ context }) {
+//     const user = context.get(AuthContext);
+//     console.log(user);
+// }
 export default function Layout() {
     return (
         <>
