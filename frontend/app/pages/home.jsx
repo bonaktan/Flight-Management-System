@@ -1,7 +1,6 @@
-import { NavLink } from "react-router";
-import InputField from "../components/input";
+import { Form, NavLink } from "react-router";
 import { useState } from "react";
-import SelectionField from "../components/selection";
+import { InputField, SelectionField } from "../components/input";
 import hero from "../../public/hero.jpg";
 import "./stylesheets/home.css";
 import manila from "../assets/pubs/manila.jpg";
@@ -53,14 +52,17 @@ const apiOutput = {
         },
     ],
 };
-
-export default function Home() {
+export function loader() {
+    const date = Date.now();
+    return { date: date };
+}
+export default function Home({ loaderData }) {
     return (
         <div>
             <div id="hero" className={`h-[75dvh] flex flex-col`}>
                 {/* <div className="w-full h-full bg-wine-core opacity-60 absolute z-2"/> */}
                 <Hero />
-                <Search />
+                <Search date={loaderData.date} />
             </div>
             <HomepageCard places={apiOutput.fly_to} />
         </div>
@@ -78,7 +80,7 @@ function Hero() {
     );
 }
 
-function Search() {
+function Search({ date }) {
     const [selectedMode, setSelectedMode] = useState(0);
     return (
         <div id="searchbar" className="flex justify-center items-center flex-col gap-2 mx-2 mb-2 z-4">
@@ -96,20 +98,22 @@ function Search() {
                 </div>
                 <div id="input_fields" className="flex w-full gap-1 lg:flex-row flex-col justify-center">
                     <div id="places" className="flex w-full gap-1 lg:flex-rowflex-col">
-                        <SelectionField name="Origin" labDesign={`text-blaze-deep`} selDesign="bg-cloud-blush text-altitude-ink" defaultValue="">
+                        <SelectionField name="Origin" labDesign={`text-blaze-deep`} selDesign="bg-blaze-tint text-altitude-ink" defaultValue="">
                             <option value="" disabled>
                                 -Select Origin-
                             </option>
                         </SelectionField>
-                        <SelectionField name="Destination" labDesign={`text-blaze-deep`} selDesign="bg-cloud-blush text-altitude-ink" defaultValue="">
+                        <SelectionField name="Destination" labDesign={`text-blaze-deep`} selDesign="bg-blaze-tint text-altitude-ink" defaultValue="">
                             <option value="" disabled>
                                 -Select Destination-
                             </option>
                         </SelectionField>
-                    </div>
-                    <div id="dates" className="flex w-full gap-1 lg:flex-row flex-col justify-center">
-                        <InputField type="date" name="Departure Date" />
-                        <InputField type="date" name="Return Date" />
+                        <InputField type="date" name="Departure Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={date} />
+                        {selectedMode == 1 ? (
+                            <InputField type="date" name="Return Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={date} />
+                        ) : (
+                            <></>
+                        )}
                     </div>
                 </div>
                 <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5">
@@ -127,7 +131,11 @@ function HomepageCard({ places }) {
     return (
         <div className="relative h-[75vh]">
             <div className="relative h-full w-full">
-                <img src={places[selectedPlace].image} alt={places[selectedPlace].name} className="h-full w-full object-cover lg:object-right object-center" />
+                <img
+                    src={places[selectedPlace].image}
+                    alt={places[selectedPlace].name}
+                    className="h-full w-full object-cover lg:object-right object-center"
+                />
             </div>
             <div className="absolute top-0 left-0 lg:h-full lg:w-full w-full h-1/2 lg:bg-linear-to-r bg-linear-to-b from-cloud-warm lg:from-30% from-80% to-transparent">
                 <div className="ml-10 p-6">
