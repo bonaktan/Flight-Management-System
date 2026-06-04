@@ -1,6 +1,7 @@
 // responsibiltity: layout for search page, will contain search bar and filter controls
 // also responsible for rendering the search results, which will be fetched in the main.jsx file and passed down as props to the search result component
 import InputField from "../../components/input";
+import Bookpop from "./priceComponent";
 import { Outlet, useSearchParams } from "react-router";
 import { SearchParametersContext } from "./searchContext";
 import { useState, useReducer } from "react";
@@ -55,6 +56,8 @@ export default function SearchLayout() {
         fetchData();
     }
     // BUG: when the user changes the search parameters, the search results are not updated until the user clicks the search button again. This is because the fetchData function is only called when the component is first rendered, and not
+
+    const [debug, setDebug] = useState(false);
     return (
         <SearchParametersContext value={searchContext}>
             <div id="search-bar" className="flex flex-row p-5 align-bottom">
@@ -116,7 +119,14 @@ export default function SearchLayout() {
                     <div className="text-center w-1/5">Ultimate</div>
                 </div>
                 <Outlet />
-                <Outlet />
+                <input
+                    onClick={() => {
+                        setDebug(!debug);
+                        console.log(debug);
+                    }}
+                    type="checkbox"
+                />
+                <Bookpop activity={debug} />
             </div>
         </SearchParametersContext>
     );
