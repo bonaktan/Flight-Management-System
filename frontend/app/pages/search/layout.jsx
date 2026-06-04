@@ -1,6 +1,6 @@
 // responsibiltity: layout for search page, will contain search bar and filter controls
 // also responsible for rendering the search results, which will be fetched in the main.jsx file and passed down as props to the search result component
-import InputField from "../../components/input";
+import { InputField } from "../../components/input";
 import Bookpop from "./priceComponent";
 import { Outlet, useSearchParams } from "react-router";
 import { SearchParametersContext } from "./searchContext";

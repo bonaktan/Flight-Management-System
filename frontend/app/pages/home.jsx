@@ -1,7 +1,6 @@
 import { Form, NavLink } from "react-router";
-import InputField from "../components/input";
 import { useState } from "react";
-import SelectionField from "../components/selection";
+import { InputField, SelectionField } from "../components/input";
 import hero from "../../public/hero.jpg";
 import "./stylesheets/home.css";
 
@@ -48,14 +47,17 @@ const apiOutput = {
         },
     ],
 };
-
-export default function Home() {
+export function loader() {
+    const date = Date.now();
+    return { date: date };
+}
+export default function Home({ loaderData }) {
     return (
         <div>
             <div id="hero" className={`h-[75dvh] flex flex-col`}>
                 {/* <div className="w-full h-full bg-wine-core opacity-60 absolute z-2"/> */}
                 <Hero />
-                <Search />
+                <Search date={loaderData.date} />
             </div>
             <HomepageCard places={apiOutput.fly_to} />
         </div>
@@ -73,7 +75,7 @@ function Hero() {
     );
 }
 
-function Search() {
+function Search({ date }) {
     const [selectedMode, setSelectedMode] = useState(0);
     return (
         <div id="searchbar" className="flex justify-center items-center flex-col gap-2 mx-2 mb-2 z-4">
@@ -101,14 +103,12 @@ function Search() {
                                 -Select Destination-
                             </option>
                         </SelectionField>
-                        <InputField type="date" name="Departure Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} />
-                        <InputField
-                            type="date"
-                            name="Return Date"
-                            genDesign={`${selectedMode == 0 ? "hidden" : ""}`}
-                            inDesign={`bg-blaze-tint`}
-                            labDesign={`text-blaze-deep`}
-                        />
+                        <InputField type="date" name="Departure Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={date} />
+                        {selectedMode == 1 ? (
+                            <InputField type="date" name="Return Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={date} />
+                        ) : (
+                            <></>
+                        )}
                     </div>
                 </div>
                 <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5">
