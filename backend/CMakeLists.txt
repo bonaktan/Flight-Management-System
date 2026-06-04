@@ -68,12 +68,7 @@ FetchContent_MakeAvailable(valijson)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ValiJSON::valijson)
 
-FetchContent_Declare(
-    libbcrypt
-    GIT_REPOSITORY https://github.com/trusch/libbcrypt.git
-    GIT_TAG        master
-)
-FetchContent_MakeAvailable(libbcrypt)
+# find_package(libbcrypt REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE bcrypt)
 
 

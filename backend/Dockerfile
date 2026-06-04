@@ -27,7 +27,15 @@ RUN git clone https://github.com/drogonframework/drogon.git && \
     -DCMAKE_BUILD_TYPE=Release \
     .. && \
     ninja && ninja install && \
-    cd ../.. && rm -rf drogon
+    cd ../.. && rm -rf drogon && \
+    git clone https://github.com/trusch/libbcrypt && \
+    cd libbcrypt && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install && \
+    ldconfig
 
 WORKDIR /app
 COPY CMakeLists.txt ./
