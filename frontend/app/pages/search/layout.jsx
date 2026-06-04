@@ -21,13 +21,11 @@ export default function SearchLayout() {
             origin: searchParams.get("origin") || "",
             destination: searchParams.get("destination") || "",
             departure_date: searchParams.get("departure_date") || "",
+            return_date: searchParams.get("return_date") || "",
             sort: searchParams.get("sort") || "price",
         },
     );
     function fetchData() {
-        // setSearchContext({ field: "loading", value: true });
-        // setSearchContext({ field: "apiReturn", value: null });
-        // setSearchContext({ field: "apiError", value: null });
         axios
             .get(`${apiUrl}/api/search/flights`, {
                 params: {
@@ -92,12 +90,12 @@ export default function SearchLayout() {
                     }}
                 />
                 <InputField
-                    label="Passengers"
-                    defaultValue="1"
-                    onBlur={(e) => setSearchContext({ field: "passengers", value: e.target.value })}
+                    label="Return Date"
+                    defaultValue={searchContext["return_date"]}
+                    onBlur={(e) => setSearchContext({ field: "return_date", value: e.target.value })}
                     onKeyDown={(e) => {
                         if (event.key === "Enter") {
-                            setSearchContext({ field: "passengers", value: e.target.value });
+                            setSearchContext({ field: "return_date", value: e.target.value });
                         }
                     }}
                 />
