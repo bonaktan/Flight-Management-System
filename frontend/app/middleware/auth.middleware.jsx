@@ -1,11 +1,17 @@
-import { redirect } from "react-router";
-import { AuthContext } from "./context";
+import { UserContext } from "./context";
 import fetchUser from "./auth.server";
+import { redirect } from "react-router";
 
-export const authMiddleware = async ({ request, context }, next) => {
+export const userMiddleware = async ({ request, context }, next) => {
     const userRet = await fetchUser(request);
-    console.log(userRet);
-    context.set(AuthContext, userRet.user);
-    if (!userRet.success) throw redirect("/auth/login");
+    context.set(UserContext, userRet);
+    next();
+};
+
+export const authMiddleware = async ({ context }, next) => {
+    const user = context.get(UserContext);
+    if (!user.logged_in) {
+        return redirect("/auth/login");
+    }
     next();
 };
