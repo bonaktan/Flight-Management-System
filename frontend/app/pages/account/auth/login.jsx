@@ -42,12 +42,16 @@ export default function Login() {
                         />
                     </div>
                 </div>
-                <button onClick={login} className="p-3 bg-red-400">
+                <button onClick={login} className="p-3 bg-blaze-core text-cloud-warm font-bold">
                     Login
                 </button>
             </div>
             <p className="text-center pt-10">
-                Don't have an account? <NavLink to="/auth/signup">Sign up here</NavLink>.
+                Don't have an account?{" "}
+                <span className="text-cloud-pop">
+                    <NavLink to="/auth/signup">Sign up here</NavLink>
+                </span>
+                .
             </p>
         </>
     );

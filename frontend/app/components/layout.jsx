@@ -10,7 +10,7 @@ function Navbar() {
                 <p>SkyBridge Airways</p>
             </NavLink>
             <div>
-                <NavLink to="/login">Log in</NavLink>
+                <NavLink to="/auth/login">Log in</NavLink>
             </div>
         </div>
     );

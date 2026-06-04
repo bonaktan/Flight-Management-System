@@ -62,12 +62,16 @@ export default function Signup() {
                         />
                     </div>
                 </div>
-                <button onClick={signup} className="p-3 bg-red-400">
+                <button onClick={signup} className="p-3 bg-blaze-core text-cloud-warm font-bold">
                     Sign up
                 </button>
             </Form>
             <p className="text-center pt-10">
-                Already have an account? <NavLink to="/auth/login">Log in here</NavLink>.
+                Already have an account?{" "}
+                <span className="text-cloud-pop">
+                    <NavLink to="/auth/login">Log in here</NavLink>
+                </span>
+                .
             </p>
         </>
     );
