@@ -9,6 +9,9 @@ import boracay from "../assets/pubs/boracay.jpg";
 import newYork from "../assets/pubs/new york.jpg";
 import seoul from "../assets/pubs/seoul.jpg";
 import tokyo from "../assets/pubs/tokyo.jpg";
+import axios from "axios";
+
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const apiOutput = {
     modes: {
@@ -52,9 +55,10 @@ const apiOutput = {
         },
     ],
 };
-export function loader() {
+export async function loader() {
+    const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
     const date = Date.now();
-    return { date: date };
+    return { airports: airports, date: date };
 }
 export default function Home({ loaderData }) {
     return (
@@ -62,7 +66,7 @@ export default function Home({ loaderData }) {
             <div id="hero" className={`h-[75dvh] flex flex-col`}>
                 {/* <div className="w-full h-full bg-wine-core opacity-60 absolute z-2"/> */}
                 <Hero />
-                <Search date={loaderData.date} />
+                <Search data={loaderData} />
             </div>
             <HomepageCard places={apiOutput.fly_to} />
         </div>
@@ -80,7 +84,7 @@ function Hero() {
     );
 }
 
-function Search({ date }) {
+function Search({ data }) {
     const [selectedMode, setSelectedMode] = useState(0);
     return (
         <div id="searchbar" className="flex justify-center items-center flex-col gap-2 mx-2 mb-2 z-4">
@@ -102,15 +106,25 @@ function Search({ date }) {
                             <option value="" disabled>
                                 -Select Origin-
                             </option>
+                            {data.airports.map((airport) => (
+                                <option key={airport.id} value={airport.id}>
+                                    {airport.id} - {airport.name}, {airport.place}
+                                </option>
+                            ))}
                         </SelectionField>
                         <SelectionField name="Destination" labDesign={`text-blaze-deep`} selDesign="bg-blaze-tint text-altitude-ink" defaultValue="">
                             <option value="" disabled>
                                 -Select Destination-
                             </option>
+                            {data.airports.map((airport) => (
+                                <option key={airport.id} value={airport.id}>
+                                    {airport.id} - {airport.name}, {airport.place}
+                                </option>
+                            ))}
                         </SelectionField>
-                        <InputField type="date" name="Departure Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={date} />
+                        <InputField type="date" name="Departure Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={data.date} />
                         {selectedMode == 1 ? (
-                            <InputField type="date" name="Return Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={date} />
+                            <InputField type="date" name="Return Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={data.date} />
                         ) : (
                             <></>
                         )}
