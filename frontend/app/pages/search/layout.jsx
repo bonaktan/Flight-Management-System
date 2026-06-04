@@ -108,7 +108,16 @@ export default function SearchLayout() {
                 <button onClick={() => setSearchContext({ ...searchContext, sort: "flight_time" })}>Flight Duration</button>
                 <button onClick={() => setSearchContext({ ...searchContext, sort: "departure" })}>Departure Time</button>
             </div>
-            <Outlet />
+            <div id="results" className="flex flex-col gap-2 p-5">
+                <div id="header" className="flex w-full gap-2">
+                    <div className="w-2/5" />
+                    <div className="text-center w-1/5">Essentials</div>
+                    <div className="text-center w-1/5">Popular</div>
+                    <div className="text-center w-1/5">Ultimate</div>
+                </div>
+                <Outlet />
+                <Outlet />
+            </div>
         </SearchParametersContext>
     );
 }
