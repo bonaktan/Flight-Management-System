@@ -4,6 +4,9 @@ import { useState } from "react";
 import SelectionField from "../components/selection";
 import hero from "../../public/hero.jpg";
 import "./stylesheets/home.css";
+import axios from "axios";
+
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const apiOutput = {
     modes: {
@@ -48,14 +51,17 @@ const apiOutput = {
         },
     ],
 };
-
-export default function Home() {
+export async function loader() {
+    const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
+    return airports;
+}
+export default function Home({ loaderData }) {
     return (
         <div>
             <div id="hero" className={`h-[75dvh] flex flex-col`}>
                 {/* <div className="w-full h-full bg-wine-core opacity-60 absolute z-2"/> */}
                 <Hero />
-                <Search />
+                <Search airports={loaderData} />
             </div>
             <HomepageCard places={apiOutput.fly_to} />
         </div>
@@ -73,7 +79,7 @@ function Hero() {
     );
 }
 
-function Search() {
+function Search({ airports }) {
     const [selectedMode, setSelectedMode] = useState(0);
     return (
         <div id="searchbar" className="flex justify-center items-center flex-col gap-2 mx-2 mb-2 z-4">
@@ -95,11 +101,21 @@ function Search() {
                             <option value="" disabled>
                                 -Select Origin-
                             </option>
+                            {airports.map((airport) => (
+                                <option key={airport.id} value={airport.id}>
+                                    {airport.id} - {airport.name}, {airport.place}
+                                </option>
+                            ))}
                         </SelectionField>
                         <SelectionField name="Destination" labDesign={`text-blaze-deep`} selDesign="bg-cloud-blush text-altitude-ink" defaultValue="">
                             <option value="" disabled>
                                 -Select Destination-
                             </option>
+                            {airports.map((airport) => (
+                                <option key={airport.id} value={airport.id}>
+                                    {airport.id} - {airport.name}, {airport.place}
+                                </option>
+                            ))}
                         </SelectionField>
                     </div>
                     <div id="dates" className="flex w-full gap-1 lg:flex-row flex-col justify-center">

@@ -13,8 +13,11 @@ class search : public drogon::HttpController<search> {
    public:
     METHOD_LIST_BEGIN
     METHOD_ADD(search::flights, "/flights", Get);
+    METHOD_ADD(search::airports, "/airports", Get);
     METHOD_LIST_END
     void flights(const HttpRequestPtr& req,
+                 std::function<void(const HttpResponsePtr&)>&& callback);
+    void airports(const HttpRequestPtr& req,
                  std::function<void(const HttpResponsePtr&)>&& callback);
 
    private:

@@ -42,7 +42,7 @@ void search::flights(const HttpRequestPtr& req,
     if (!Utils::is_valid_input(departure_date, departureDatePattern)) {
         callback(Utils::error("Invalid departure date", k400BadRequest));
         return;
-    }   
+    }
     if (!Utils::is_valid_input(timezone, timezonePattern)) {
         callback(Utils::error("Invalid timezone", k400BadRequest));
         return;
@@ -51,7 +51,7 @@ void search::flights(const HttpRequestPtr& req,
         callback(Utils::error("Invalid passenger count", k400BadRequest));
         return;
     }
-    
+
     orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
     dbClient->execSqlAsync(
         "SELECT id, departure_airport_id, arrival_airport_id, "
@@ -88,4 +88,28 @@ void search::flights(const HttpRequestPtr& req,
                                              Json::Value(e.base().what())));
         },
         origin, destination, departure_date, timezone);
+}
+
+void search::airports(const HttpRequestPtr& req,
+                      std::function<void(const HttpResponsePtr&)>&& callback) {
+    orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
+    dbClient->execSqlAsync(
+        "SELECT name, id, country, city FROM airport",
+        [callback](const drogon::orm::Result& result) {
+            Json::Value jsonResponse;
+            for (const orm::Row& row : result) {
+                Json::Value rowResult;
+                rowResult["id"] = row["id"].as<std::string>();
+                rowResult["name"] = row["name"].as<std::string>();
+                rowResult["place"] = row["city"].as<std::string>() + ", " +
+                                     row["country"].as<std::string>();
+                jsonResponse.append(rowResult);
+            }
+            callback(HttpResponse::newHttpJsonResponse(jsonResponse));
+        },
+        [callback](const drogon::orm::DrogonDbException& e) {
+            callback(Skybridge::Utils::error("Database error",
+                                             k500InternalServerError,
+                                             Json::Value(e.base().what())));
+        });
 }
