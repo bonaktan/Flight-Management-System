@@ -1,33 +1,44 @@
 // responsibiltity: fetching flight data from backend and displaying it in a list of cards
 
-import { useEffect, useState, use } from "react";
+import { useState, use, useReducer } from "react";
 import { NavLink, useLoaderData } from "react-router";
 import axios from "axios";
 import { SearchParametersContext } from "./searchContext";
 import { addTime } from "../../components/datetime";
+import Bookpop from "./priceComponent";
 export default function Search() {
     const searchParams = use(SearchParametersContext);
+    const [selectedFlightAndClass, setSelectedFlightAndClass] = useReducer(
+        (state, { flight, seatClass }) => {
+            let ret;
+            if (flight == state.flight && seatClass == state.seatClass) ret = { flight: null, seatClass: null };
+            else ret = { flight: flight, seatClass: seatClass };
+            return ret;
+        },
+        { flight: null, class: null },
+    );
     // todo: passengers are not yet handled
-    console.log(searchParams);
+
     if (!searchParams) {
         return <p>Loading...</p>;
     }
     return (
         <div>
             {searchParams.apiReturn ? (
-                searchParams.apiReturn.map((flight) => <FlightCard key={flight.id} flight={flight} />)
+                searchParams.apiReturn.map((flight) => (
+                    <FlightCard key={flight.id} flight={flight} value={selectedFlightAndClass} selectValue={setSelectedFlightAndClass} />
+                ))
             ) : searchParams.apiError ? (
                 <p>Error occurred while fetching flight data. Error: {searchParams.apiError.error}</p>
             ) : (
                 <p>No Flights are found.</p>
             )}
+            <Bookpop activity={selectedFlightAndClass.flight} />
         </div>
     );
 }
 
-function FlightCard({ flight }) {
-    console.log(flight.id);
-    const [selectedClass, setSelectedClass] = useState();
+function FlightCard({ flight, value, selectValue }) {
     const departureDate = new Date(flight.departure);
     const arrivalDate = addTime(departureDate, flight.flight_time);
     return (
@@ -62,17 +73,20 @@ function FlightCard({ flight }) {
                 </div>
             </div>
             {/* TODO: use the seat classes and the dynamic pricing algorithm in backend to base the prices for the 3 classes */}
-            {[flight.base_ticket_price, flight.base_ticket_price * 2, flight.base_ticket_price * 4].map((price) => (
-                <button
-                    onClick={() => {
-                        setSelectedClass(price);
-                        console.log(price);
-                    }}
-                    key={price}
-                    className={`transition border boorder-[#ccc] w-1/5 ${selectedClass == price ? "bg-blaze-core" : ""}`}>
-                    {price}
-                </button>
-            ))}
+            {Object.entries({ economy: flight.base_ticket_price, business: flight.base_ticket_price * 2, first: flight.base_ticket_price * 4 }).map(
+                ([key, flightPrice]) => {
+                    return (
+                        <button
+                            onClick={() => {
+                                selectValue({ flight: flight.id, seatClass: key });
+                            }}
+                            key={key}
+                            className={`transition border boorder-[#ccc] w-1/5 ${value.flight == flight.id && value.seatClass == key ? "bg-blaze-core" : ""}`}>
+                            {flightPrice}
+                        </button>
+                    );
+                },
+            )}
 
             {/* <button className="border border-[#ccc] w-1/5">P1,500</button>
             <button className="border border-[#ccc] w-1/5">P2,000</button>

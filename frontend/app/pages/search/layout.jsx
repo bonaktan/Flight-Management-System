@@ -67,8 +67,6 @@ export default function SearchLayout({ loaderData }) {
             } else {
                 ret[action.field] = action.value;
             }
-            console.log("searchContext: ", ret);
-            console.log("action: ", action);
             return ret;
         },
         {
@@ -81,7 +79,6 @@ export default function SearchLayout({ loaderData }) {
             sort: loaderData.searchParams["sort"] || "price",
         },
     );
-    const [debug, setDebug] = useState(false);
 
     function searchUpdate() {
         navigate({
@@ -155,11 +152,11 @@ export default function SearchLayout({ loaderData }) {
                         ))}
                     </SelectionField>
                 </div>
-                <div className="flex gap-2 w-fit">
+                <div className="flex gap-2 w-110">
                     <InputField
                         name="Date"
                         type="date"
-                        genDesign="w-34"
+                        genDesign="w-full"
                         labDesign="text-sm"
                         inDesign="rounded-sm text-sm"
                         onChange={(e) => setSearchContext({ field: "departure_date", value: e.target.value })}
@@ -169,7 +166,7 @@ export default function SearchLayout({ loaderData }) {
                         <InputField
                             name="Return Date"
                             type="date"
-                            genDesign="w-34"
+                            genDesign="w-full"
                             labDesign="text-sm"
                             inDesign="rounded-sm text-sm"
                             onChange={(e) => setSearchContext({ field: "return_date", value: e.target.value })}
@@ -206,14 +203,6 @@ export default function SearchLayout({ loaderData }) {
                     <div className="text-center w-1/5">Ultimate</div>
                 </div>
                 <Outlet />
-                <input
-                    onClick={() => {
-                        setDebug(!debug);
-                        console.log(debug);
-                    }}
-                    type="checkbox"
-                />
-                <Bookpop activity={debug} />
             </div>
         </SearchParametersContext>
     );
