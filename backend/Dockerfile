@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Drogon (cached separately)
 WORKDIR /tmp
+
 RUN git clone https://github.com/drogonframework/drogon.git && \
     cd drogon && \
     git checkout 4c5430757ea5451a7c38fbbef4b4bef7dbb47f2f && \
@@ -27,13 +27,19 @@ RUN git clone https://github.com/drogonframework/drogon.git && \
     -DCMAKE_BUILD_TYPE=Release \
     .. && \
     ninja && ninja install && \
-    cd ../.. && rm -rf drogon
+    cd ../.. && rm -rf drogon && \
+    git clone https://github.com/trusch/libbcrypt && \
+    cd libbcrypt && \
+    mkdir build && \
+    cd build && \
+    cmake .. && \
+    make && \
+    make install && \
+    ldconfig
 
-# Copy only dependency files first (cached separately from source)
 WORKDIR /app
 COPY CMakeLists.txt ./
 
-# Configure CMake to download dependencies
 RUN mkdir build && cd build && \
     cmake -G Ninja \
     -DCMAKE_C_COMPILER=clang \
@@ -42,7 +48,6 @@ RUN mkdir build && cd build && \
     -DBUILD_SHARED_LIBS=OFF \
     .. || true
 
-# Now copy source code and build
 COPY . .
 RUN cd build && \
     cmake -G Ninja \
@@ -55,7 +60,6 @@ RUN cd build && \
 
 # Runtime stage
 FROM debian:bookworm-slim
-# Install runtime dependencies
 RUN apt-get update -q && apt-get install -qy \
     libjsoncpp-dev \
     uuid-dev \
@@ -69,7 +73,6 @@ RUN useradd -s /bin/bash skybridge_backend && mkdir /app && \
     chmod 744 -R /app && \
     chown skybridge_backend:skybridge_backend /app 
 
-# Copy Drogon libraries
 COPY --from=builder /usr/local/lib /usr/local/lib
 RUN ldconfig
 

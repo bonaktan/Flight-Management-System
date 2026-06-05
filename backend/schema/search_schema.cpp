@@ -5,7 +5,7 @@
 
 #include "../controllers/api_search.h"
 
-const valijson::Schema& api::search::flightSchema() {
+const valijson::Schema& api::search::flight_schema() {
     static valijson::Schema schema = [] {
         Json::Value s;
         s["$schema"] = "http://json-schema.org/draft-07/schema#";

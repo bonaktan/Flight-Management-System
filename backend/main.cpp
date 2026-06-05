@@ -47,8 +47,12 @@ int main() {
             // TODO: close the app, you cant live w/o the db :)
         }
     });
-
-    std::cout << "Backend running on http://localhost:8080" << std::endl;
+    drogon::app().registerPostHandlingAdvice(
+        [](const drogon::HttpRequestPtr& req,
+           const drogon::HttpResponsePtr& resp) {
+            resp->addHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+        });
+    std::cout << "Backend now running." << std::endl;
     drogon::app().run();
     return 0;
 }

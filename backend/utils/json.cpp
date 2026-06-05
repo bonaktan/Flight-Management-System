@@ -36,9 +36,6 @@ drogon::HttpResponsePtr Utils::error(const std::string& message,
     jsonResponse["error"] = message;
     drogon::HttpResponsePtr resp =
         drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
-    if (details.empty()) {
-        jsonResponse["details"] = details["details"];
-    }
     resp->setStatusCode(statusCode);
     return resp;
 }

@@ -1,6 +1,6 @@
 // responsibiltity: layout for search page, will contain search bar and filter controls
 // also responsible for rendering the search results, which will be fetched in the main.jsx file and passed down as props to the search result component
-import InputField from "../../components/input";
+import { InputField } from "../../components/input";
 import Bookpop from "./priceComponent";
 import { Outlet, useSearchParams } from "react-router";
 import { SearchParametersContext } from "./searchContext";
@@ -32,13 +32,11 @@ export default function SearchLayout() {
             origin: searchParams.get("origin") || "",
             destination: searchParams.get("destination") || "",
             departure_date: searchParams.get("departure_date") || "",
+            return_date: searchParams.get("return_date") || "",
             sort: searchParams.get("sort") || "price",
         },
     );
     function fetchData() {
-        // setSearchContext({ field: "loading", value: true });
-        // setSearchContext({ field: "apiReturn", value: null });
-        // setSearchContext({ field: "apiError", value: null });
         axios
             .get(`${apiUrl}/api/search/flights`, {
                 params: {

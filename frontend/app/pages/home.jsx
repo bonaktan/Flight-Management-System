@@ -1,9 +1,17 @@
 import { Form, NavLink } from "react-router";
-import InputField from "../components/input";
 import { useState } from "react";
-import SelectionField from "../components/selection";
+import { InputField, SelectionField } from "../components/input";
 import hero from "../../public/hero.jpg";
 import "./stylesheets/home.css";
+import manila from "../assets/pubs/manila.jpg";
+import cebu from "../assets/pubs/cebu.jpg";
+import boracay from "../assets/pubs/boracay.jpg";
+import newYork from "../assets/pubs/new york.jpg";
+import seoul from "../assets/pubs/seoul.jpg";
+import tokyo from "../assets/pubs/tokyo.jpg";
+import axios from "axios";
+
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 const apiOutput = {
     modes: {
@@ -17,45 +25,48 @@ const apiOutput = {
     fly_to: [
         {
             name: "Manila",
-            description:
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam non enim dignissim leo commodo iaculis vitae eget erat. Nullam dignissim volutpat vestibulum. Quisque dignissim ligula eget velit lacinia tincidunt. Nam blandit diam eget lectus convallis, sit amet tristique lorem tincidunt. Nullam dapibus fringilla laoreet. Vivamus luctus id turpis in rutrum. In at cursus turpis. Cras accumsan, urna non porta rutrum, magna est porta quam, at suscipit enim felis dignissim lorem. Curabitur eu maximus diam. Proin nec mauris pulvinar, egestas augue non, vehicula neque. Maecenas at libero ligula. ",
-            image: "/pubs/manila.jpg",
+            description: "Lorem ipsum dolor sit amet.",
+            image: manila,
         },
         {
             name: "Cebu",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/cebu.jpg",
+            image: cebu,
         },
         {
             name: "Boracay",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/boracay.jpg",
+            image: boracay,
         },
         {
             name: "New York",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/new york.jpg",
+            image: newYork,
         },
         {
             name: "Seoul",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/seoul.jpg",
+            image: seoul,
         },
         {
             name: "Tokyo",
             description: "Lorem ipsum dolor sit amet",
-            image: "/pubs/tokyo.jpg",
+            image: tokyo,
         },
     ],
 };
-
-export default function Home() {
+export async function loader() {
+    const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
+    const date = Date.now();
+    return { airports: airports, date: date };
+}
+export default function Home({ loaderData }) {
     return (
         <div>
             <div id="hero" className={`h-[75dvh] flex flex-col`}>
                 {/* <div className="w-full h-full bg-wine-core opacity-60 absolute z-2"/> */}
                 <Hero />
-                <Search />
+                <Search data={loaderData} />
             </div>
             <HomepageCard places={apiOutput.fly_to} />
         </div>
@@ -73,7 +84,7 @@ function Hero() {
     );
 }
 
-function Search() {
+function Search({ data }) {
     const [selectedMode, setSelectedMode] = useState(0);
     return (
         <div id="searchbar" className="flex justify-center items-center flex-col gap-2 mx-2 mb-2 z-4">
@@ -95,20 +106,28 @@ function Search() {
                             <option value="" disabled>
                                 -Select Origin-
                             </option>
+                            {data.airports.map((airport) => (
+                                <option key={airport.id} value={airport.id}>
+                                    {airport.id} - {airport.name}, {airport.place}
+                                </option>
+                            ))}
                         </SelectionField>
                         <SelectionField name="Destination" labDesign={`text-blaze-deep`} selDesign="bg-blaze-tint text-altitude-ink" defaultValue="">
                             <option value="" disabled>
                                 -Select Destination-
                             </option>
+                            {data.airports.map((airport) => (
+                                <option key={airport.id} value={airport.id}>
+                                    {airport.id} - {airport.name}, {airport.place}
+                                </option>
+                            ))}
                         </SelectionField>
-                        <InputField type="date" name="Departure Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} />
-                        <InputField
-                            type="date"
-                            name="Return Date"
-                            genDesign={`${selectedMode == 0 ? "hidden" : ""}`}
-                            inDesign={`bg-blaze-tint`}
-                            labDesign={`text-blaze-deep`}
-                        />
+                        <InputField type="date" name="Departure Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={data.date} />
+                        {selectedMode == 1 ? (
+                            <InputField type="date" name="Return Date" inDesign={`bg-blaze-tint`} labDesign={`text-blaze-deep`} min={data.date} />
+                        ) : (
+                            <></>
+                        )}
                     </div>
                 </div>
                 <div className="flex justify-center lg:h-10 lg:self-end lg:mt-auto mt-5">
@@ -126,7 +145,11 @@ function HomepageCard({ places }) {
     return (
         <div className="relative h-[75vh]">
             <div className="relative h-full w-full">
-                <div style={{ backgroundImage: `url(${places[selectedPlace].image})` }} className="p-6 h-full w-full lg:bg-right bg-center"></div>
+                <img
+                    src={places[selectedPlace].image}
+                    alt={places[selectedPlace].name}
+                    className="h-full w-full object-cover lg:object-right object-center"
+                />
             </div>
             <div className="absolute top-0 left-0 lg:h-full lg:w-full w-full h-1/2 lg:bg-linear-to-r bg-linear-to-b from-cloud-warm lg:from-30% from-80% to-transparent">
                 <div className="ml-10 p-6">
