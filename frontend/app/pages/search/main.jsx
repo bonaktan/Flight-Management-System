@@ -8,8 +8,8 @@ import { addTime } from "../../components/datetime";
 export default function Search() {
     const searchParams = use(SearchParametersContext);
     // todo: passengers are not yet handled
-
-    if (searchParams.loading) {
+    console.log(searchParams);
+    if (!searchParams) {
         return <p>Loading...</p>;
     }
     return (
