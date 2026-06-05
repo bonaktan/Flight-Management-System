@@ -17,6 +17,7 @@ export default [
 
         route("booking", "pages/booking/layout.jsx", [
             route("form", "pages/booking/form.jsx"),
+            route("seatmap", "pages/booking/seatmap.jsx"),
             route("details", "pages/booking/flightdetails.jsx"),
             route("payment", "pages/booking/payment.jsx"),
             route("confirmation", "pages/booking/confirmation.jsx"),
