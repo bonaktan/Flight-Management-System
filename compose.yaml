@@ -101,11 +101,11 @@ services:
             - frontend_net
             - backend_net
         environment:
-            - POSTGRES_USER
-            - POSTGRES_PASSWORD
-            - POSTGRES_DB
-            - POSTGRES_HOST
-            - POSTGRES_PORT
+            - DATABASE_USER
+            - DATABASE_PASSWORD
+            - DATABASE_DB
+            - DATABASE_HOST
+            - DATABASE_PORT
         logging:
             driver: "json-file"
             options:
