@@ -113,3 +113,43 @@ void search::airports(const HttpRequestPtr& req,
                                              Json::Value(e.base().what())));
         });
 }
+
+static const std::regex airplanePattern("^SB-[A-Z][0-9]{4}$");
+// TODO: do search sorting and filtering options
+// (such as sort for price, flight length, etc, filter for x class only)
+void search::seatmap(const HttpRequestPtr& req,
+                     std::function<void(const HttpResponsePtr&)>&& callback) {
+    // sanity checking boilerplate
+    const auto& parameters = req->getParameters();
+    std::string airplane = req->getParameter("airplane");
+    if (!Utils::is_valid_input(airplane, airplanePattern)) {
+        callback(Utils::error("Invalid airplane.", k400BadRequest));
+        return;
+    }
+
+    orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
+    dbClient->execSqlAsync(
+        "SELECT (SELECT seatmap FROM airplane WHERE id = $1) AS seatmap, "
+        "(SELECT array_agg(seat_id) AS seats FROM booking WHERE flight_id = "
+        "$1) AS occupied_seats",
+        [callback](const drogon::orm::Result& result) {
+            Json::Value jsonResponse =
+                Utils::parseJsonField(result[0]["seatmap"].as<std::string>());
+
+            std::vector<std::string> seats = Utils::parsePgArray(
+                result[0]["occupied_seats"].as<std::string>());
+            Json::Value seatsJson(Json::arrayValue);
+            for (const std::basic_string<char>& seat : seats) {
+                seatsJson.append(seat);
+            }
+            
+            jsonResponse["occupied_seats"] = seatsJson;
+            callback(HttpResponse::newHttpJsonResponse(jsonResponse));
+        },
+        [callback](const drogon::orm::DrogonDbException& e) {
+            callback(Skybridge::Utils::error("Database error",
+                                             k500InternalServerError,
+                                             Json::Value(e.base().what())));
+        },
+        airplane);
+}

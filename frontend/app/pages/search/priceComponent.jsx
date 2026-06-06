@@ -12,7 +12,7 @@ export default function Bookpop({ activity }) {
         });
     }
     return (
-        <div className={`w-full border-cloud-pop border-2 p-2 flex justify-between transition ${activity ? "active" : ""}`}>
+        <div className={`w-full border-cloud-pop border-2 p-2 flex justify-between transition ${activity ? "active" : ""} -z-1 absolute bottom-0`}>
             {activity}
             <div className="flex justify-start flex-col">
                 <p>Flight ID</p>

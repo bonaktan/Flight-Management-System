@@ -43,3 +43,27 @@ drogon::HttpResponsePtr Utils::error(const std::string& message,
 bool Utils::is_valid_input(const std::string& input, const std::regex& pattern) {
     return std::regex_match(input, pattern);
 }
+
+Json::Value Utils::parseJsonField(const std::string& raw) {
+    Json::CharReaderBuilder reader;
+    std::string errs;
+    Json::Value out;
+    std::istringstream s(raw);
+    if (!Json::parseFromStream(reader, s, &out, &errs))
+        throw std::runtime_error("JSON parse error: " + errs);
+    return out;
+}
+
+std::vector<std::string> Utils::parsePgArray(const std::string &pgArray) {
+    std::vector<std::string> result;
+    // Strip the curly braces: {a,b,c} -> a,b,c
+    if (pgArray.size() < 2) return result;
+    std::string inner = pgArray.substr(1, pgArray.size() - 2);
+    
+    std::stringstream ss(inner);
+    std::string token;
+    while (std::getline(ss, token, ',')) {
+        result.push_back(token);
+    }
+    return result;
+}

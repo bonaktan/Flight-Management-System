@@ -8,6 +8,17 @@ import { useState, useReducer } from "react";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
+function SearchInput({ name, type }) {
+    return (
+        <div className="flex flex-col w-full">
+            <label for={name} className="text-sm">
+                {name}
+            </label>
+            <input name={name} type={type} className="border rounded-sm px-2" />
+        </div>
+    );
+}
+
 export default function SearchLayout() {
     const [searchParams] = useSearchParams();
     const [searchContext, setSearchContext] = useReducer(
@@ -57,54 +68,37 @@ export default function SearchLayout() {
         fetchData();
     }
     // BUG: when the user changes the search parameters, the search results are not updated until the user clicks the search button again. This is because the fetchData function is only called when the component is first rendered, and not
-
+    const [selectedMode, setSelectedMode] = useState();
     const [debug, setDebug] = useState(false);
     return (
         <SearchParametersContext value={{ ...searchContext, setSearchContext: setSearchContext }}>
-            <div id="search-bar" className="flex flex-row p-5 align-bottom">
-                <InputField
-                    label="Origin"
-                    defaultValue={searchContext["origin"]}
-                    onBlur={(e) => setSearchContext({ field: "origin", value: e.target.value })}
-                    onKeyDown={(e) => {
-                        if (event.key === "Enter") {
-                            setSearchContext({ field: "origin", value: e.target.value });
-                        }
-                    }}
-                />
-                <InputField
-                    label="Destination"
-                    defaultValue={searchContext["destination"]}
-                    onBlur={(e) => setSearchContext({ field: "destination", value: e.target.value })}
-                    onKeyDown={(e) => {
-                        if (event.key === "Enter") {
-                            setSearchContext({ field: "destination", value: e.target.value });
-                        }
-                    }}
-                />
-                <InputField
-                    label="Departure Date"
-                    defaultValue={searchContext["departure_date"]}
-                    onBlur={(e) => setSearchContext({ field: "departure_date", value: e.target.value })}
-                    onKeyDown={(e) => {
-                        if (event.key === "Enter") {
-                            setSearchContext({ field: "departure_date", value: e.target.value });
-                        }
-                    }}
-                />
-                <InputField
-                    label="Return Date"
-                    defaultValue={searchContext["return_date"]}
-                    onBlur={(e) => setSearchContext({ field: "return_date", value: e.target.value })}
-                    onKeyDown={(e) => {
-                        if (event.key === "Enter") {
-                            setSearchContext({ field: "return_date", value: e.target.value });
-                        }
-                    }}
-                />
-                <button onClick={fetchData} className="border p-2 h-10 align-baseline">
-                    Search
-                </button>
+            <div id="search-bar" className="flex flex-row gap-2 p-2 align-bottom border my-2 mx-4 shadow-xl bg-blaze-tint">
+                <div className="flex items-center">
+                    {["Oneway", "Roundtrip"].map((trip, _) => (
+                        <button
+                            onClick={() => setSelectedMode(trip)}
+                            className={`${selectedMode == trip ? "bg-blaze-core text-white" : ""} border p-2 transition`}>
+                            {trip}
+                        </button>
+                    ))}
+                </div>
+                <div className="m-0 p-0 flex items-center gap-2 w-full">
+                    <SearchInput name="Origin" />
+                    <span className="flex w-12 overflow-hidden translate-y-1 ">
+                        <span className={`material-symbols-outlined ${selectedMode == "Roundtrip" ? "" : "-translate-x-6 rotate-90"} transition`}>
+                            compare_arrows
+                        </span>
+                        <span className={`material-symbols-outlined  ${selectedMode == "Roundtrip" ? "" : "-translate-x-6 rotate-90"} transition`}>
+                            flight
+                        </span>
+                    </span>
+                    <SearchInput name="Destination" />
+                </div>
+                <div className="flex gap-2">
+                    <SearchInput name="Date" type="date" />
+                    <SearchInput name="Return Date" type="date" />
+                </div>
+                <button className="w-full">Submit</button>
             </div>
             <div id="filters" className="flex flex-row align-bottom px-5 gap-5">
                 <div>Sort</div>
