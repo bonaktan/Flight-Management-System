@@ -27,6 +27,7 @@ export default function Search() {
 
 function FlightCard({ flight }) {
     console.log(flight.id);
+    const searchContext = use(SearchParametersContext);
     const [selectedClass, setSelectedClass] = useState();
     const departureDate = new Date(flight.departure);
     const arrivalDate = addTime(departureDate, flight.flight_time);
@@ -65,11 +66,11 @@ function FlightCard({ flight }) {
             {[flight.base_ticket_price, flight.base_ticket_price * 2, flight.base_ticket_price * 4].map((price) => (
                 <button
                     onClick={() => {
-                        setSelectedClass(price);
-                        console.log(price);
+                        searchContext.setSearchContext({ field: "selectedFlight", value: flight.id });
+                        searchContext.setSearchContext({ field: "selectedClass", value: price });
                     }}
                     key={price}
-                    className={`transition border boorder-[#ccc] w-1/5 ${selectedClass == price ? "bg-blaze-core" : ""}`}>
+                    className={`transition border boorder-[#ccc] w-1/5 ${searchContext.selectedFlight == flight.id && searchContext.selectedClass == price ? "bg-blaze-core" : ""}`}>
                     {price}
                 </button>
             ))}

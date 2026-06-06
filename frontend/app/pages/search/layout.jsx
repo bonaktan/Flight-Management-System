@@ -23,6 +23,9 @@ export default function SearchLayout() {
             departure_date: searchParams.get("departure_date") || "",
             return_date: searchParams.get("return_date") || "",
             sort: searchParams.get("sort") || "price",
+            selectedFlight: null,
+            selectedClass: null,
+            passengers: searchParams.get("passengers") || 1,
         },
     );
     function fetchData() {
@@ -57,7 +60,7 @@ export default function SearchLayout() {
 
     const [debug, setDebug] = useState(false);
     return (
-        <SearchParametersContext value={searchContext}>
+        <SearchParametersContext value={{ ...searchContext, setSearchContext: setSearchContext }}>
             <div id="search-bar" className="flex flex-row p-5 align-bottom">
                 <InputField
                     label="Origin"
