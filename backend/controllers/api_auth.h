@@ -11,7 +11,9 @@ namespace api {
 // HARDCODED TEMPORARILY.
 const static std::string JWT_SECRET = []() {
     const char* env = std::getenv("BACKEND_JWT_SECRET");
-    return env ? std::string(env) : "ded74b5520e3804b76a3f482c1d85439e4724b6f8f435c1cf50961c793d97744";
+    return env ? std::string(env)
+               : "ded74b5520e3804b76a3f482c1d85439e4724b6f8f435c1cf50961c793d97"
+                 "744";
 }();
 
 class auth : public drogon::HttpController<auth> {
@@ -20,7 +22,7 @@ class auth : public drogon::HttpController<auth> {
     METHOD_ADD(auth::signup, "/signup", Post);
     METHOD_ADD(auth::login, "/login", Post);
     METHOD_ADD(auth::logout, "/logout", Post);
-    METHOD_ADD(auth::authenticate, "/authenticate", Post);
+    METHOD_ADD(auth::authenticate, "/authenticate", Get, "AuthFilter");
     // METHOD_ADD(health::healthcheck, "/", Get);
     METHOD_LIST_END
 

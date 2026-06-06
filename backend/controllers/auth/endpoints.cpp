@@ -33,12 +33,11 @@ void auth::signup(const HttpRequestPtr& req,
         "$2, $3) RETURNING id;",
         [name, email, callback](const drogon::orm::Result& result) {
             Json::Value jsonResponse;
-            
+
             long long account_id;
             jsonResponse["success"] = true;
             jsonResponse["name"] = name;
 
-            
             std::string csrf = generateCsrfToken();
             std::string token = generateToken(account_id, email, csrf);
 
@@ -151,42 +150,18 @@ void auth::logout(const HttpRequestPtr& req,
 void auth::authenticate(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)>&& callback) {
-    std::string token = req->getCookie("auth_token");
-    if (token.empty()) {
-        callback(Skybridge::Utils::error("Not logged in.",
-                                         drogon::k401Unauthorized,
-                                         "Auth Token not found."));
-        return;
-    }
+    /* WARNING: this process doesn't touch the database at all. while it
+     * pretty much "works", there is a problem wherein invalidated users
+     * (deleted accts, changed passwds) are still authenticated correctly.
+     * that problem will be ignored for now but should be fixed in further
+     * iterations
+     */
+    Json::Value body;
+    body["userId"] = req->attributes()->get<std::string>("userId");
+    body["username"] = req->attributes()->get<std::string>("username");
 
-    try {
-        auto decoded = jwt::decode(token);
-        jwt::verify()
-            .allow_algorithm(jwt::algorithm::hs256{JWT_SECRET})
-            .with_issuer("skybridge")
-            .verify(decoded);
-
-        /* WARNING: this process doesn't touch the database at all. while it
-         * pretty much "works", there is a problem wherein invalidated users
-         * (deleted accts, changed passwds) are still authenticated correctly.
-         * that problem will be ignored for now but should be fixed in further
-         * iterations
-         */
-        Json::Value body;
-        body["userId"] = decoded.get_subject();
-        body["username"] = decoded.get_payload_claim("username").as_string();
-
-        drogon::HttpResponsePtr resp =
-            drogon::HttpResponse::newHttpJsonResponse(body);
-        resp->setStatusCode(drogon::k200OK);
-        callback(resp);
-    } catch (...) {
-        Json::Value jsonResponse;
-        jsonResponse["error"] = "Invalid or Expired token.";
-        drogon::HttpResponsePtr resp =
-            drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
-        clearAuthCookies(resp);
-        resp->setStatusCode(drogon::k401Unauthorized);
-        callback(resp);
-    }
+    drogon::HttpResponsePtr resp =
+        drogon::HttpResponse::newHttpJsonResponse(body);
+    resp->setStatusCode(drogon::k200OK);
+    callback(resp);
 }
