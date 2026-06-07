@@ -9,23 +9,23 @@ namespace api {
 class admin : public drogon::HttpController<admin> {
    public:
     METHOD_LIST_BEGIN
-    METHOD_ADD(admin::dashboard, "/dashboard", Get);
+    METHOD_ADD(admin::dashboard, "/dashboard", Get, "AuthFilter", "AdminFilter");
 
-    METHOD_ADD(admin::add_airplane, "/airplane/add", Post);
-    METHOD_ADD(admin::add_airport, "/airport/add", Post);
-    METHOD_ADD(admin::add_flight, "/flight/add", Post);
-    METHOD_ADD(admin::add_staff, "/staff/add", Post);
+    METHOD_ADD(admin::add_airplane, "/airplane/add", Post, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::add_airport, "/airport/add", Post, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::add_flight, "/flight/add", Post, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::add_staff, "/staff/add", Post, "AuthFilter", "AdminFilter");
 
-    METHOD_ADD(admin::view_airplanes, "/airplane/view", Get);
-    METHOD_ADD(admin::view_airports, "/airport/view", Get);
-    METHOD_ADD(admin::view_account, "/account/view", Get);
-    METHOD_ADD(admin::view_staff, "/staff/view", Get);
+    METHOD_ADD(admin::view_airplanes, "/airplane/view", Get, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::view_airports, "/airport/view", Get, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::view_account, "/account/view", Get, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::view_staff, "/staff/view", Get, "AuthFilter", "AdminFilter");
 
-    METHOD_ADD(admin::delete_airplane, "/airplane/delete/{id}", Delete);
-    METHOD_ADD(admin::delete_airport, "/airport/delete/{id}", Delete);
-    METHOD_ADD(admin::delete_account, "/account/delete/{id}", Delete);
-    METHOD_ADD(admin::delete_staff, "/staff/delete/{id}", Delete);
-    METHOD_ADD(admin::delete_flight, "/flight/delete/{id}", Delete);
+    METHOD_ADD(admin::delete_airplane, "/airplane/delete/{id}", Delete, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::delete_airport, "/airport/delete/{id}", Delete, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::delete_account, "/account/delete/{id}", Delete, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::delete_staff, "/staff/delete/{id}", Delete, "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::delete_flight, "/flight/delete/{id}", Delete, "AuthFilter", "AdminFilter");
     METHOD_LIST_END
 
     void dashboard(const HttpRequestPtr& req,
