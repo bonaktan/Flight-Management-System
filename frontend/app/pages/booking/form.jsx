@@ -20,7 +20,7 @@ function PassengerForm({ count, passenger, setPassenger }) {
         <div className="flex flex-col w-full bg-blaze-tint p-4 rounded-lg shadow-lg">
             <div className="flex border-b" onClick={onDropdownClick}>
                 <p className="font-bold text-lg w-full ">Customer Information - Passenger {count + 1}</p>
-                <span class="material-symbols-outlined">{passenger == count ? "arrow_drop_up" : "arrow_drop_down"}</span>
+                <span className="material-symbols-outlined">{passenger == count ? "arrow_drop_up" : "arrow_drop_down"}</span>
             </div>
             {passenger == count && (
                 <div>

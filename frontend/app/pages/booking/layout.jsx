@@ -49,7 +49,7 @@ function FlightSubcard() {
                     <div>03:45</div>
                     <div>MNL</div>
                 </div>
-                <span class="material-symbols-outlined">flight_takeoff</span>
+                <span className="material-symbols-outlined">flight_takeoff</span>
                 <div>
                     <div>09:00</div>
                     <div>CEB</div>
