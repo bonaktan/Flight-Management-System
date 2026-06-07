@@ -8,7 +8,7 @@ class AuthFilter : public drogon::HttpFilter<AuthFilter> {
                   drogon::FilterChainCallback&& fccb) override;
 };
 
-class AdminFilter : public drogon::HttpFilter<AuthFilter> {
+class AdminFilter : public drogon::HttpFilter<AdminFilter> {
    public:
     void doFilter(const drogon::HttpRequestPtr& req,
                   drogon::FilterCallback&& fcb,
