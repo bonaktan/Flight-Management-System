@@ -8,19 +8,19 @@ function StructuralZone({ zone }) {
     if (zone.label == "door")
         return (
             <div className="flex h-8 justify-between my-2">
-                <div className="bg-red-300 rounded-r-lg w-4" />
-                <div className="bg-red-300 rounded-l-lg w-4" />
+                <div className="bg-cloud-pop rounded-r-lg w-4" />
+                <div className="bg-cloud-pop rounded-l-lg w-4" />
             </div>
         );
     else if (zone.label == "lavatory")
         return (
             <div className="flex h-8 justify-between my-2">
-                <div className="w-1/5 bg-orange-300" />
+                <div className="w-1/5 bg-cloud-warm" />
                 <div>Toilet</div>
-                <div className="w-1/5 bg-orange-300" />
+                <div className="w-1/5 bg-cloud-warm" />
             </div>
         );
-    else if (zone.label == "galley") return <div className="h-8 bg-red-200 flex items-center justify-center my-2" />;
+    else if (zone.label == "galley") return <div className="h-8 bg-altitude-haze flex items-center justify-center my-2" />;
 }
 
 function SeatButton({ row, column }) {
@@ -83,7 +83,7 @@ function SeatRow({ columnCount, pattern }) {
 function SeatZone({ zone, startingSeatCount }) {
     return (
         <div className="">
-            <div className="text-xs px-2 items-center bg-blue-200 text-altitude-ink">{zone.label}</div>
+            <div className="text-xs py-1 px-2 items-center bg-blue-200 text-altitude-ink">{zone.label}</div>
             {Array.from({ length: zone.colCount }, (_, i) => startingSeatCount + i).map((columnCount) => (
                 <SeatRow key={columnCount} columnCount={columnCount} pattern={zone.seatNumbering} />
             ))}
@@ -115,35 +115,20 @@ function getRowSections(seatNumbering) {
 function PassengerLoader({ id, passenger, onSelect, onClick }) {
     const Meals = ["Sandwich", "Drink", "Snack"];
     const seatMapContext = use(SeatMapContext);
-    // const bookingContext = use(BookingContext);
+    const isExpanded = id == seatMapContext.selectedPassenger;
+    const bookingContext = use(BookingContext);
     console.log("seatmapContext: ", seatMapContext);
     return (
-        <div className="flex flex-col gap-1">
-            <button
-                id="passenger-info"
-                className={` p-4 rounded-r-lg ${seatMapContext.selectedPassenger === id ? "bg-horizon text-sky-white" : "bg-blaze-core text-horizon-deep"}`}
-                onClick={() => onSelect(id)}>
-                <p className=" text-lg font-medium">
-                    Passenger Name: {passenger.title.charAt(0).toUpperCase() + passenger.title.slice(1)}. {passenger.first_name} {passenger.last_name}
-                </p>
-                {/* <p className="">Passenger ID: {passengerID}</p> */}
-            </button>
-            <div id="add-ons" className="bg-horizon-deep p-4">
-                <p className="text-white text-lg font-medium">Selected Seat: {passenger.selectedSeat ? passenger.selectedSeat : "None"}</p>
-                <p className="text-white text-lg font-medium">Meal Preferences</p>
-                <div className="flex mt-2 justify-between w-full gap-2">
-                    {Meals.map((option, i) => (
-                        <button
-                            key={i}
-                            value={option}
-                            className={`w-full ${i == option ? "bg-dusk-warm text-sky-white" : "bg-horizon-tint"}`}
-                            onClick={onClick}>
-                            {option}
-                        </button>
-                    ))}
+        <div
+            className={`bg-blaze-deep text-cloud-warm rounded-sm p-2 overflow-hidden transition ${isExpanded ? "max-h-40" : "max-h-10"}`}
+            onClick={() => onSelect(id)}>
+            <div className="flex justify-between items-center cursor-pointer">
+                <div>
+                    {passenger.title}. {passenger.first_name} {passenger.last_name}
                 </div>
-                <p className="text-white text-lg font medium">Baggage Weight in kg:</p>
-                {/* <InputField labelshow={false} label={`Baggage`}/>    */}
+            </div>
+            <div className={`px-5 pb-5 overflow-hidden transition ${isExpanded ? "opacity-100" : "opacity-0"}`}>
+                <div>Seat: {bookingContext.passengers[id].selected_seat}</div>
             </div>
         </div>
     );
@@ -192,6 +177,11 @@ export default function AircraftSeatmap({ loaderData }) {
         setSelectedPassenger(count);
     }
     let previousSeat = 1;
+    const [expandedPassenger, setExpandedPassenger] = useState(null);
+
+    const togglePassenger = (id) => {
+        setExpandedPassenger((prev) => (prev === id ? null : id));
+    };
 
     return (
         <SeatMapContext
@@ -204,13 +194,15 @@ export default function AircraftSeatmap({ loaderData }) {
             <div id="seatmapBase" className="w-full flex justify-center">
                 <div className="flex flex-col w-2/4 p-2">
                     <p>Passengers:</p>
-                    {bookingContext.passengers.map((passenger, key) => (
-                        <PassengerLoader key={key} id={key} passenger={passenger} onSelect={onPassengerSelect} />
-                    ))}
+                    <div className="flex flex-col gap-2">
+                        {bookingContext.passengers.map((passenger, key) => (
+                            <PassengerLoader key={key} id={key} passenger={passenger} onSelect={onPassengerSelect} />
+                        ))}
+                    </div>
                     <Link to="/booking/payment">Next</Link>
                 </div>
-                <div className="flex w-2/4 border">
-                    <div className="w-full bg-altitude-ink text-cloud-warm">
+                <div className="flex w-2/4 border bg-altitude-ink p-2">
+                    <div id="legend" className="w-full bg-altitude-ink text-cloud-warm">
                         <p className=" p-2 font-bold ">Legend:</p>
                         <div className="flex items-center gap-2 p-2">
                             <div className="w-4 h-4 bg-green-300" />
@@ -223,6 +215,18 @@ export default function AircraftSeatmap({ loaderData }) {
                         <div className="flex items-center gap-2 p-2">
                             <div className="w-4 h-4 bg-red-300" />
                             <div>Occupied</div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2">
+                            <div className="w-4 h-4 bg-cloud-warm" />
+                            <div>Toilet</div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2">
+                            <div className="w-4 h-4 bg-cloud-pop" />
+                            <div>Exits</div>
+                        </div>
+                        <div className="flex items-center gap-2 p-2">
+                            <div className="w-4 h-4 bg-altitude-haze" />
+                            <div>Galleys</div>
                         </div>
                     </div>
                     <div className="w-full max-w-sm bg-altitude-ink text-cloud-warm">
