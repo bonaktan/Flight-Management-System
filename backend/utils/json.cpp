@@ -1,14 +1,13 @@
 #include <valijson/adapters/jsoncpp_adapter.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/validator.hpp>
-
+#include <sstream>
 #include "utils.h"
 
 using namespace Skybridge;
 
 std::vector<std::string> Utils::validateRequest(
     const Json::Value& body, const valijson::Schema& schema) {
-    
     valijson::Validator validator(valijson::Validator::kStrongTypes);
     valijson::ValidationResults results;
     valijson::adapters::JsonCppAdapter adapter(body);
@@ -30,7 +29,7 @@ std::vector<std::string> Utils::validateRequest(
 drogon::HttpResponsePtr Utils::error(const std::string& message,
                                      drogon::HttpStatusCode statusCode,
                                      const Json::Value& details) {
-    LOG_ERROR << message;      
+    LOG_ERROR << message;
     std::cout << details << std::endl;
     Json::Value jsonResponse;
     jsonResponse["error"] = message;
@@ -40,7 +39,8 @@ drogon::HttpResponsePtr Utils::error(const std::string& message,
     return resp;
 }
 
-bool Utils::is_valid_input(const std::string& input, const std::regex& pattern) {
+bool Utils::is_valid_input(const std::string& input,
+                           const std::regex& pattern) {
     return std::regex_match(input, pattern);
 }
 
