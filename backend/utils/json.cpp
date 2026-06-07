@@ -1,7 +1,7 @@
 #include <valijson/adapters/jsoncpp_adapter.hpp>
 #include <valijson/schema.hpp>
 #include <valijson/validator.hpp>
-
+#include <sstream>
 #include "utils.h"
 
 using namespace Skybridge;

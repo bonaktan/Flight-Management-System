@@ -42,14 +42,27 @@ void AdminFilter::doFilter(const drogon::HttpRequestPtr& req,
     dbClient->execSqlAsync(
         "SELECT permissions FROM account WHERE id=$1",
         [fcb, fccb](const drogon::orm::Result& result) {
-            std::cout << "test" << std::endl;
-            Json::Value jsonResponse = Skybridge::Utils::parseJsonField(result[0]["permissions"].as<std::string>());
-            for (const auto& item : jsonResponse) {
-                if (item == "ADMINISTRATOR") fccb(); return;
+            if (result.empty()) {
+                fcb(Skybridge::Utils::error("User not found",
+                                            drogon::k401Unauthorized));
+                return;
             }
-            fcb(Skybridge::Utils::error("No Permissions",
-                                        drogon::k401Unauthorized));
-            
+            try {
+                Json::Value jsonResponse = Skybridge::Utils::parseJsonField(
+                    result[0]["permissions"].as<std::string>());
+                for (const auto& item : jsonResponse) {
+                    if (item == "ADMINISTRATOR") {
+                        fccb();
+                        return;
+                    }
+                }
+                fcb(Skybridge::Utils::error("No Permissions",
+                                            drogon::k401Unauthorized));
+            } catch (const std::exception& e) {
+                fcb(Skybridge::Utils::error("Invalid JSON Format. Contact Admin for details",
+                                            drogon::k500InternalServerError,
+                                            Json::Value(e.what())));
+            }
         },
         [fcb](const drogon::orm::DrogonDbException& e) {
             fcb(Skybridge::Utils::error("Database error",

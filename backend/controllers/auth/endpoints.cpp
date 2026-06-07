@@ -33,8 +33,7 @@ void auth::signup(const HttpRequestPtr& req,
         "$2, $3) RETURNING id;",
         [name, email, callback](const drogon::orm::Result& result) {
             Json::Value jsonResponse;
-
-            long long account_id;
+            long long account_id = result[0]["id"].as<long long>();
             jsonResponse["success"] = true;
             jsonResponse["name"] = name;
 
