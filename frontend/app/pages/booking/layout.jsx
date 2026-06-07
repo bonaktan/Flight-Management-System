@@ -6,8 +6,8 @@ import { useReducer } from "react";
 function HeaderLogos({ logo, label, page }) {
     return (
         <Link to={`${page}`} className="flex gap-4 items-center">
-            <span className="material-symbols-outlined bg-white p-3 rounded-full">{logo}</span>
-            <div>{label}</div>
+            <span className="material-symbols-outlined bg-white p-1 md:p-3 rounded-full">{logo}</span>
+            <div className="md:flex hidden">{label}</div>
         </Link>
     );
 }
@@ -117,12 +117,12 @@ export default function BookingLayout() {
                     <HeaderLogos logo="credit_card" label="Payment" page="/booking/confirmation" />
                 </div>
                 <div className="flex gap-8">
-                    <div className="w-3/4">
+                    <div className="w-full">
                         <Outlet />
                     </div>
-                    <div className="w-1/4 m-8">
-                        <BillingCard />
-                    </div>
+                    {/* <div className=" m-8">
+                        {/* <BillingCard /> 
+                    </div> */}
                 </div>
             </div>
         </BookingContext>
