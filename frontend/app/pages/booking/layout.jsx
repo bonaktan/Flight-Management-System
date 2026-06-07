@@ -61,8 +61,11 @@ function FlightSubcard() {
 }
 
 export default function BookingLayout() {
+    const location = useLocation();
+    const isInSeatmap = location.pathname === "/booking/details";
     const [bookingContext, setBookingContext] = useReducer(
         (state, action) => {
+            console.log("before booking update: ", state);
             if (action.field == "passengers") {
                 // console.log(state.passengers.length, action.count, !!action.count)
                 if (action.count === null || action.count > state.passengers.length) {
@@ -75,14 +78,18 @@ export default function BookingLayout() {
                 let newPassengers;
                 if (action.subField == "firstInitPassengerCount") {
                     newPassengers = [];
-                    for (let i = 0; i < action.value; i++) newPassengers.push(structuredClone(newPassengers[0]));
+                    for (let i = 0; i < action.value; i++) newPassengers.push(structuredClone(state.passengers[0]));
                 } else {
                     newPassengers = structuredClone(state.passengers);
                     newPassengers[action.count][action.subField] = action.value;
                 }
-                return { ...state, passengers: newPassengers };
+                let ret = { ...state, passengers: newPassengers };
+                console.log("Update in bookingContext-Passengers: ", ret);
+                return ret;
             }
-            return { ...state, [action.field]: action.value };
+            let ret = { ...state, [action.field]: action.value };
+            console.log("Update in bookingContext: ", ret);
+            return ret;
         },
         {
             flightId: null,
@@ -93,7 +100,7 @@ export default function BookingLayout() {
                     first_name: "",
                     middle_name: "",
                     last_name: "",
-                    gender: null,
+                    gender: "",
                     date_of_birth: "",
                     email: "",
                     phone_number: "",
@@ -117,12 +124,15 @@ export default function BookingLayout() {
                     <HeaderLogos logo="credit_card" label="Payment" page="/booking/confirmation" />
                 </div>
                 <div className="flex gap-8">
-                    <div className="w-full">
+                    <div className={`${isInSeatmap ? "w-full" : "w-3/4"}`}>
                         <Outlet />
                     </div>
-                    {/* <div className=" m-8">
-                        {/* <BillingCard /> 
-                    </div> */}
+
+                    {!isInSeatmap && (
+                        <div className=" m-8">
+                            <BillingCard />
+                        </div>
+                    )}
                 </div>
             </div>
         </BookingContext>

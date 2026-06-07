@@ -1,6 +1,7 @@
 import { use, useState } from "react";
-import { SeatMapContext } from "./context";
+import { BookingContext, SeatMapContext } from "./context";
 import axios from "axios";
+import { Link } from "react-router";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 function StructuralZone({ zone }) {
@@ -24,14 +25,26 @@ function StructuralZone({ zone }) {
 
 function SeatButton({ row, column }) {
     const seatmapLayout = use(SeatMapContext);
+    const bookingContext = use(BookingContext);
     const seatId = `${row}${column}`;
+    const occupiedSeats = bookingContext.passengers.map((p) => p.selected_seat);
     const isOccupied = seatmapLayout.occupied_seats.includes(seatId);
-
+    const isOccupiedByOthers = occupiedSeats.includes(seatId);
+    function onClick(e) {
+        e.preventDefault();
+        bookingContext.setBookingContext({
+            field: "passengers",
+            count: seatmapLayout.selectedPassenger,
+            subField: "selected_seat",
+            value: seatId,
+        });
+    }
     return (
         <button
-            onClick={() => seatmapLayout.setSelectedSeat(seatId)}
-            className={`text-sm rounded-sm aspect-square h-4/5 border text-altitude-ink ${isOccupied ? "bg-red-300" : seatmapLayout.selectedSeat == seatId ? "bg-orange-200" : "bg-green-300"}`}
-            disabled={isOccupied}>
+            onClick={onClick}
+            type="button"
+            className={`text-sm rounded-sm aspect-square h-4/5 border text-altitude-ink ${isOccupied ? "bg-red-300" : bookingContext.passengers[seatmapLayout.selectedPassenger].selected_seat == seatId ? "bg-orange-300" : isOccupiedByOthers ? "bg-orange-200" : "bg-green-300"}`}
+            disabled={isOccupied || isOccupiedByOthers}>
             {row}
         </button>
     );
@@ -99,26 +112,31 @@ function getRowSections(seatNumbering) {
     return aisles + seatRows;
 }
 
-function PassengerLoader({ passengerID, selectedPassenger, onSelect, name, seat, mealPreference, onClick }) {
+function PassengerLoader({ id, passenger, onSelect, onClick }) {
     const Meals = ["Sandwich", "Drink", "Snack"];
+    const seatMapContext = use(SeatMapContext);
+    // const bookingContext = use(BookingContext);
+    console.log("seatmapContext: ", seatMapContext);
     return (
         <div className="flex flex-col gap-1">
             <button
                 id="passenger-info"
-                className={` p-4 rounded-r-lg ${selectedPassenger === passengerID ? "bg-horizon text-sky-white" : "bg-blaze-core text-horizon-deep"}`}
-                onClick={onSelect}>
-                <p className=" text-lg font-medium">Passenger Name: {name}</p>
+                className={` p-4 rounded-r-lg ${seatMapContext.selectedPassenger === id ? "bg-horizon text-sky-white" : "bg-blaze-core text-horizon-deep"}`}
+                onClick={() => onSelect(id)}>
+                <p className=" text-lg font-medium">
+                    Passenger Name: {passenger.title.charAt(0).toUpperCase() + passenger.title.slice(1)}. {passenger.first_name} {passenger.last_name}
+                </p>
                 {/* <p className="">Passenger ID: {passengerID}</p> */}
             </button>
             <div id="add-ons" className="bg-horizon-deep p-4">
-                <p className="text-white text-lg font-medium">Selected Seat: {seat ? seat : "None"}</p>
+                <p className="text-white text-lg font-medium">Selected Seat: {passenger.selectedSeat ? passenger.selectedSeat : "None"}</p>
                 <p className="text-white text-lg font-medium">Meal Preferences</p>
                 <div className="flex mt-2 justify-between w-full gap-2">
                     {Meals.map((option, i) => (
                         <button
                             key={i}
                             value={option}
-                            className={`w-full ${mealPreference == option ? "bg-dusk-warm text-sky-white" : "bg-horizon-tint"}`}
+                            className={`w-full ${i == option ? "bg-dusk-warm text-sky-white" : "bg-horizon-tint"}`}
                             onClick={onClick}>
                             {option}
                         </button>
@@ -167,18 +185,29 @@ export async function loader() {
     return { seatmapLayout: apiReturn };
 }
 export default function AircraftSeatmap({ loaderData }) {
-    console.log(loaderData);
+    const bookingContext = use(BookingContext);
     const rowSections = getRowSections(loaderData.seatmapLayout.seatNumbering);
-    const [selectedSeat, setSelectedSeat] = useState("");
+    const [selectedPassenger, setSelectedPassenger] = useState(0);
+    function onPassengerSelect(count) {
+        setSelectedPassenger(count);
+    }
     let previousSeat = 1;
 
     return (
         <SeatMapContext
-            value={{ ...loaderData.seatmapLayout, rowSections: rowSections, selectedSeat: selectedSeat, setSelectedSeat: setSelectedSeat }}>
+            value={{
+                ...loaderData.seatmapLayout,
+                rowSections: rowSections,
+                selectedPassenger: selectedPassenger,
+                setSelectedPassenger: setSelectedPassenger,
+            }}>
             <div id="seatmapBase" className="w-full flex justify-center">
-                <div className="flex w-2/4 p-2">
+                <div className="flex flex-col w-2/4 p-2">
                     <p>Passengers:</p>
-                    <PassengerLoader passengerID={1} name={"John Doe"} seat={"A1"} mealPreference={"Sandwich"} />
+                    {bookingContext.passengers.map((passenger, key) => (
+                        <PassengerLoader key={key} id={key} passenger={passenger} onSelect={onPassengerSelect} />
+                    ))}
+                    <Link to="/booking/payment">Next</Link>
                 </div>
                 <div className="flex w-2/4 border">
                     <div className="w-full bg-altitude-ink text-cloud-warm">
