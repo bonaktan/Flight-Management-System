@@ -1,4 +1,4 @@
-import { createSearchParams, Form, NavLink, useNavigate } from "react-router";
+import { createSearchParams, Form, useNavigate } from "react-router";
 import { useState } from "react";
 import { CounterField, InputField, SelectionField } from "../components/input";
 import hero from "../../public/hero.jpg";
@@ -15,7 +15,7 @@ const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export async function loader() {
     const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
-    const date = Date.now();
+    const date = new Date().toISOString().split("T")[0];
     return {
         airports: airports,
         date: date,
@@ -121,7 +121,7 @@ function Search({ data }) {
                 destination: form.get("Destination"),
                 departure_date: form.get("Departure Date"),
                 passengers: passengers,
-                ...(flightMode == "roundtrip" ? { return_date: form.get("Return") } : {}),
+                ...(flightMode == 1 ? { return_date: form.get("Return Date") } : {}),
             })}`,
         });
     }

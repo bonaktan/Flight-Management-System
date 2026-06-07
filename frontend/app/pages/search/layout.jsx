@@ -1,22 +1,11 @@
 // responsibiltity: layout for search page, will contain search bar and filter controls
 // also responsible for rendering the search results, which will be fetched in the main.jsx file and passed down as props to the search result component
 import { CounterField, InputField, SelectionField } from "../../components/input";
-import Bookpop from "./priceComponent";
-import { createSearchParams, Outlet, useNavigate, useRevalidator } from "react-router";
+import { createSearchParams, Outlet, useNavigate } from "react-router";
 import { SearchParametersContext } from "./searchContext";
-import { useState, useReducer } from "react";
+import { useReducer } from "react";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
-function SearchInput({ name, type }) {
-    return (
-        <div className="flex flex-col w-full">
-            <label for={name} className="text-sm">
-                {name}
-            </label>
-            <input name={name} type={type} className="border rounded-sm px-2" />
-        </div>
-    );
-}
 
 async function fetchFlights(searchContext) {
     let apiReturn = { apiReturn: null, apiError: null };
@@ -35,7 +24,7 @@ async function fetchFlights(searchContext) {
             })
         ).data;
     } catch (err) {
-        apiReturn.apiError = err.response.data;
+        apiReturn.apiError = err.response?.data || { error: err.message || "An unknown error occurred" };
     }
     return apiReturn;
 }
@@ -191,9 +180,9 @@ export default function SearchLayout({ loaderData }) {
             </div>
             <div id="filters" className="flex flex-row align-bottom px-5 gap-5">
                 <div>Sort</div>
-                <button onClick={() => setSearchContext({ ...searchContext, sort: "price" })}>Price</button>
-                <button onClick={() => setSearchContext({ ...searchContext, sort: "flight_time" })}>Flight Duration</button>
-                <button onClick={() => setSearchContext({ ...searchContext, sort: "departure" })}>Departure Time</button>
+                <button onClick={() => setSearchContext({ field: "sort", value: "price" })}>Price</button>
+                <button onClick={() => setSearchContext({ field: "sort", value: "flight_time" })}>Flight Duration</button>
+                <button onClick={() => setSearchContext({ field: "sort", value: "departure" })}>Departure Time</button>
             </div>
             <div id="results" className="flex flex-col gap-2 p-5">
                 <div id="header" className="flex w-full gap-2">

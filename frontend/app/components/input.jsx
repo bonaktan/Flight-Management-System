@@ -25,23 +25,28 @@ export function SelectionField({ name, children, genDesign, selDesign, labDesign
 }
 
 export function CounterField({ name, genDesign, labDesign, min = null, max = null, onChange = () => {}, value, defaultValue = 1 }) {
-    const [_, setCount] = useReducer((state, action) => {
-        const newState = state + action;
-        if (min && max && (newState < min || newState > max)) return state;
-        onChange(newState);
-        return newState;
-    }, defaultValue);
-    if (!value) value = _;
+    const isControlled = value !== undefined;
+    const [internalCount, setInternalCount] = useState(defaultValue);
+
+    const count = isControlled ? value : internalCount;
+
+    const handleChange = (delta) => {
+        const newCount = count + delta;
+        if (min !== null && newCount < min) return;
+        if (max !== null && newCount > max) return;
+        if (!isControlled) setInternalCount(newCount);
+        onChange(newCount);
+    };
 
     return (
         <div className={`flex flex-col ${genDesign}`}>
             <label className={labDesign}>{name}</label>
             <div className="flex flex-row gap-2 items-center">
-                <button type="button" onClick={() => setCount(-1)} className="text-2xl my-1 h-8 px-2 rounded-full border border-black">
+                <button type="button" onClick={() => handleChange(-1)} className="text-2xl my-1 h-8 px-2 rounded-full border border-black">
                     -
                 </button>
-                <p className="w-6 text-center select-none">{value}</p>
-                <button type="button" onClick={() => setCount(1)} className="text-2xl my-1 h-8 px-2 rounded-full border border-black">
+                <p className="w-6 text-center select-none">{count}</p>
+                <button type="button" onClick={() => handleChange(1)} className="text-2xl my-1 h-8 px-2 rounded-full border border-black">
                     +
                 </button>
             </div>
