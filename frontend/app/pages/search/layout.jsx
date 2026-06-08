@@ -23,7 +23,7 @@ function Bookpop() {
     }
     return (
         <div
-            className={`w-full border-cloud-pop border-2 p-2 flex justify-between transition ${searchParams.selectedFlightAndClass ? "active" : ""} absolute bottom-0 left-0`}>
+            className={`w-full border-2 p-2 flex justify-between transition ${searchParams.selectedFlightAndClass ? "active" : ""} absolute -bottom-20 `}>
             {searchParams.selectedFlightAndClass.flight}
             <div className="flex justify-start flex-col">
                 <p>Flight ID</p>
@@ -244,8 +244,8 @@ export default function SearchLayout({ loaderData }) {
                     <div className="text-center w-1/5">Ultimate</div>
                 </div>
                 <Outlet />
-                <Bookpop />
             </div>
+            <Bookpop />
         </SearchParametersContext>
     );
 }
