@@ -49,7 +49,7 @@ export default function Layout() {
     return (
         <>
             <Navbar />
-            <main className="flex-1 mt-16">
+            <main className="flex-1 mt-16 relative">
                 <Outlet />
             </main>
             <Footer />

@@ -1,11 +1,11 @@
 #!/bin/sh
 
 jq '.db_clients[0] |= (
-    .host = (env.POSTGRES_HOST // .host) |
-    .port = (if (env.POSTGRES_PORT and env.POSTGRES_PORT != "") then (env.POSTGRES_PORT | tonumber) else .port end)  | 
-    .passwd = (env.POSTGRES_PASSWORD // .passwd) | 
-    .dbname = (env.POSTGRES_DB // .dbname) | 
-    .user = (env.POSTGRES_USER // .user)
+    .host = (env.DATABASE_HOST // .host) |
+    .port = (if (env.DATABASE_PORT and env.DATABASE_PORT != "") then (env.DATABASE_PORT | tonumber) else .port end)  | 
+    .passwd = (env.DATABASE_PASSWORD // .passwd) | 
+    .dbname = (env.DATABASE_DB // .dbname) | 
+    .user = (env.DATABASE_USER // .user)
 )' /app/config.json > /app/config.tmp 
 
 mv /app/config.tmp /app/config.json
