@@ -2,9 +2,8 @@
 FROM debian:bookworm-slim AS builder
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y \
-    clang \
-    cmake \
+RUN apt-get update && apt-get install -y \ 
+    build-essential \
     ninja-build \
     git \
     libjsoncpp-dev \
@@ -22,8 +21,8 @@ RUN git clone https://github.com/drogonframework/drogon.git && \
     git submodule update --init && \
     mkdir build && cd build && \
     cmake -G Ninja \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_COMPILER=gcc \
+    -DCMAKE_CXX_COMPILER=g++ \
     -DCMAKE_BUILD_TYPE=Release \
     .. && \
     ninja && ninja install && \
@@ -42,8 +41,8 @@ COPY CMakeLists.txt ./
 
 RUN mkdir build && cd build && \
     cmake -G Ninja \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_COMPILER=gcc \
+    -DCMAKE_CXX_COMPILER=g++ \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
     .. || true
@@ -51,8 +50,8 @@ RUN mkdir build && cd build && \
 COPY . .
 RUN cd build && \
     cmake -G Ninja \
-    -DCMAKE_C_COMPILER=clang \
-    -DCMAKE_CXX_COMPILER=clang++ \
+    -DCMAKE_C_COMPILER=gcc \
+    -DCMAKE_CXX_COMPILER=g++ \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_SHARED_LIBS=OFF \
     .. && \
