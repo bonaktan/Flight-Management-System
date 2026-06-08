@@ -13,7 +13,10 @@ function PassengerForm({ count, selectedPassenger, passenger, setPassenger }) {
         setPassenger(newValue);
     }
     function onNext() {
-        if (bookingContext.passengers.length == count + 1) navigate("/booking/details");
+        if (bookingContext.passengers.length == count + 1) {
+            sessionStorage.setItem("bookingState", JSON.stringify(bookingContext));
+            navigate("/booking/details");
+        }
         setPassenger(selectedPassenger + 1);
     }
     return (

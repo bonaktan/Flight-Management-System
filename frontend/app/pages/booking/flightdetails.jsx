@@ -137,43 +137,21 @@ function PassengerLoader({ id, passenger, onSelect, onClick }) {
     );
 }
 
-export async function loader() {
+export async function clientLoader() {
     let apiReturn;
+    const bookingContext = JSON.parse(sessionStorage.getItem("bookingState"));
     try {
-        apiReturn = {
-            aisleCount: 1,
-            seatNumbering: { count: [3, 3], pattern: ["A", "B", "C", "AISLE", "D", "E", "F"] },
-            zones: [
-                { emergencyOnly: false, label: "door", type: "infra" },
-                { label: "lavatory", type: "infra" },
-                { label: "galley", type: "infra" },
-                { colCount: 3, label: "Business Class", seatNumbering: { count: [2, 2], pattern: [["A", "C"], "AISLE", ["D", "F"]] }, type: "seat" },
-                {
-                    colCount: 8,
-                    label: "Economy Class",
-                    seatNumbering: { count: [3, 3], pattern: [["A", "B", "C"], "AISLE", ["D", "E", "F"]] },
-                    type: "seat",
-                },
-                { emergencyOnly: false, label: "door", type: "infra" },
-                {
-                    colCount: 12,
-                    label: "Economy Class",
-                    seatNumbering: { count: [3, 3], pattern: [["A", "B", "C"], "AISLE", ["D", "E", "F"]] },
-                    type: "seat",
-                },
-                { label: "galley", type: "infra" },
-                { label: "lavatory", type: "infra" },
-                { emergencyOnly: true, label: "door", type: "infra" },
-            ],
-            occupied_seats: ["A1"],
-        };
+        apiReturn = await axios.get(`${apiUrl}/api/search/airplane/seatmap`, {
+            params: { flight: bookingContext.flightId, departure_date: bookingContext.departure_date },
+        });
     } catch (e) {
         console.error(e);
     }
-    return { seatmapLayout: apiReturn };
+    return { seatmapLayout: apiReturn.data };
 }
 export default function AircraftSeatmap({ loaderData }) {
     const bookingContext = use(BookingContext);
+    console.log(loaderData);
     const rowSections = getRowSections(loaderData.seatmapLayout.seatNumbering);
     const [selectedPassenger, setSelectedPassenger] = useState(0);
     function onPassengerSelect(count) {

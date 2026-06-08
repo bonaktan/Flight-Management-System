@@ -45,7 +45,7 @@ Task<HttpResponsePtr> booking::submit(HttpRequestPtr req) {
                 p["gender"].asString(), p["date_of_birth"].asString(),
                 p["email"].asString(), p["phone_number"].asString(),
                 p["emergency_contact_name"].asString(),
-                p["emergency_contact_phone"].asString(), account_id);
+                p["emergency_phone_number"].asString(), account_id);
             passengerIds.push_back(r[0]["id"].as<long long>());
         }
         
@@ -62,7 +62,7 @@ Task<HttpResponsePtr> booking::submit(HttpRequestPtr req) {
                 "INSERT INTO booking_passenger (booking_id, passenger_id, "
                 "seat_id, calculated_price) "
                 "VALUES ($1,$2,$3,$4)",
-                bookingId, passengerIds[i], passengers[i]["seatId"].asString(),
+                bookingId, passengerIds[i], passengers[i]["selected_seat"].asString(),
                 (double)6969.69);
         }
 
