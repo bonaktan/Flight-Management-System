@@ -13,7 +13,9 @@ function Navbar() {
                 <img src={logo} className="h-16" />
                 <p>SkyBridge Airways</p>
             </NavLink>
-            <div>{user?.logged_in ? <NavLink to="/account">{user.user?.username}</NavLink> : <NavLink to="/auth/login">Log in</NavLink>}</div>
+            <div>
+                {user?.logged_in ? <NavLink to="/account/dashboard">{user.user?.username}</NavLink> : <NavLink to="/auth/login">Log in</NavLink>}
+            </div>
         </div>
     );
 }

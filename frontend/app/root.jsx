@@ -7,14 +7,19 @@ export const middleware = [userMiddleware];
 
 export async function loader({ context }) {
     const user = context.get(UserContext);
-    const nonce = context.get("cspNonce");
+    let nonce;
+    try {
+        nonce = context.get("cspNonce");
+    } catch {
+        nonce = "";
+    }
     return { cspNonce: nonce, user: user };
 }
 
 export default function Root({ loaderData }) {
-    const { cspNonce, user } = loaderData;
+    const cspNonce = loaderData.cspNonce;
     return (
-        <UserContext value={user}>
+        <UserContext value={loaderData.user}>
             <html lang="en">
                 <head>
                     <meta charSet="utf-8" />
