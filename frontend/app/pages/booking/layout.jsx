@@ -59,7 +59,19 @@ function FlightSubcard() {
         </div>
     );
 }
-
+const passengerObject = {
+    title: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    gender: "",
+    date_of_birth: "",
+    email: "",
+    phone_number: "",
+    emergency_contact_name: "",
+    emergency_phone_number: "",
+    selected_seat: "",
+};
 export default function BookingLayout() {
     const location = useLocation();
     const isInSeatmap = location.pathname === "/booking/details";
@@ -78,14 +90,19 @@ export default function BookingLayout() {
                 let newPassengers;
                 if (action.subField == "firstInitPassengerCount") {
                     newPassengers = [];
-                    for (let i = 0; i < action.value; i++) newPassengers.push(structuredClone(state.passengers[0]));
+                    for (let i = 0; i < action.value.passengers; i++) newPassengers.push(structuredClone(passengerObject));
+                    console.log("state at update:", action);
+                    let ret = { ...state, passengers: newPassengers };
+                    ret["flightId"] = action.value.flightId;
+                    ret["departure_date"] = action.value.departure_date;
+                    console.log("state after update:", ret);
+                    return ret;
                 } else {
                     newPassengers = structuredClone(state.passengers);
                     newPassengers[action.count][action.subField] = action.value;
+                    let ret = { ...state, passengers: newPassengers };
+                    return ret;
                 }
-                let ret = { ...state, passengers: newPassengers };
-                console.log("Update in bookingContext-Passengers: ", ret);
-                return ret;
             }
             let ret = { ...state, [action.field]: action.value };
             console.log("Update in bookingContext: ", ret);
@@ -93,22 +110,8 @@ export default function BookingLayout() {
         },
         {
             flightId: null,
-            flightClass: null,
-            passengers: [
-                {
-                    title: "",
-                    first_name: "",
-                    middle_name: "",
-                    last_name: "",
-                    gender: "",
-                    date_of_birth: "",
-                    email: "",
-                    phone_number: "",
-                    emergency_contact_name: "",
-                    emergency_phone_number: "",
-                    selected_seat: "",
-                },
-            ],
+            departure_date: null,
+            passengers: [],
         },
     );
     return (

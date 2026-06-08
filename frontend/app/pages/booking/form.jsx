@@ -173,9 +173,9 @@ export default function BookingForm() {
     const bookingState = use(BookingContext);
     useEffect(() => {
         if (state != null && bookingState.passengers.length != state.passengers)
-            bookingState.setBookingContext({ field: "passengers", count: 0, subField: "firstInitPassengerCount", value: parseInt(state.passengers) });
-        console.log(bookingState);
-        console.log(state);
+            bookingState.setBookingContext({ field: "passengers", count: 0, subField: "firstInitPassengerCount", value: state });
+        console.log("bookingState after init: ", bookingState);
+        console.log("state passed to bookingInit: ", state);
     }, []);
 
     const [passengerSelected, setPassengerSelected] = useState(0);
