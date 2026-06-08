@@ -7,7 +7,8 @@ export default async function fetchUser(request) {
     let status;
     let user;
     try {
-        const apiReturn = await axios.post(`${apiUrl}/api/auth/authenticate`, null, {
+        console.log("cookie: ", cookie);
+        const apiReturn = await axios.get(`${apiUrl}/api/auth/authenticate`, {
             headers: {
                 Cookie: cookie,
             },
@@ -15,7 +16,8 @@ export default async function fetchUser(request) {
         status = apiReturn.status;
         user = apiReturn.data;
     } catch (e) {
-        status = e.status;
+        console.log(e);
+        status = e.response?.status;
     }
     return { logged_in: status == 200 ? true : false, status: status, user: user };
 }

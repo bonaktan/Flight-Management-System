@@ -12,8 +12,9 @@ export default function Signup() {
     const navigate = useNavigate();
     function signup(e) {
         e.preventDefault();
-        if (password != confirmPassword) {
-            setError("Passwords does not match.");
+        if (password !== confirmPassword) {
+            setError("Passwords do not match.");
+            return;
         }
         // TODO: sanity checking sa password, atleast 1 lowercase, uppercase, number, and special character, 8-127 chars long
         axios
@@ -65,6 +66,7 @@ export default function Signup() {
                 <button onClick={signup} className="p-3 bg-blaze-core text-cloud-warm font-bold">
                     Sign up
                 </button>
+                {error && <p className="text-red-500 text-center pb-4">{error}</p>}
             </Form>
             <p className="text-center pt-10">
                 Already have an account?{" "}

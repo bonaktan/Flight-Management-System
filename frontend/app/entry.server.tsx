@@ -17,7 +17,7 @@ export default function handleRequest(
     loadContext: RouterContextProvider,
 ) {
     // for dev/prod difference in handling
-    const nonce = "";
+    let nonce = "";
     try {
         nonce = loadContext.get("cspNonce") as string;
     } catch {}
