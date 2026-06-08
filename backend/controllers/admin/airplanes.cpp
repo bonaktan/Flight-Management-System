@@ -9,7 +9,6 @@ void api::admin::add_airplane(
         callback(Skybridge::Utils::error("Invalid JSON", k400BadRequest));
         return;
     }
-
     std::vector<std::string> errors = Skybridge::Utils::validateRequest(
         *json, api::admin::add_airplane_schema());
     if (!errors.empty()) {
@@ -20,9 +19,13 @@ void api::admin::add_airplane(
                                          body["details"]));
         return;
     }
+    Json::StreamWriterBuilder writer;
+    writer["indentation"] = "";
+    std::string seatmap = Json::writeString(writer, (*json)["seatmap"]);
     orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
     dbClient->execSqlAsync(
-        "INSERT INTO airplane (id, model, location) VALUES ($1, $2, $3);",
+        "INSERT INTO airplane (id, model, location, seatmap) VALUES ($1, $2, "
+        "$3, $4);",
         [callback](const drogon::orm::Result& result) {
             Json::Value jsonResponse;
             jsonResponse["success"] = true;
@@ -34,7 +37,7 @@ void api::admin::add_airplane(
                                              Json::Value(e.base().what())));
         },
         (*json)["airplane_id"].asString(), (*json)["model"].asString(),
-        (*json)["location"].asString());
+        (*json)["location"].asString(), seatmap);
 }
 
 void api::admin::view_airplanes(
@@ -65,7 +68,8 @@ void api::admin::delete_airplane(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)>&& callback, std::string id) {
     orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
-    // BUG: if the airplane is referenced by a flight, this will throw a foreign key violation error.
+    // BUG: if the airplane is referenced by a flight, this will throw a foreign
+    // key violation error.
     dbClient->execSqlAsync(
         "DELETE FROM airplane WHERE id = $1;",
         [callback](const drogon::orm::Result& result) {

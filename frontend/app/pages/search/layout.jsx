@@ -3,9 +3,46 @@
 import { CounterField, InputField, SelectionField } from "../../components/input";
 import { createSearchParams, Outlet, useNavigate } from "react-router";
 import { SearchParametersContext } from "./searchContext";
-import { useReducer } from "react";
+import { use, useReducer } from "react";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
+
+function Bookpop() {
+    const searchParams = use(SearchParametersContext);
+    console.log("searchContext in Bookpop: ", searchParams);
+    const navigate = useNavigate();
+    function onConfirm() {
+        navigate("/booking/form", {
+            state: {
+                flightId: searchParams.selectedFlightAndClass.flight,
+                class: searchParams.selectedFlightAndClass.seatClass,
+                passengers: searchParams.passengers,
+                departure_date: searchParams.departure_date,
+            },
+        });
+    }
+    return (
+        <div
+            className={`w-full border-2 p-2 flex justify-between transition ${searchParams.selectedFlightAndClass ? "active" : ""} absolute -bottom-20 `}>
+            {searchParams.selectedFlightAndClass.flight}
+            <div className="flex justify-start flex-col">
+                <p>Flight ID</p>
+                <p className="flex items-center gap-2">
+                    MNL
+                    <span className="material-symbols-outlined rotate-90">flight</span>
+                    CEB
+                </p>
+            </div>
+            <div className="text-center">
+                <p className="font-bold">Passengers</p>
+                <p>2</p>
+            </div>
+            <button className="border px-4" onClick={onConfirm}>
+                Book
+            </button>
+        </div>
+    );
+}
 
 async function fetchFlights(searchContext) {
     let apiReturn = { apiReturn: null, apiError: null };
@@ -44,6 +81,15 @@ clientLoader.hydrate = true;
 
 export default function SearchLayout({ loaderData }) {
     const navigate = useNavigate();
+    const [selectedFlightAndClass, setSelectedFlightAndClass] = useReducer(
+        (state, { flight, seatClass }) => {
+            let ret;
+            if (flight == state.flight && seatClass == state.seatClass) ret = { flight: null, seatClass: null };
+            else ret = { flight: flight, seatClass: seatClass };
+            return ret;
+        },
+        { flight: null, seatClass: null },
+    );
     const [searchContext, setSearchContext] = useReducer(
         (state, action) => {
             const ret = { ...state };
@@ -82,7 +128,13 @@ export default function SearchLayout({ loaderData }) {
         });
     }
     return (
-        <SearchParametersContext value={loaderData.flights}>
+        <SearchParametersContext
+            value={{
+                ...loaderData.flights,
+                ...searchContext,
+                selectedFlightAndClass: selectedFlightAndClass,
+                setSelectedFlightAndClass: setSelectedFlightAndClass,
+            }}>
             <div id="search-bar" className="flex flex-row gap-2 p-2 align-bottom border my-2 mx-4 shadow-xl bg-blaze-tint">
                 <div className="flex flex-col">
                     <label className="text-sm text-center">Flight Mode</label>
@@ -193,6 +245,7 @@ export default function SearchLayout({ loaderData }) {
                 </div>
                 <Outlet />
             </div>
+            <Bookpop />
         </SearchParametersContext>
     );
 }
