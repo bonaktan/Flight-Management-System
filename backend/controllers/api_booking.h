@@ -13,8 +13,7 @@ class booking : public drogon::HttpController<booking> {
     METHOD_ADD(booking::submit, "/submit", Post, "AuthFilter");
     METHOD_LIST_END
 
-    void submit(const HttpRequestPtr& req,
-                std::function<void(const HttpResponsePtr&)>&& callback);
+    Task<HttpResponsePtr> submit(HttpRequestPtr req);
 
    private:
     const valijson::Schema& create_booking_schema();
