@@ -120,15 +120,18 @@ function PassengerLoader({ id, passenger, onSelect, onClick }) {
     console.log("seatmapContext: ", seatMapContext);
     return (
         <div
-            className={`bg-blaze-deep text-cloud-warm rounded-sm p-2 overflow-hidden transition ${isExpanded ? "max-h-40" : "max-h-10"}`}
+            className={`bg-blaze-core text-cloud-warm rounded-sm p-2 overflow-hidden transition duration-1000 ${isExpanded ? "max-h-40" : "max-h-17"}`}
             onClick={() => onSelect(id)}>
-            <div className="flex justify-between items-center cursor-pointer">
+            <div className="flex items-center gap-6 pl-4 py-4">
+                <div className={`h-20 aspect-square bg-white rounded-full transition-opacity duration-1000 ${!isExpanded && "opacity-0"}`} />
                 <div>
-                    {passenger.title}. {passenger.first_name} {passenger.last_name}
+                    <div className="font-medium text-xl ">
+                        {passenger.title}. {passenger.first_name} {passenger.last_name}
+                    </div>
+                    <div className={`overflow-hidden transition ${isExpanded ? "opacity-100" : "opacity-0"}`}>
+                        <div>Seat: {bookingContext.passengers[id].selected_seat}</div>
+                    </div>
                 </div>
-            </div>
-            <div className={`px-5 pb-5 overflow-hidden transition ${isExpanded ? "opacity-100" : "opacity-0"}`}>
-                <div>Seat: {bookingContext.passengers[id].selected_seat}</div>
             </div>
         </div>
     );
@@ -137,7 +140,7 @@ function PassengerLoader({ id, passenger, onSelect, onClick }) {
 export async function loader() {
     let apiReturn;
     try {
-        apiReturn = apiReturn = {
+        apiReturn = {
             aisleCount: 1,
             seatNumbering: { count: [3, 3], pattern: ["A", "B", "C", "AISLE", "D", "E", "F"] },
             zones: [
@@ -191,18 +194,24 @@ export default function AircraftSeatmap({ loaderData }) {
                 selectedPassenger: selectedPassenger,
                 setSelectedPassenger: setSelectedPassenger,
             }}>
-            <div id="seatmapBase" className="w-full flex justify-center">
-                <div className="flex flex-col w-2/4 p-2">
-                    <p>Passengers:</p>
-                    <div className="flex flex-col gap-2">
-                        {bookingContext.passengers.map((passenger, key) => (
-                            <PassengerLoader key={key} id={key} passenger={passenger} onSelect={onPassengerSelect} />
-                        ))}
+            <div id="seatmapBase" className="w-full flex justify-center gap-10">
+                <div className="flex flex-col w-1/2 p-2">
+                    <p className="font-bold text-2xl pb-4">Passengers:</p>
+                    <div className="px-6 py-10 bg-blaze-tint rounded-md ">
+                        <div className="flex flex-col">
+                            {bookingContext.passengers.map((passenger, key) => (
+                                <PassengerLoader key={key} id={key} passenger={passenger} onSelect={onPassengerSelect} />
+                            ))}
+                        </div>
+                        <div className="flex justify-end-safe p-2 pt-10 text-cloud-warm">
+                            <Link to="/booking/payment" className="bg-blaze-core px-4 py-2 text-xl">
+                                Next
+                            </Link>
+                        </div>
                     </div>
-                    <Link to="/booking/payment">Next</Link>
                 </div>
-                <div className="flex w-2/4 border bg-altitude-ink p-2">
-                    <div id="legend" className="w-full bg-altitude-ink text-cloud-warm">
+                <div className="flex max-h-[80dvh] w-1/3 border bg-altitude-ink p-2 h-full overflow-hidden">
+                    <div id="legend" className="w-1/3 bg-altitude-ink text-cloud-warm">
                         <p className=" p-2 font-bold ">Legend:</p>
                         <div className="flex items-center gap-2 p-2">
                             <div className="w-4 h-4 bg-green-300" />
@@ -229,7 +238,7 @@ export default function AircraftSeatmap({ loaderData }) {
                             <div>Galleys</div>
                         </div>
                     </div>
-                    <div className="w-full max-w-sm bg-altitude-ink text-cloud-warm">
+                    <div className="w-2/3 max-w-sm bg-altitude-ink text-cloud-warm overflow-auto p-2">
                         <ColHeaders aislePattern={loaderData.seatmapLayout.seatNumbering} />
                         <hr />
                         {loaderData.seatmapLayout.zones.map((zone, _key) => {

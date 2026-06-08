@@ -7,12 +7,15 @@ const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 function PaymentSubsection({ name, selected, setSelected, children }) {
     return (
-        <div>
-            <div className="flex justify-between" onClick={() => setSelected(name)}>
+        <div className="bg-cloud-warm text-altitude-ink p-4 rounded-lg">
+            <div className="flex justify-between text-xl font-bold" onClick={() => setSelected(name)}>
                 <div>{name}</div>
-                <span className="material-symbols-outlined">{selected == name ? "arrow_drop_up" : "arrow_drop_down"}</span>
+                <span className="material-symbols-outlined">{selected === name ? "arrow_drop_up" : "arrow_drop_down"}</span>
             </div>
-            {selected == name && children}
+            <div
+                className={`transition-all duration-500 ease-in-out overflow-hidden ${selected === name ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+                {children}
+            </div>
         </div>
     );
 }
@@ -62,13 +65,13 @@ function luhnsAlgorithm(cardNumber) {
     }
     return nCheck % 10 == 0;
 }
-function backendSubmit(payload) {
-    const response = axios.post(`/api/booking/submit`, payload);
+async function backendSubmit(payload) {
+    const response = await axios.post(`/api/booking/submit`, payload);
     return response;
 }
 export default function BookingPayment() {
     const navigate = useNavigate();
-    const [selectedMethod, setSelectedMethod] = useState("");
+    const [selectedMethod, setSelectedMethod] = useState("E-wallet");
     const bookingContext = use(BookingContext);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [paymentError, setPaymentError] = useState(null);
@@ -89,7 +92,7 @@ export default function BookingPayment() {
             setPaymentStatus("success");
             // JSON.parse(sessionStorage.getItem("payment_state") || "{}")
             // TODO: send the details to the backend
-            backendSubmit(bookingContext);
+            await backendSubmit(bookingContext);
             navigate("/booking/confirmation");
         } catch (err) {
             console.log(err);
@@ -100,32 +103,47 @@ export default function BookingPayment() {
         }
     }
 
-    function onSubmitCard() {
+    async function onSubmitCard() {
         // this is also a false popup, i DONT want to store actual credit card numbers
         // though, luhns algorithm is too interesting of an algo to not include
         if (!luhnsAlgorithm(cardNumber)) {
             setPaymentError("Invalid Credit Card Number");
             return;
         }
-        backendSubmit(bookingContext);
+        await backendSubmit(bookingContext);
         navigate("/booking/confirmation");
     }
     return (
         <div>
-            <div className="text-3xl text-center text-altitude-ink font-bold pb-2 border-b-1 border-cloud-pop my-2">Select your Payment Method</div>
-            <div className="relative bg-cloud-warm flex border-1 border-cloud-pop m-2">
-                {["E-wallet", "Credit/Debit Card"].map((method) => (
-                    <button
-                        key={method}
-                        className={`w-full font-bold p-4 z-1 transition ${selectedMethod === method ? "text-white" : "text-altitude-ink"}`}
-                        onClick={() => setSelectedMethod(method)}>
-                        {method}
-                    </button>
-                ))}
-                <div
-                    className="absolute top-0 h-full w-1/2 bg-blaze-deep transition z-0"
-                    style={{ left: selectedMethod === "Credit/Debit Card" ? "50%" : "0%" }}
-                />
+            <div className="text-2xl text-altitude-ink font-bold mx-10 my-4">Select your Payment Method</div>
+            <div className="bg-blaze-core m-4 p-4 flex flex-col gap-2 rounded-xl">
+                <PaymentSubsection name="Online Banking" selected={selectedMethod} setSelected={setSelectedMethod}>
+                    <div>You will be redirected to the merchant's Website to complete the payment</div>
+                    <div className="flex justify-center gap-2 mt-4">
+                        <button className="bg-blaze-deep text-white px-4 py-2 rounded-md" onClick={onSubmitOnlineBanking}>
+                            GCash
+                        </button>
+                        <button className="bg-blaze-deep text-white px-4 py-2 rounded-md" onClick={onSubmitOnlineBanking}>
+                            Maya
+                        </button>
+                        <button className="bg-blaze-deep text-white px-4 py-2 rounded-md" onClick={onSubmitOnlineBanking}>
+                            PayPal
+                        </button>
+                    </div>
+                </PaymentSubsection>
+                <PaymentSubsection name="Credit/Debit Card" selected={selectedMethod} setSelected={setSelectedMethod}>
+                    <div>Please enter you Card Information.</div>
+                    <div className="flex justify-center gap-2">
+                        <InputField name="Credit Card Number" icon="credit_card" />
+                        <InputField name="Expiry Date" icon="calendar_today" />
+                        <InputField name="CVV" icon="password" />
+                    </div>
+                    <div className="flex justify-center mt-4">
+                        <button className="bg-blaze-deep text-white px-4 py-2 rounded-md" onClick={onSubmitCard}>
+                            Submit
+                        </button>
+                    </div>
+                </PaymentSubsection>
             </div>
             <div>{paymentError}</div>
         </div>
