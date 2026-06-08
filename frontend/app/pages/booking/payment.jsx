@@ -49,7 +49,7 @@ function waitForPopupMessage(win) {
 }
 function luhnsAlgorithm(cardNumber) {
     // accept only digits, dashes or spaces
-    if (/[^0-9-\s]+/.test(cardNumber)) return false;
+    if (!cardNumber || /[^0-9-\s]+/.test(cardNumber)) return false;
     let nCheck = 0;
     let bEven = false;
     cardNumber = cardNumber.replace(/\D/g, "");
@@ -134,7 +134,7 @@ export default function BookingPayment() {
                 <PaymentSubsection name="Credit/Debit Card" selected={selectedMethod} setSelected={setSelectedMethod}>
                     <div>Please enter you Card Information.</div>
                     <div className="flex justify-center gap-2">
-                        <InputField name="Credit Card Number" icon="credit_card" />
+                        <InputField name="Credit Card Number" icon="credit_card" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
                         <InputField name="Expiry Date" icon="calendar_today" />
                         <InputField name="CVV" icon="password" />
                     </div>

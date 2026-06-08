@@ -82,12 +82,12 @@ export default function BookingLayout() {
         (state, action) => {
             console.log("before booking update: ", state);
             if (action.field == "passengers") {
-                // console.log(state.passengers.length, action.count, !!action.count)
-                if (action.count === null || action.count > state.passengers.length) {
-                    console.error("On setBookingContext: Invalid Passenger Count passed.");
-                    return state;
-                } else if (!action.subField) {
+                if (!action.subField) {
                     console.error("On setBookingContext: No Subfield passed.");
+                    return state;
+                }
+                if (action.subField !== "firstInitPassengerCount" && (action.count == null || action.count >= state.passengers.length)) {
+                    console.error("On setBookingContext: Invalid Passenger Count passed.");
                     return state;
                 }
                 let newPassengers;

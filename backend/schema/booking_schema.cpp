@@ -22,7 +22,6 @@ const valijson::Schema& api::booking::create_booking_schema() {
         p["flightId"]["pattern"] = "^[A-Z]{3}[0-9]{3}$";
 
         // passengers array
-        p["passengers"]["type"] = "minItems";  // placeholder, overwritten below
         p["passengers"]["type"] = "array";
         p["passengers"]["minItems"] = 1;
         p["passengers"]["maxItems"] = 9;

@@ -114,14 +114,14 @@ void search::airports(const HttpRequestPtr& req,
         });
 }
 
-static const std::regex airplanePattern("^SKY[0-9]{3}$");
+static const std::regex flightPattern("^SKY[0-9]{3}$");
 void search::seatmap(const HttpRequestPtr& req,
                      std::function<void(const HttpResponsePtr&)>&& callback) {
     // sanity checking boilerplate
     const auto& parameters = req->getParameters();
     std::string flight = req->getParameter("flight");
     std::string departure_date = req->getParameter("departure_date");
-    if (!Utils::is_valid_input(flight, airplanePattern)) {
+    if (!Utils::is_valid_input(flight, flightPattern)) {
         callback(Utils::error("Invalid flight.", k400BadRequest));
         return;
     }
@@ -147,8 +147,11 @@ void search::seatmap(const HttpRequestPtr& req,
             Json::Value jsonResponse =
                 Utils::parseJsonField(result[0]["SEATMAP"].as<std::string>());
 
-            std::vector<std::string> seats = Utils::parsePgArray(
-                result[0]["OCCUPIED_SEATS"].as<std::string>());
+            std::vector<std::string> seats;
+            if (!result[0]["OCCUPIED_SEATS"].isNull()) {
+                seats = Utils::parsePgArray(
+                    result[0]["OCCUPIED_SEATS"].as<std::string>());
+            }
             Json::Value seatsJson(Json::arrayValue);
             for (const std::basic_string<char>& seat : seats) {
                 seatsJson.append(seat);

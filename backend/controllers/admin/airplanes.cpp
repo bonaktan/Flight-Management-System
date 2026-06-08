@@ -9,7 +9,6 @@ void api::admin::add_airplane(
         callback(Skybridge::Utils::error("Invalid JSON", k400BadRequest));
         return;
     }
-    std::cout << "done: json validation" << std::endl;
     std::vector<std::string> errors = Skybridge::Utils::validateRequest(
         *json, api::admin::add_airplane_schema());
     if (!errors.empty()) {

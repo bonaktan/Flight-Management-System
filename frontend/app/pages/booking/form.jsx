@@ -187,11 +187,17 @@ export default function BookingForm() {
             <p className="text-2xl font-bold">Passenger Information</p>
             <p>Please enter the information of the passengers that will board this flight.</p>
             <div className="flex flex-col gap-4 mx-4 my-8">
-                {bookingState.passengers.map((key, i) =>
-                    key == null ? (
+                {bookingState.passengers.map((passenger, i) =>
+                    passenger == null ? (
                         <div key={i}>Loading...</div>
                     ) : (
-                        <PassengerForm key={i} count={i} selectedPassenger={passengerSelected} passenger={key} setPassenger={setPassengerSelected} />
+                        <PassengerForm
+                            key={i}
+                            count={i}
+                            selectedPassenger={passengerSelected}
+                            passenger={passenger}
+                            setPassenger={setPassengerSelected}
+                        />
                     ),
                 )}
             </div>

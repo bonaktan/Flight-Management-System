@@ -24,9 +24,6 @@ Task<HttpResponsePtr> booking::submit(HttpRequestPtr req) {
     std::string flight_id = (*json)["flightId"].asString();
     const Json::Value& passengers = (*json)["passengers"];
     std::string departure_date = (*json)["departure_date"].asString();
-    int total = passengers.size();
-    auto completed = std::make_shared<std::atomic<int>>(0);
-    auto failed = std::make_shared<std::atomic<bool>>(false);
 
     orm::DbClientPtr db = drogon::app().getDbClient("main");
     auto transPtr = co_await db->newTransactionCoro();
