@@ -16,8 +16,8 @@ function HeaderLogos({ logo, label, page }) {
 function BillingCard() {
     const isRoundTrip = true;
     return (
-        <div>
-            <div className="flex justify-between">
+        <div className="">
+            <div className="flex justify-between bg-blaze-deep p-2">
                 <div>
                     <div>Total to be paid</div>
                     <div className="text-xs">Excluding taxes, fees, and discounts</div>
@@ -39,7 +39,7 @@ function BillingCard() {
 function FlightSubcard() {
     return (
         <div>
-            <div className="flex justify-between">
+            <div className="flex justify-between bg-altitude-ink text-white p-2">
                 <div>
                     <div>Return</div>
                     <div className="text-sm">June 30, 2026</div>
@@ -134,7 +134,7 @@ export default function BookingLayout() {
                     </div>
 
                     {!isInSeatmap && (
-                        <div className=" m-8">
+                        <div className="m-8">
                             <BillingCard />
                         </div>
                     )}

@@ -68,7 +68,7 @@ function backendSubmit(payload) {
 }
 export default function BookingPayment() {
     const navigate = useNavigate();
-    const [selectedMethod, setSelectedMethod] = useState("");
+    const [selectedMethod, setSelectedMethod] = useState("E-wallet");
     const bookingContext = use(BookingContext);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [paymentError, setPaymentError] = useState(null);
@@ -113,7 +113,7 @@ export default function BookingPayment() {
     return (
         <div>
             <div className="text-3xl text-center text-altitude-ink font-bold pb-2 border-b-1 border-cloud-pop my-2">Select your Payment Method</div>
-            <div className="relative bg-cloud-warm flex border-1 border-cloud-pop m-2">
+            <div className="relative bg-cloud-warm flex border-1 border-cloud-pop m-2 rounded-lg overflow-hidden">
                 {["E-wallet", "Credit/Debit Card"].map((method) => (
                     <button
                         key={method}

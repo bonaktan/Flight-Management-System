@@ -18,7 +18,7 @@ function PassengerForm({ count, selectedPassenger, passenger, setPassenger }) {
     }
     return (
         <div className="flex flex-col w-full bg-blaze-tint p-4 rounded-lg shadow-lg">
-            <div className="flex border-b" onClick={onDropdownClick}>
+            <div className="flex border-b transition" onClick={onDropdownClick}>
                 <p className="font-bold text-lg w-full ">Customer Information - Passenger {count + 1}</p>
                 <span className="material-symbols-outlined">{selectedPassenger == count ? "arrow_drop_up" : "arrow_drop_down"}</span>
             </div>
