@@ -54,10 +54,12 @@ Json::Value Utils::parseJsonField(const std::string& raw) {
     return out;
 }
 
-std::vector<std::string> Utils::parsePgArray(const std::string& pgArray) {
+std::vector<std::string> Utils::parsePgArray(const std::string &pgArray) {
     std::vector<std::string> result;
+    // Strip the curly braces: {a,b,c} -> a,b,c
     if (pgArray.size() < 2) return result;
     std::string inner = pgArray.substr(1, pgArray.size() - 2);
+    
     std::stringstream ss(inner);
     std::string token;
     while (std::getline(ss, token, ',')) {

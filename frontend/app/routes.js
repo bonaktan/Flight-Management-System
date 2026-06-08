@@ -29,4 +29,5 @@ export default [
         route("login", "./pages/account/auth/login.jsx"),
         route("signup", "./pages/account/auth/signup.jsx"),
     ]),
+    route("/payment/simulation", "./pages/paymentSimulation.jsx"),
 ];

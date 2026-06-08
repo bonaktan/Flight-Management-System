@@ -23,8 +23,8 @@ void api::admin::add_flight(
     orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
     dbClient->execSqlAsync(
         "INSERT INTO flight (id, departure_airport_id, arrival_airport_id, "
-        "base_ticket_price, flight_time, departure, frequency) VALUES ($1, $2, "
-        "$3, $4, $5, $6, $7);",
+        "base_ticket_price, flight_time, departure, frequency, airplane_id) VALUES ($1, $2, "
+        "$3, $4, $5, $6, $7, $8);",
         [callback](const drogon::orm::Result& result) {
             Json::Value jsonResponse;
             jsonResponse["success"] = true;
@@ -41,7 +41,8 @@ void api::admin::add_flight(
         (*json)["base_ticket_price"].asDouble(),
         (*json)["flight_time"].asString(),
         (*json)["start_of_operations"].asString(),
-        (*json)["frequency"].asString());
+        (*json)["frequency"].asString(),
+        (*json)["airplane"].asString());
 }
 
 void api::admin::delete_flight(const HttpRequestPtr& req,

@@ -1,45 +1,12 @@
 // responsibiltity: fetching flight data from backend and displaying it in a list of cards
 
-import { use, useReducer } from "react";
+import { use } from "react";
 import { SearchParametersContext } from "./searchContext";
 import { addTime } from "../../components/datetime";
-import { NavLink } from "react-router";
 import "./bookpop.css";
-
-function Bookpop({ activity }) {
-    return (
-        <div className={`w-full border-cloud-pop border-2 p-2 flex justify-between transition ${activity ? "active" : ""} absolute left-0 bottom-0`}>
-            {activity}
-            <div className="flex justify-start flex-col">
-                <p>Flight ID</p>
-                <p className="flex items-center gap-2">
-                    MNL
-                    <span className="material-symbols-outlined rotate-90">flight</span>
-                    CEB
-                </p>
-            </div>
-            <div className="text-center">
-                <p className="font-bold">Passengers</p>
-                <p>2</p>
-            </div>
-            <NavLink to="/booking/form" className="border px-4">
-                Book
-            </NavLink>
-        </div>
-    );
-}
 
 export default function Search() {
     const searchParams = use(SearchParametersContext);
-    const [selectedFlightAndClass, setSelectedFlightAndClass] = useReducer(
-        (state, { flight, seatClass }) => {
-            let ret;
-            if (flight == state.flight && seatClass == state.seatClass) ret = { flight: null, seatClass: null };
-            else ret = { flight: flight, seatClass: seatClass };
-            return ret;
-        },
-        { flight: null, seatClass: null },
-    );
     // todo: passengers are not yet handled
 
     if (!searchParams) {
@@ -49,14 +16,18 @@ export default function Search() {
         <div>
             {searchParams.apiReturn ? (
                 searchParams.apiReturn.map((flight) => (
-                    <FlightCard key={flight.id} flight={flight} value={selectedFlightAndClass} selectValue={setSelectedFlightAndClass} />
+                    <FlightCard
+                        key={flight.id}
+                        flight={flight}
+                        value={searchParams.selectedFlightAndClass}
+                        selectValue={searchParams.setSelectedFlightAndClass}
+                    />
                 ))
             ) : searchParams.apiError ? (
                 <p>Error occurred while fetching flight data. Error: {searchParams.apiError.error}</p>
             ) : (
                 <p>No Flights are found.</p>
             )}
-            <Bookpop activity={selectedFlightAndClass.flight} />
         </div>
     );
 }
