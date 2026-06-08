@@ -105,22 +105,20 @@ export default function BookingPayment() {
     }
     return (
         <div>
-            <div>Select your Payment Method</div>
-            <div className="bg-orange-300">
-                <PaymentSubsection name="Online Banking" selected={selectedMethod} setSelected={setSelectedMethod}>
-                    <div>You will be redirected to the merchant's Website to complete the payment</div>
-                    <div className="flex justify-center gap-2">
-                        <button onClick={onSubmitOnlineBanking}>GCash</button>
-                    </div>
-                </PaymentSubsection>
-                <PaymentSubsection name="Credit/Debit Card" selected={selectedMethod} setSelected={setSelectedMethod}>
-                    <div className="flex justify-center gap-2">
-                        <InputField name="Credit Card Number" icon="credit_card" />
-                        <InputField name="Expiry Date" icon="calendar_today" />
-                        <InputField name="CVV" icon="password" />
-                    </div>
-                    <button onClick={onSubmitCard}>Submit</button>
-                </PaymentSubsection>
+            <div className="text-3xl text-center text-altitude-ink font-bold pb-2 border-b-1 border-cloud-pop my-2">Select your Payment Method</div>
+            <div className="relative bg-cloud-warm flex border-1 border-cloud-pop m-2">
+                {["E-wallet", "Credit/Debit Card"].map((method) => (
+                    <button
+                        key={method}
+                        className={`w-full font-bold p-4 z-1 transition ${selectedMethod === method ? "text-white" : "text-altitude-ink"}`}
+                        onClick={() => setSelectedMethod(method)}>
+                        {method}
+                    </button>
+                ))}
+                <div
+                    className="absolute top-0 h-full w-1/2 bg-blaze-deep transition z-0"
+                    style={{ left: selectedMethod === "Credit/Debit Card" ? "50%" : "0%" }}
+                />
             </div>
             <div>{paymentError}</div>
         </div>

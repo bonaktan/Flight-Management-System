@@ -121,7 +121,7 @@ export default function BookingLayout() {
                     <span className="material-symbols-outlined">keyboard_double_arrow_right</span>
                     <HeaderLogos logo="airline_seat_recline_extra" label="Seats" page="/booking/details" />
                     <span className="material-symbols-outlined">keyboard_double_arrow_right</span>
-                    <HeaderLogos logo="credit_card" label="Payment" page="/booking/confirmation" />
+                    <HeaderLogos logo="credit_card" label="Payment" page="/booking/payment" />
                 </div>
                 <div className="flex gap-8">
                     <div className={`${isInSeatmap ? "w-full" : "w-3/4"}`}>
