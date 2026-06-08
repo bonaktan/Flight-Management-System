@@ -1,5 +1,5 @@
 import { NavLink, Form, useNavigate } from "react-router";
-import InputField from "../../../components/input";
+import { InputField } from "../../../components/input";
 import { useState } from "react";
 import axios from "axios";
 

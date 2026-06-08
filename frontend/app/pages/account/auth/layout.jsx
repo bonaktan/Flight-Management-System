@@ -1,5 +1,5 @@
 import { Outlet } from "react-router";
-export default function Login() {
+export default function Layout() {
     return (
         <div className="relative min-h-dvh h-fit w-dvw bg-blaze-deep">
             <div className="absolute top-0 left-0">
