@@ -10,7 +10,7 @@ namespace api {
 class booking : public drogon::HttpController<booking> {
    public:
     METHOD_LIST_BEGIN
-    METHOD_ADD(booking::submit, "/submit", Post);
+    METHOD_ADD(booking::submit, "/submit", Post, "AuthFilter");
     METHOD_LIST_END
 
     void submit(const HttpRequestPtr& req,

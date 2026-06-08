@@ -12,6 +12,7 @@ const valijson::Schema& api::booking::create_booking_schema() {
         s["type"]    = "object";
         s["required"].append("flightId");
         s["required"].append("passengers");
+        s["required"].append("departure_date");
         s["additionalProperties"] = false;
 
         Json::Value& p = s["properties"];
@@ -25,6 +26,9 @@ const valijson::Schema& api::booking::create_booking_schema() {
         p["passengers"]["type"] = "array";
         p["passengers"]["minItems"] = 1;
         p["passengers"]["maxItems"] = 9;
+
+        p["departure_date"]["type"] = "string";
+        p["departure_date"]["pattern"] = "^[0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$";
 
         // passenger item schema
         Json::Value& item = p["passengers"]["items"];

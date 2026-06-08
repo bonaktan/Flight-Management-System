@@ -12,7 +12,10 @@ ALTER TABLE IF EXISTS public.passenger
     ADD COLUMN gender TEXT NOT NULL,
     ADD COLUMN phone_number TEXT NOT NULL,
     ADD COLUMN emergency_contact_phone TEXT NOT NULL;
-    
+
+ALTER TABLE booking 
+    ADD CONSTRAINT unique_seat_per_flight_date 
+    UNIQUE (flight_id, seat_id, departure_date);
 
 
 DROP TABLE seat_class;

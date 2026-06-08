@@ -17,6 +17,7 @@ function Bookpop() {
                 flightId: searchParams.selectedFlightAndClass.flight,
                 class: searchParams.selectedFlightAndClass.seatClass,
                 passengers: searchParams.passengers,
+                departure_date: searchParams.departure_date,
             },
         });
     }

@@ -2,6 +2,8 @@ import { NavLink, useNavigate } from "react-router";
 import { InputField } from "../../components/input";
 import { use, useRef, useState } from "react";
 import { BookingContext } from "./context";
+import axios from "axios";
+const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 function PaymentSubsection({ name, selected, setSelected, children }) {
     return (
@@ -60,7 +62,10 @@ function luhnsAlgorithm(cardNumber) {
     }
     return nCheck % 10 == 0;
 }
-
+function backendSubmit(payload) {
+    const response = axios.post(`/api/booking/submit`, payload);
+    return response;
+}
 export default function BookingPayment() {
     const navigate = useNavigate();
     const [selectedMethod, setSelectedMethod] = useState("");
@@ -84,6 +89,7 @@ export default function BookingPayment() {
             setPaymentStatus("success");
             // JSON.parse(sessionStorage.getItem("payment_state") || "{}")
             // TODO: send the details to the backend
+            backendSubmit(bookingContext);
             navigate("/booking/confirmation");
         } catch (err) {
             console.log(err);
@@ -101,6 +107,7 @@ export default function BookingPayment() {
             setPaymentError("Invalid Credit Card Number");
             return;
         }
+        backendSubmit(bookingContext);
         navigate("/booking/confirmation");
     }
     return (
