@@ -1,6 +1,7 @@
 import { NavLink, Outlet } from "react-router";
-import BookingForm from "./form";
+import { authMiddleware } from "../../middleware/auth.middleware";
 
+export const middleware = [authMiddleware];
 export default function BookingLayout() {
     return (
         <div>
@@ -8,7 +9,6 @@ export default function BookingLayout() {
                 <span className="material-symbols-outlined">search</span>
             </div>
             <Outlet />
-            <BookingForm />
         </div>
     );
 }
