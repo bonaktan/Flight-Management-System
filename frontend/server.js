@@ -1,6 +1,7 @@
 import { createRequestHandler } from "@react-router/express";
 import express from "express";
 import crypto from "crypto";
+import { RouterContextProvider } from "react-router";
 
 const app = express();
 app.use(express.static("build/client"));
@@ -28,9 +29,9 @@ app.use(
     createRequestHandler({
         build: await import("./build/server/index.js"),
         getLoadContext(req, res) {
-            return {
-                cspNonce: res.locals.cspNonce,
-            };
+            const context = new RouterContextProvider();
+            context.set("cspNonce", res.locals.cspNonce);
+            return context;
         },
     }),
 );

@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from "react-router";
+import { authMiddleware } from "../../middleware/auth.middleware";
 
+export const middleware = [authMiddleware];
 export default function AccountLayout() {
     return (
         <div>

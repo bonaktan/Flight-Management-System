@@ -1,7 +1,9 @@
 import { Link, Outlet, useLocation } from "react-router";
-import BookingForm from "./form";
 import { BookingContext } from "./context";
 import { useReducer } from "react";
+import { authMiddleware } from "../../middleware/auth.middleware";
+
+export const middleware = [authMiddleware];
 
 function HeaderLogos({ logo, label, page }) {
     return (

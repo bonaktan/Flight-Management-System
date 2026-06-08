@@ -1,17 +1,19 @@
 import { Outlet } from "react-router";
 import { NavLink } from "react-router";
 import logo from "/app/assets/logo.png";
+import { use } from "react";
+import { UserContext } from "../middleware/context";
 
 function Navbar() {
+    const user = use(UserContext);
+    console.log(user);
     return (
         <div className="flex justify-between h-16 items-center p-6 shadow-sm fixed top-0 w-full z-99 mb-16 bg-white">
             <NavLink to="/" className="flex items-center">
                 <img src={logo} className="h-16" />
                 <p>SkyBridge Airways</p>
             </NavLink>
-            <div>
-                <NavLink to="/login">Log in</NavLink>
-            </div>
+            <div>{user?.logged_in ? <NavLink to="/account">{user.user?.username}</NavLink> : <NavLink to="/auth/login">Log in</NavLink>}</div>
         </div>
     );
 }

@@ -38,7 +38,7 @@ void auth::signup(const HttpRequestPtr& req,
             jsonResponse["name"] = name;
 
             std::string csrf = generateCsrfToken();
-            std::string token = generateToken(account_id, email, csrf);
+            std::string token = generateToken(account_id, name, csrf);
 
             drogon::HttpResponsePtr resp =
                 drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
@@ -109,9 +109,10 @@ void auth::login(const HttpRequestPtr& req,
                 return;
             }
             long long account_id = result[0]["id"].as<long long>();
+            std::string name = result[0]["account_name"].as<std::string>();
             jsonResponse["success"] = true;
-            jsonResponse["name"] = result[0]["account_name"].as<std::string>();
-            std::string token = generateToken(account_id, email, csrf);
+            jsonResponse["name"] = name;
+            std::string token = generateToken(account_id, name, csrf);
             drogon::HttpResponsePtr resp =
                 drogon::HttpResponse::newHttpJsonResponse(jsonResponse);
             auth::setAuthCookies(resp, token, csrf);

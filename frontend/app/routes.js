@@ -25,8 +25,9 @@ export default [
 
         route("search", "pages/search/layout.jsx", [index("pages/search/main.jsx")]),
     ]),
-
-    route("/login", "./pages/account/auth/login.jsx"),
-    route("/signup", "./pages/account/auth/signup.jsx"),
+    route("/auth", "./pages/account/auth/layout.jsx", [
+        route("login", "./pages/account/auth/login.jsx"),
+        route("signup", "./pages/account/auth/signup.jsx"),
+    ]),
     route("/payment/simulation", "./pages/paymentSimulation.jsx"),
 ];
