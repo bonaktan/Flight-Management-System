@@ -68,7 +68,11 @@ function Dashboard({ account }) {
     return (
         <div className="flex flex-col gap-4">
             <div className="bg-blaze-deep flex py-4 px-8 items-center gap-2 rounded-sm">
-                <div className="aspect-square h-28 bg-white rounded-full" />
+                <div className="aspect-square h-28 bg-white rounded-full">
+                    <svg viewBox="0 0 338 338" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#DDD" d="m169,.5a169,169 0 1,0 2,0zm0,86a76,76 0 1 1-2,0zM57,287q27-35 67-35h92q40,0 67,35a164,164 0 0,1-226,0" />
+                    </svg>
+                </div>
                 <p className="text-cloud-warm leading-tight">
                     <span className="text-3xl text-blaze-tint font-bold">{userContext.user.username}</span>
                     <br />
@@ -77,7 +81,7 @@ function Dashboard({ account }) {
             </div>
 
             <div className="flex flex-col">
-                <DetailEntry field="Name" value={account.account_name} editable />
+                <DetailEntry field="Name" value={account.account_name} />
                 <DetailEntry field="User ID" value={account.userId} />
                 <DetailEntry field="Email" value={account.email} />
             </div>
