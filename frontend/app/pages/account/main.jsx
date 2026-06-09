@@ -2,7 +2,7 @@ import { NavLink } from "react-router";
 import { FlightCard } from "../../components/flightCard";
 import { OverlayBase, OverlaySidebar } from "../../components/overlay";
 import { useState } from "react";
-
+import axios from "axios";
 function FlightDetailSidebar({ flight }) {
     return (
         <OverlaySidebar className="right-0 p-6">
@@ -11,6 +11,9 @@ function FlightDetailSidebar({ flight }) {
                     <div className="text-2xl font-semibold">Flight Details</div>
                     <FlightCard flight={flight.departureFlight} />
                     {flight.isRoundTrip && <FlightCard flight={flight.returnFlight} isReturn={true} />}
+                    <div>
+                        Airplane: {flight.departureFlight.model} ({flight.departureFlight.airplane_id})
+                    </div>
                 </div>
                 <div>
                     <div className="text-xl font-semibold pb-2 ">Passenger Details</div>
@@ -63,47 +66,12 @@ function BookingCard({ flight }) {
     );
 }
 
-export function loader() {
-    const mockApi = [
-        {
-            isRoundTrip: false,
-            departureFlight: { flightId: "SKY067", departure: "2026-06-30T15:00:00+08:00", flight_time: 5400, origin: "MNL", destination: "CEB" },
-            passengers: [
-                {
-                    name: "Ms. Bonny Bon",
-                    seat: "A1",
-                },
-            ],
-        },
-        {
-            isRoundTrip: true,
-            departureFlight: { flightId: "SKY067", departure: "2026-06-30T15:00:00+08:00", flight_time: 5400, origin: "MNL", destination: "CEB" },
-            returnFlight: { flightId: "SKY069", departure: "2026-07-30T15:00:00+08:00", flight_time: 5400, origin: "CEB", destination: "MNL" },
-            passengers: [
-                {
-                    name: "Ms. Bonny Bon",
-                    seat: "A1",
-                },
-            ],
-        },
-        {
-            isRoundTrip: false,
-            departureFlight: { flightId: "SKY067", departure: "2026-06-30T15:00:00+08:00", flight_time: 5400, origin: "MNL", destination: "CEB" },
-            passengers: [
-                {
-                    name: "Ms. Bonny Bon",
-                    seat: "A1",
-                },
-                {
-                    name: "Ms. Bonnyyyy Bon",
-                    seat: "A2",
-                },
-            ],
-        },
-    ];
-    return { bookings: mockApi };
+export async function clientLoader() {
+    const apiReturn = (await axios.get("/api/account/bookings")).data;
+    return { bookings: apiReturn };
 }
 export default function AccountBooking({ loaderData }) {
+    console.log(loaderData);
     return (
         <div className="flex flex-col gap-2">
             <div className="text-2xl font-semibold text-center">Bookings </div>
