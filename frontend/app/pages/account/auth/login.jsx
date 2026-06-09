@@ -6,6 +6,7 @@ import axios from "axios";
 export default function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const navigate = useNavigate();
     function login(e) {
         e.preventDefault();
@@ -19,7 +20,12 @@ export default function Login() {
                 navigate("/"); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
-                console.error(e);
+                if (e.status == 401) {
+                    setError("Invalid Credentials.");
+                } else {
+                    console.error(e);
+                    setError("Something went wrong. Check Console for details.");
+                }
             });
     }
 
@@ -53,6 +59,7 @@ export default function Login() {
                 </span>
                 .
             </p>
+            <p className="text-center">{error}</p>
         </>
     );
 }

@@ -6,7 +6,9 @@ import { SearchParametersContext } from "./searchContext";
 import { use, useReducer } from "react";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
+export function meta() {
+    return [{ title: "Search - SkyBridge Airlines" }];
+}
 function Bookpop() {
     const searchParams = use(SearchParametersContext);
     console.log("searchContext in Bookpop: ", searchParams);
@@ -110,12 +112,13 @@ export default function SearchLayout({ loaderData }) {
             destination: loaderData.searchParams["destination"] || "",
             departure_date: loaderData.searchParams["departure_date"] || "",
             return_date: loaderData.searchParams["return_date"] || "",
-            passengers: loaderData.searchParams["passengers"] || 1,
+            passengers: parseInt(loaderData.searchParams["passengers"]) || 1,
             sort: loaderData.searchParams["sort"] || "price",
         },
     );
 
     function searchUpdate() {
+        console.log(searchContext);
         navigate({
             pathname: "/search",
             search: `?${createSearchParams({
@@ -143,7 +146,9 @@ export default function SearchLayout({ loaderData }) {
                             <button
                                 onClick={() => setSearchContext({ field: "flight_mode", value: trip })}
                                 key={trip}
-                                className={`${searchContext.flight_mode == trip ? "bg-blaze-core text-white" : ""} border px-2 text-sm transition whitespace-nowrap h-10`}>
+                                className={`${searchContext.flight_mode == trip ? "bg-blaze-core text-white" : ""} border px-2 text-sm transition whitespace-nowrap h-10 ${trip == "Round Trip" && "opacity-20 hover:cursor-not-allowed"}`}
+                                disabled={trip == "Round Trip"} // WARN: temporarily disabled
+                            >
                                 {trip}
                             </button>
                         ))}
@@ -230,18 +235,18 @@ export default function SearchLayout({ loaderData }) {
                     Submit
                 </button>
             </div>
-            <div id="filters" className="flex flex-row align-bottom px-5 gap-5">
+            {/* <div id="filters" className="flex flex-row align-bottom px-5 gap-5">
                 <div>Sort</div>
                 <button onClick={() => setSearchContext({ field: "sort", value: "price" })}>Price</button>
                 <button onClick={() => setSearchContext({ field: "sort", value: "flight_time" })}>Flight Duration</button>
                 <button onClick={() => setSearchContext({ field: "sort", value: "departure" })}>Departure Time</button>
-            </div>
+            </div> */}
             <div id="results" className="flex flex-col gap-2 p-5">
                 <div id="header" className="flex w-full gap-2">
                     <div className="w-2/5" />
-                    <div className="text-center w-1/5">Essentials</div>
-                    <div className="text-center w-1/5">Popular</div>
-                    <div className="text-center w-1/5">Ultimate</div>
+                    <div className="text-center w-1/5">Economy</div>
+                    <div className="text-center w-1/5">Business</div>
+                    <div className="text-center w-1/5">First Class</div>
                 </div>
                 <Outlet />
             </div>

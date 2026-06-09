@@ -24,11 +24,17 @@ export default function Signup() {
                 password: password,
             })
             .then((e) => {
-                console.log(e);
                 navigate("/"); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
-                console.error(e);
+                if (e.status == 400) {
+                    setError("Inputs are misformatted.");
+                } else if (e.status == 409) {
+                    setError("An account with the same email already exists.");
+                } else {
+                    console.error(e);
+                    setError("Something went wrong. Check Console for details.");
+                }
             });
     }
     return (

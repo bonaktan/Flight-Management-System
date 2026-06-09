@@ -1,8 +1,8 @@
 import { Link, Outlet, useLocation } from "react-router";
 import { BookingContext } from "./context";
-import { useReducer } from "react";
+import { use, useReducer } from "react";
 import { authMiddleware } from "../../middleware/auth.middleware";
-
+import { FlightCard } from "../../components/flightCard";
 export const middleware = [authMiddleware];
 
 function HeaderLogos({ logo, label, page }) {
@@ -14,7 +14,8 @@ function HeaderLogos({ logo, label, page }) {
     );
 }
 function BillingCard() {
-    const isRoundTrip = true;
+    const bookingContext = use(BookingContext);
+    const isRoundTrip = false; // WARN: change to true once implemented na yung ano
     return (
         <div className="">
             <div className="flex justify-between bg-blaze-deep text-white p-2">
@@ -25,42 +26,42 @@ function BillingCard() {
                 <div>PHP 6,696.96</div>
             </div>
             <div className="border"></div>
-            <FlightSubcard />
+            <FlightCard flight={bookingContext.selectedFlight} />
             {isRoundTrip && (
                 <>
                     <div className="border" />
-                    <FlightSubcard />
+                    <FlightCard />
                 </>
             )}
         </div>
     );
 }
 
-function FlightSubcard() {
-    return (
-        <div>
-            <div className="flex justify-between bg-altitude-ink text-white p-2">
-                <div>
-                    <div>Return</div>
-                    <div className="text-sm">June 30, 2026</div>
-                </div>
-                <div>Economy</div>
-            </div>
-            <div className="flex justify-between items-center mt-2">
-                <div>
-                    <div>03:45</div>
-                    <div>MNL</div>
-                </div>
-                <span className="material-symbols-outlined">flight_takeoff</span>
-                <div>
-                    <div>09:00</div>
-                    <div>CEB</div>
-                </div>
-            </div>
-            <div className="text-center">Flight Details</div>
-        </div>
-    );
-}
+// function FlightSubcard() {
+//     return (
+//         <div>
+//             <div className="flex justify-between bg-altitude-ink text-white p-2">
+//                 <div>
+//                     <div>Return</div>
+//                     <div className="text-sm">June 30, 2026</div>
+//                 </div>
+//                 <div>Economy</div>
+//             </div>
+//             <div className="flex justify-between items-center mt-2">
+//                 <div>
+//                     <div>03:45</div>
+//                     <div>MNL</div>
+//                 </div>
+//                 <span className="material-symbols-outlined">flight_takeoff</span>
+//                 <div>
+//                     <div>09:00</div>
+//                     <div>CEB</div>
+//                 </div>
+//             </div>
+//             <div className="text-center">Flight Details</div>
+//         </div>
+//     );
+// }
 const passengerObject = {
     title: "",
     first_name: "",
@@ -75,7 +76,20 @@ const passengerObject = {
     selected_seat: "",
 };
 
-export default function BookingLayout() {
+export async function clientLoader() {
+    const mockApi = {
+        airplane_id: "SB-W0001",
+        departure: "2026-06-30 15:00:00",
+        destination: "CEB",
+        flightId: "SKY067",
+        flight_time: 5400,
+        model: "Airbus A320",
+        origin: "MNL",
+    };
+    return mockApi;
+}
+
+export default function BookingLayout({ loaderData }) {
     const location = useLocation();
     const isInSeatmap = location.pathname === "/booking/details";
     const [bookingContext, setBookingContext] = useReducer(
@@ -118,7 +132,7 @@ export default function BookingLayout() {
         },
     );
     return (
-        <BookingContext value={{ ...bookingContext, setBookingContext: setBookingContext }}>
+        <BookingContext value={{ ...bookingContext, setBookingContext: setBookingContext, selectedFlight: loaderData }}>
             <div>
                 <div id="steps" className="flex items-center justify-center gap-4 w-full bg-orange-300 p-2">
                     <HeaderLogos logo="flight_takeoff" label="Flights" page="/search" />

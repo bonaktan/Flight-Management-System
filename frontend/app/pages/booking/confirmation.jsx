@@ -1,5 +1,9 @@
 import { NavLink } from "react-router";
 
+export function meta() {
+    return [{ title: "Booking - Confirmation | SkyBridge Airlines" }];
+}
+
 export default function BookingConfirmation() {
     return (
         <div className="flex justify-center items-center">

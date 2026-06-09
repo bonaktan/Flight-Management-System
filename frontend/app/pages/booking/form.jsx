@@ -3,6 +3,10 @@ import { InputField, SelectionField } from "../../components/input";
 import { use, useEffect, useState } from "react";
 import { BookingContext } from "./context";
 
+export function meta() {
+    return [{ title: "Booking - Passengers | SkyBridge Airlines" }];
+}
+
 function PassengerForm({ count, selectedPassenger, passenger, setPassenger }) {
     const bookingContext = use(BookingContext);
     const navigate = useNavigate();

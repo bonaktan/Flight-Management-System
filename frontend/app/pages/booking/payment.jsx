@@ -3,6 +3,11 @@ import { InputField } from "../../components/input";
 import { use, useRef, useState } from "react";
 import { BookingContext } from "./context";
 import axios from "axios";
+
+export function meta() {
+    return [{ title: "Booking - Payment | SkyBridge Airlines" }];
+}
+
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 function PaymentSubsection({ name, selected, setSelected, children }) {

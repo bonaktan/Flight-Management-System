@@ -13,6 +13,10 @@ import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
+export function meta() {
+    return [{ title: "SkyBridge Airlines" }];
+}
+
 export async function loader() {
     const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
     const date = new Date().toISOString().split("T")[0];
@@ -139,7 +143,8 @@ function Search({ data }) {
                             type="button"
                             key={key}
                             value={key}
-                            className={`transition flex justify-center items-center w-32 text-center cursor-pointer ${flightMode == i ? "bg-blaze-core text-blaze-tint" : ""}`}>
+                            className={`transition flex justify-center items-center w-32 text-center cursor-pointer ${flightMode == i ? "bg-blaze-core text-blaze-tint" : ""} ${key == "round_trip" && "opacity-20 hover:cursor-not-allowed"}`}
+                            disabled={key == "round_trip"}>
                             {value.name}
                         </button>
                     ))}

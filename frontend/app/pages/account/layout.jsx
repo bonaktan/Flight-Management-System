@@ -7,6 +7,9 @@ import { use, useState } from "react";
 import { OverlayBase, OverlayModal } from "../../components/overlay";
 import { InputField } from "../../components/input";
 // const apiUrl = import.meta.env.VITE_BACKEND_URL;
+export function meta() {
+    return [{ title: "Account - SkyBridge Airlines" }];
+}
 
 export const middleware = [authMiddleware];
 

@@ -4,6 +4,10 @@ import axios from "axios";
 import { Link } from "react-router";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
+export function meta() {
+    return [{ title: "Booking - Flight Details | SkyBridge Airlines" }];
+}
+
 function StructuralZone({ zone }) {
     if (zone.label == "door")
         return (
@@ -123,7 +127,11 @@ function PassengerLoader({ id, passenger, onSelect, onClick }) {
             className={`bg-blaze-core text-cloud-warm rounded-sm p-2 overflow-hidden transition duration-1000 ${isExpanded ? "max-h-40" : "max-h-17"}`}
             onClick={() => onSelect(id)}>
             <div className="flex items-center gap-6 pl-4 py-4">
-                <div className={`h-20 aspect-square bg-white rounded-full transition-opacity duration-1000 ${!isExpanded && "opacity-0"}`} />
+                <div className={`h-20 aspect-square bg-white rounded-full transition-opacity duration-1000 ${!isExpanded && "opacity-0"}`}>
+                    <svg viewBox="0 0 338 338" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="#DDD" d="m169,.5a169,169 0 1,0 2,0zm0,86a76,76 0 1 1-2,0zM57,287q27-35 67-35h92q40,0 67,35a164,164 0 0,1-226,0" />
+                    </svg>
+                </div>
                 <div>
                     <div className="font-medium text-xl ">
                         {passenger.title}. {passenger.first_name} {passenger.last_name}
