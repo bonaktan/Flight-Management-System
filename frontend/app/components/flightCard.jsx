@@ -3,7 +3,6 @@ function getDate(str, flightTime) {
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const newDate = new Date(str);
     newDate.setSeconds(flightTime);
-    console.log(newDate);
     const dateStr = date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric", timeZone });
     const timeStr = date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone });
     const timeArrivalStr = newDate.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone });
@@ -17,10 +16,11 @@ export function FlightCard({ flight, isReturn }) {
         <div className="w-full">
             <div className="flex justify-between">
                 <div>
-                    <div>{isReturn ? "Return" : "Departure"}</div>
+                    <div className="text-lg font-semibold">{flight.flightId}</div>
+
                     <div className="text-sm">{dateStr}</div>
                 </div>
-                <div>Economy</div>
+                <div>{isReturn ? "Return" : "Departure"}</div>
             </div>
             <div className="flex justify-between items-center mt-2">
                 <div>
@@ -33,7 +33,6 @@ export function FlightCard({ flight, isReturn }) {
                     <div>{flight.destination}</div>
                 </div>
             </div>
-            <div className="text-center">Flight Details</div>
         </div>
     );
 }

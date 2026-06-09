@@ -1,54 +1,87 @@
-import { NavLink, Outlet } from "react-router";
+import { Outlet } from "react-router";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import { UserContext } from "../../middleware/context";
+import { use, useState } from "react";
+import { OverlayBase, OverlayModal } from "../../components/overlay";
+import { InputField } from "../../components/input";
+// const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export const middleware = [authMiddleware];
 
-function NavButtons({ to }) {
+function EditModal({ parameter, children, className }) {
     return (
-        <NavLink to={`/account/${to.toLowerCase()}`} className="w-1/2 bg-red-100 p-2 text-center">
-            {to}
-        </NavLink>
+        <OverlayModal className="p-2 w-1/2">
+            <div className="p-4">
+                <p className="font-semibold text-xl">Edit {parameter}</p>
+                <div className={className}>{children}</div>
+            </div>
+        </OverlayModal>
     );
 }
 
-function DetailEntry({ field, value }) {
+function DetailEntry({ field, value, editable = false }) {
+    const [showModal, setShowModal] = useState(false);
+    const userContext = use(UserContext);
+    console.log(userContext);
     return (
-        <div className="flex w-full">
-            <div className="w-1/10 text-right">{field}</div>
-            <div className="w-1/10">:</div>
-            <div className="w-4/5">{value}</div>
+        <div className="flex">
+            <div className="flex w-4/5">
+                <div className="w-2/10 text-right">{field}</div>
+                <div className="w-4">:</div>
+                <div className="w-auto">{value}</div>
+            </div>
+            {editable && (
+                <>
+                    <div className="w-1/5">
+                        <button onClick={() => setShowModal(true)}>
+                            <span className="material-symbols-outlined">edit</span>
+                        </button>
+                    </div>
+
+                    <OverlayBase open={showModal} setOpen={setShowModal}>
+                        <EditModal parameter={field}>
+                            {field == "Name" ? (
+                                <div class="flex ">
+                                    <InputField label="Edit Name" name="username" icon="person" />
+                                </div>
+                            ) : (
+                                <></>
+                            )}
+                        </EditModal>
+                    </OverlayBase>
+                </>
+            )}
         </div>
     );
 }
 
-function Dashboard() {
+function Dashboard({ account }) {
+    console.log(account);
     const navigate = useNavigate();
+    const userContext = use(UserContext);
     async function logout() {
         const user = await axios.post("/api/auth/logout");
         navigate("/auth/login");
     }
     return (
         <div className="flex flex-col gap-4">
-            <div className="bg-blaze-deep flex p-2 items-center gap-2 rounded-sm">
-                <div className="aspect-square h-32 bg-white rounded-full" />
+            <div className="bg-blaze-deep flex py-4 px-8 items-center gap-2 rounded-sm">
+                <div className="aspect-square h-28 bg-white rounded-full" />
                 <p className="text-cloud-warm leading-tight">
-                    <span className="text-3xl text-blaze-tint font-bold">Bonny</span>
+                    <span className="text-3xl text-blaze-tint font-bold">{userContext.user.username}</span>
                     <br />
-                    Traveler
+                    <p>Traveler</p>
                 </p>
             </div>
 
             <div className="flex flex-col">
-                <DetailEntry field="Name" value="Timothy Magdasal" />
-                <DetailEntry field="User ID" value="16" />
-                <DetailEntry field="Email" value="bon@bonnybonnybonaktan.xyz" />
+                <DetailEntry field="Name" value={account.account_name} editable />
+                <DetailEntry field="User ID" value={account.userId} />
+                <DetailEntry field="Email" value={account.email} />
             </div>
             <div className="flex justify-end gap-2">
-                <button onClick={logout} className="bg-red-200 p-2 rounded-sm">
-                    Edit Profile
-                </button>
                 <button onClick={logout} className="bg-red-200 p-2 rounded-sm">
                     Log out
                 </button>
@@ -57,7 +90,17 @@ function Dashboard() {
     );
 }
 
-export default function AccountLayout() {
+export async function clientLoader() {
+    let ret = { apiReturn: null, apiError: null };
+    try {
+        ret.apiReturn = (await axios.get("/api/account/details")).data;
+    } catch (e) {
+        console.error("error in loader: ", e);
+    }
+    return ret;
+}
+export default function AccountLayout({ loaderData }) {
+    console.log("loaderData: ", loaderData);
     return (
         <div className="flex">
             <div id="profile" className="w-1/3 p-2">
@@ -67,7 +110,7 @@ export default function AccountLayout() {
                             <span className="text-3xl text-altitude-mid font-bold">Bonny</span>
                         <br/>Traveler</p>
                 </div> */}
-                <Dashboard />
+                <Dashboard account={loaderData.apiReturn} />
             </div>
 
             {/* <div className="bg-orange-300 px-16 py-8 flex gap-8 items-center ">

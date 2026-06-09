@@ -7,7 +7,6 @@ export default async function fetchUser(request) {
     let status;
     let user;
     try {
-        console.log("cookie: ", cookie);
         const apiReturn = await axios.get(`${apiUrl}/api/auth/authenticate`, {
             headers: {
                 Cookie: cookie,
