@@ -3,7 +3,7 @@ import { Outlet } from "react-router";
 export default function AccountBookingLayout() {
     return (
         <div>
-            <p>Accounts - Booking Layout</p>
+            <div className="text-2xl font-bold">Booking</div>
             <Outlet />
         </div>
     );

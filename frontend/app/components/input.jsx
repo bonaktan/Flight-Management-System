@@ -1,10 +1,10 @@
 import { useReducer, useState } from "react";
 import "./stylesheets/selection.css";
 
-export function InputField({ name, icon, genDesign, inDesign, labDesign, ...props }) {
+export function InputField({ name, label = name, icon, genDesign, inDesign, labDesign, ...props }) {
     return (
         <div className={`flex flex-col ${genDesign}`}>
-            <label className={`${labDesign}`}>{name}</label>
+            <label className={`${labDesign}`}>{label}</label>
             <div className={`h-10 p-1 border flex gap-1 items-center rounded-sm w-full ${inDesign}`}>
                 <p className="material-symbols-outlined select-none">{icon}</p>
                 <input className={`w-full focus:outline-none ${inDesign}`} {...props} name={name} />

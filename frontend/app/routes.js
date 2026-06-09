@@ -8,11 +8,10 @@ export default [
 
         route("account", "pages/account/layout.jsx", [
             index("./pages/account/main.jsx"),
-            route("settings", "./pages/account/settings.jsx"),
-            route("booking", "./pages/account/booking/layout.jsx", [
-                index("./pages/account/booking/main.jsx"),
-                route("details", "./pages/account/booking/details.jsx"),
-            ]),
+            // route("booking", "./pages/account/booking/layout.jsx", [
+            //     index("./pages/account/booking/main.jsx"),
+            //     route("details", "./pages/account/booking/details.jsx"),
+            // ]),
         ]),
 
         route("booking", "pages/booking/layout.jsx", [

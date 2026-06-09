@@ -6,7 +6,6 @@ import { UserContext } from "../middleware/context";
 
 function Navbar() {
     const user = use(UserContext);
-    console.log(user);
     return (
         <div className="flex justify-between h-16 items-center p-6 shadow-sm fixed top-0 w-full z-99 mb-16 bg-white">
             <NavLink to="/" className="flex items-center">
