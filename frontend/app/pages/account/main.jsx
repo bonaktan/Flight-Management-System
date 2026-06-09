@@ -48,7 +48,6 @@ function BookingCard({ flight }) {
             <div className="bg-white px-2 w-4/5 ">
                 <div className="flex gap-4">
                     <div className="w-4/5 p-4">
-                        <p>{flight.passenger_name}</p>
                         <div className="flex gap-10">
                             <FlightCard flight={flight.departureFlight} />
                             {flight.isRoundTrip && <FlightCard flight={flight.returnFlight} isReturn={true} />}
@@ -67,8 +66,13 @@ function BookingCard({ flight }) {
 }
 
 export async function clientLoader() {
-    const apiReturn = (await axios.get("/api/account/bookings")).data;
-    return { bookings: apiReturn };
+    try {
+        const apiReturn = (await axios.get("/api/account/bookings")).data;
+        return { bookings: Array.isArray(apiReturn) ? apiReturn : [] };
+    } catch (e) {
+        console.error("Failed to fetch bookings:", e);
+        return { bookings: [] };
+    }
 }
 export default function AccountBooking({ loaderData }) {
     console.log(loaderData);
