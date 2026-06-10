@@ -33,7 +33,6 @@ function EditModal({ parameter, children, className }) {
 function DetailEntry({ field, value, editable = false }) {
     const [showModal, setShowModal] = useState(false);
     const userContext = use(UserContext);
-    console.log(userContext);
     return (
         <div className="flex">
             <div className="flex w-4/5">
@@ -67,7 +66,6 @@ function DetailEntry({ field, value, editable = false }) {
 }
 
 function Dashboard({ account }) {
-    console.log(account);
     const navigate = useNavigate();
     const userContext = use(UserContext);
     async function logout() {
@@ -113,7 +111,6 @@ export async function clientLoader() {
     return ret;
 }
 export default function AccountLayout({ loaderData }) {
-    console.log("loaderData: ", loaderData);
     return (
         <div className="flex">
             <div id="profile" className="w-1/3 p-2">

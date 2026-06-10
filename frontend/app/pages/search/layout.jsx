@@ -9,16 +9,8 @@ const apiUrl = import.meta.env.VITE_BACKEND_URL;
 export function meta() {
     return [{ title: "Search - SkyBridge Airlines" }];
 }
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
 function Bookpop() {
     const searchParams = use(SearchParametersContext);
-    console.log("searchContext in Bookpop: ", searchParams);
     const navigate = useNavigate();
     function onConfirm() {
         navigate("/booking/form", {
@@ -66,7 +58,6 @@ function Bookpop() {
 
 async function fetchFlights(searchContext) {
     let apiReturn = { apiReturn: null, apiError: null };
-    console.log("searchContext: ", searchContext);
     try {
         apiReturn.apiReturn = (
             await axios.get(`${apiUrl}/api/search/flights`, {
@@ -88,17 +79,27 @@ async function fetchFlights(searchContext) {
 
 export async function loader(request) {
     const searchParams = new URL(request.url).searchParams;
-    console.log(searchParams);
     const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
     return { airports: airports, searchParams: Object.fromEntries(searchParams) };
 }
-export async function clientLoader({ serverLoader }) {
-    const serverData = await serverLoader();
-    const flights = await fetchFlights(serverData.searchParams);
-    return { flights: flights, ...serverData };
+export async function clientLoader({ serverLoader, request }) {
+    const searchParams = Object.fromEntries(new URL(request.url).searchParams);
+
+    const [serverData, flights] = await Promise.all([
+        serverLoader(),
+        fetchFlights(searchParams), // client reads params independently
+    ]);
+
+    return { flights, ...serverData };
 }
 clientLoader.hydrate = true;
-
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 export default function SearchLayout({ loaderData }) {
     const navigate = useNavigate();
     const [selectedFlightAndClass, setSelectedFlightAndClass] = useReducer(
@@ -136,7 +137,6 @@ export default function SearchLayout({ loaderData }) {
     );
 
     function searchUpdate() {
-        console.log(searchContext);
         navigate({
             pathname: "/search",
             search: `?${createSearchParams({
@@ -180,7 +180,6 @@ export default function SearchLayout({ loaderData }) {
                         labDesign="text-sm"
                         selDesign="rounded-sm text-sm"
                         onChange={(e) => {
-                            console.log("select: ", e.target.value);
                             setSearchContext({ field: "origin", value: e.target.value });
                         }}
                         value={searchContext.origin}

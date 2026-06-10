@@ -127,7 +127,6 @@ function PassengerLoader({ id, passenger, onSelect, onClick }) {
     const seatMapContext = use(SeatMapContext);
     const isExpanded = id == seatMapContext.selectedPassenger;
     const bookingContext = use(BookingContext);
-    console.log("seatmapContext: ", seatMapContext);
     return (
         <div
             className={`bg-blaze-core text-cloud-warm rounded-sm p-2 overflow-hidden transition duration-1000 ${isExpanded ? "max-h-40" : "max-h-17"}`}
@@ -163,6 +162,7 @@ export async function clientLoader() {
     }
     return { seatmapLayout: apiReturn.data };
 }
+clientLoader.hydrate = true;
 export default function AircraftSeatmap({ loaderData }) {
     const bookingContext = use(BookingContext);
     const navigate = useNavigate();

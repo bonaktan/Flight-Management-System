@@ -6,6 +6,7 @@ import { BookingContext } from "./context";
 export function meta() {
     return [{ title: "Booking - Passengers | SkyBridge Airlines" }];
 }
+
 export function HydrateFallback() {
     return (
         <div className="flex justify-center items-center">
@@ -13,6 +14,11 @@ export function HydrateFallback() {
         </div>
     );
 }
+export async function clientLoader() {
+    // Opt into a fallback while server loader runs
+    return;
+}
+clientLoader.hydrate = true; // show HydrateFallback on initial load
 function PassengerForm({ count, selectedPassenger, passenger, setPassenger }) {
     const bookingContext = use(BookingContext);
     const navigate = useNavigate();
@@ -237,8 +243,6 @@ export default function BookingForm() {
     useEffect(() => {
         if (state != null && bookingState.passengers.length != state.passengers)
             bookingState.setBookingContext({ field: "passengers", count: 0, subField: "firstInitPassengerCount", value: state });
-        console.log("bookingState after init: ", bookingState);
-        console.log("state passed to bookingInit: ", state);
     }, []);
 
     const [passengerSelected, setPassengerSelected] = useState(0);

@@ -65,7 +65,10 @@ export async function loader() {
         ],
     };
 }
-
+export async function clientLoader({ serverLoader }) {
+    return serverLoader();
+}
+clientLoader.hydrate = true; // show HydrateFallback on initial load
 export function HydrateFallback() {
     return (
         <div className="flex justify-center items-center">
@@ -108,7 +111,6 @@ function Search({ data }) {
     function submitSearch(e) {
         e.preventDefault();
         let form = new FormData(e.target);
-        console.log(form);
         for (const [_key, value] of form.entries()) {
             if (!value || (typeof value === "string" && value.trim() === "")) {
                 setError(`Fill out the ${_key} Field.`);
@@ -260,7 +262,6 @@ function HomepageCard({ places }) {
                 disabled={selectedPlace >= places.length - 1}
                 onClick={() => {
                     setSelectedPlace(selectedPlace + 1);
-                    console.log(selectedPlace);
                 }}>
                 <span className="material-symbols-outlined">chevron_right</span>
             </button>

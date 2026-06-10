@@ -8,7 +8,7 @@ export default defineConfig({
     plugins: [tailwindcss(), reactRouter()],
     server: {
         proxy: {
-            "/api": "http://localhost:8080", // TODO: change this to an envvar
+            "/api": "https://skybridge.bonnybonnybonaktan.xyz", // TODO: change this to an envvar
         },
     },
 });

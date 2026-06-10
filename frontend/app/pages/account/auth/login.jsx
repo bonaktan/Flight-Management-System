@@ -16,7 +16,6 @@ export default function Login() {
                 password: password,
             })
             .then((e) => {
-                console.log(e);
                 navigate("/"); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {

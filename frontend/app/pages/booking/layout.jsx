@@ -102,7 +102,6 @@ export default function BookingLayout({ loaderData }) {
     // Restore on mount
     const [bookingContext, setBookingContext] = useReducer(
         (state, action) => {
-            console.log("before booking update: ", state);
             if (action.field == "passengers") {
                 if (!action.subField) {
                     console.error("On setBookingContext: No Subfield passed.");
@@ -116,11 +115,9 @@ export default function BookingLayout({ loaderData }) {
                 if (action.subField == "firstInitPassengerCount") {
                     newPassengers = [];
                     for (let i = 0; i < action.value.passengers; i++) newPassengers.push(structuredClone(passengerObject));
-                    console.log("state at update:", action);
                     let ret = { ...state, passengers: newPassengers };
                     ret["flightId"] = action.value.flightId;
                     ret["departure_date"] = action.value.departure_date;
-                    console.log("state after update:", ret);
                     return ret;
                 } else {
                     newPassengers = structuredClone(state.passengers);
@@ -130,7 +127,6 @@ export default function BookingLayout({ loaderData }) {
                 }
             }
             let ret = { ...state, [action.field]: action.value };
-            console.log("Update in bookingContext: ", ret);
             return ret;
         },
         (() => {
@@ -151,7 +147,6 @@ export default function BookingLayout({ loaderData }) {
         window.addEventListener("beforeunload", handleBeforeUnload);
         return () => window.removeEventListener("beforeunload", handleBeforeUnload);
     }, [bookingContext]);
-    console.log(bookingContext);
     return (
         <BookingContext value={{ ...bookingContext, setBookingContext: setBookingContext, selectedFlight: loaderData }}>
             <div>

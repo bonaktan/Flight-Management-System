@@ -14,7 +14,11 @@ export function HydrateFallback() {
         </div>
     );
 }
-
+export async function clientLoader() {
+    // Opt into a fallback while server loader runs
+    return;
+}
+clientLoader.hydrate = true;
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 function PaymentSubsection({ name, selected, setSelected, setError, children }) {
@@ -108,7 +112,6 @@ export default function BookingPayment() {
             paymentPopupRef.current = win;
             const result = await waitForPopupMessage(win);
             if (!win.closed) win.close();
-            console.log(result);
             setPaymentStatus("success");
             // JSON.parse(sessionStorage.getItem("payment_state") || "{}")
             // TODO: send the details to the backend
