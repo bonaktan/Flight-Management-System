@@ -3,7 +3,7 @@
 import { CounterField, InputField, SelectionField } from "../../components/input";
 import { createSearchParams, Outlet, useNavigate } from "react-router";
 import { SearchParametersContext } from "./searchContext";
-import { use, useReducer } from "react";
+import { use, useEffect, useReducer, useState } from "react";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 export function meta() {
@@ -23,9 +23,20 @@ function Bookpop() {
             },
         });
     }
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        if (searchParams.selectedFlightAndClass.flight) {
+            setTimeout(() => setVisible(true), 300);
+        } else {
+            setVisible(false);
+        }
+    }, [searchParams.selectedFlightAndClass.flight]);
     return (
         <div
-            className={`w-full border-2 p-2 flex justify-between transition ${searchParams.selectedFlightAndClass ? "active" : ""} absolute -bottom-20 `}>
+            className={`w-full border-2 p-2 flex justify-between absolute bottom-0 transition-transform duration-300 bg-white ${
+                searchParams.selectedFlightAndClass.flight ? "translate-y-0" : "translate-y-full"
+            } ${visible ? "z-10" : "-z-10"}`}>
             {searchParams.selectedFlightAndClass.flight}
             <div className="flex justify-start flex-col">
                 <p>Flight ID</p>

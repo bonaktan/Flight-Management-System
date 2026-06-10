@@ -24,11 +24,12 @@ const valijson::Schema& api::auth::signup_schema() {
             "a-z0-9\\-]*\\.)+[a-z]{2,}$";
 
         p["password"]["type"] = "string";
-        // p["password"]["minLength"] = 8;
-        // p["password"]["maxLength"] = 127;
-        p["password"]["pattern"] =
-            "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{"
-            "8,127}$";
+        p["password"]["minLength"] = 8;
+        p["password"]["maxLength"] = 127;
+        // this proved to be an unpopular decision so okay
+        // p["password"]["pattern"] =
+        //     "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{"
+        //     "8,127}$";
 
         p["name"]["type"] = "string";
         p["name"]["minLength"] = 5;

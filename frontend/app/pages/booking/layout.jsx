@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation } from "react-router";
 import { BookingContext } from "./context";
-import { use, useReducer } from "react";
+import { use, useEffect, useReducer, useState } from "react";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { FlightCard } from "../../components/flightCard";
 export const middleware = [authMiddleware];
@@ -92,6 +92,8 @@ export async function clientLoader() {
 export default function BookingLayout({ loaderData }) {
     const location = useLocation();
     const isInSeatmap = location.pathname === "/booking/details";
+
+    // Restore on mount
     const [bookingContext, setBookingContext] = useReducer(
         (state, action) => {
             console.log("before booking update: ", state);
@@ -125,12 +127,25 @@ export default function BookingLayout({ loaderData }) {
             console.log("Update in bookingContext: ", ret);
             return ret;
         },
-        {
-            flightId: null,
-            departure_date: null,
-            passengers: [],
-        },
+        (() => {
+            const saved = sessionStorage.getItem("bookingState");
+            return saved
+                ? JSON.parse(saved)
+                : {
+                      flightId: null,
+                      departure_date: null,
+                      passengers: [],
+                  };
+        })(),
     );
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            sessionStorage.setItem("bookingState", JSON.stringify(bookingContext));
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, [bookingContext]);
+    console.log(bookingContext);
     return (
         <BookingContext value={{ ...bookingContext, setBookingContext: setBookingContext, selectedFlight: loaderData }}>
             <div>

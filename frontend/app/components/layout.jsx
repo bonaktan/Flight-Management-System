@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import { NavLink } from "react-router";
 import logo from "/app/assets/logo.png";
-import { use } from "react";
+import { use, useEffect } from "react";
 import { UserContext } from "../middleware/context";
 
 function Navbar() {

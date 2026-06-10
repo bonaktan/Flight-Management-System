@@ -1,7 +1,7 @@
 import { use, useState } from "react";
 import { BookingContext, SeatMapContext } from "./context";
 import axios from "axios";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export function meta() {
@@ -127,7 +127,7 @@ function PassengerLoader({ id, passenger, onSelect, onClick }) {
             className={`bg-blaze-core text-cloud-warm rounded-sm p-2 overflow-hidden transition duration-1000 ${isExpanded ? "max-h-40" : "max-h-17"}`}
             onClick={() => onSelect(id)}>
             <div className="flex items-center gap-6 pl-4 py-4">
-                <div className={`h-20 aspect-square bg-white rounded-full transition-opacity duration-1000 ${!isExpanded && "opacity-0"}`}>
+                <div className={`h-20 aspect-square bg-white rounded-full ${!isExpanded && "opacity-0"}`}>
                     <svg viewBox="0 0 338 338" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                         <path fill="#DDD" d="m169,.5a169,169 0 1,0 2,0zm0,86a76,76 0 1 1-2,0zM57,287q27-35 67-35h92q40,0 67,35a164,164 0 0,1-226,0" />
                     </svg>
@@ -159,9 +159,10 @@ export async function clientLoader() {
 }
 export default function AircraftSeatmap({ loaderData }) {
     const bookingContext = use(BookingContext);
-    console.log(loaderData);
+    const navigate = useNavigate();
     const rowSections = getRowSections(loaderData.seatmapLayout.seatNumbering);
     const [selectedPassenger, setSelectedPassenger] = useState(0);
+    const [notSelected, setNotSelected] = useState();
     function onPassengerSelect(count) {
         setSelectedPassenger(count);
     }
@@ -172,6 +173,15 @@ export default function AircraftSeatmap({ loaderData }) {
         setExpandedPassenger((prev) => (prev === id ? null : id));
     };
 
+    function onNext() {
+        if (!bookingContext.passengers.every((p) => p.selected_seat !== "")) {
+            setNotSelected(
+                bookingContext.passengers.filter((p) => !p.selected_seat).map((p, i) => `Passenger ${i + 1}: ${p.first_name} ${p.last_name}`),
+            );
+            return;
+        }
+        navigate("/booking/payment");
+    }
     return (
         <SeatMapContext
             value={{
@@ -184,16 +194,24 @@ export default function AircraftSeatmap({ loaderData }) {
                 <div className="flex flex-col w-1/2 p-2">
                     <p className="font-bold text-2xl pb-4">Passengers:</p>
                     <div className="px-6 py-10 bg-blaze-tint rounded-md ">
-                        <div className="flex flex-col">
+                        <div className="flex flex-col gap-2">
                             {bookingContext.passengers.map((passenger, key) => (
                                 <PassengerLoader key={key} id={key} passenger={passenger} onSelect={onPassengerSelect} />
                             ))}
                         </div>
                         <div className="flex justify-end-safe p-2 pt-10 text-cloud-warm">
-                            <Link to="/booking/payment" className="bg-blaze-core px-4 py-2 text-xl">
+                            <button onClick={onNext} className="bg-blaze-core px-4 py-2 text-xl">
                                 Next
-                            </Link>
+                            </button>
                         </div>
+                        {notSelected && (
+                            <div>
+                                <p>These passengers still have no seats assigned to them:</p>
+                                {notSelected.map((e, key) => (
+                                    <p key={e}>{e}</p>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
                 <div className="flex max-h-[80dvh] w-1/3 border bg-altitude-ink p-2 h-full overflow-hidden">

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { NavLink } from "react-router";
 
 export function meta() {
@@ -5,6 +6,9 @@ export function meta() {
 }
 
 export default function BookingConfirmation() {
+    useEffect(() => {
+        sessionStorage.removeItem("bookingState");
+    }, []);
     return (
         <div className="flex justify-center items-center">
             <div className="flex flex-col items-center justify-center bg-gray-100 rounded-xl m-10 w-fit p-16 shadow-md ">
@@ -20,7 +24,7 @@ export default function BookingConfirmation() {
                     <p className="">Your changes have been saved completely. You're good to go!</p>
                 </div>
                 <div className="mt-4">
-                    <NavLink className="px-4 py-2 bg-blaze-core text-cloud-warm font-semibold text-xl rounded-md " to="/account/booking">
+                    <NavLink className="px-4 py-2 bg-blaze-core text-cloud-warm font-semibold text-xl rounded-md " to="/account">
                         Go to Bookings
                     </NavLink>
                 </div>
