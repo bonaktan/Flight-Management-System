@@ -3,6 +3,14 @@ import { FlightCard } from "../../components/flightCard";
 import { OverlayBase, OverlaySidebar } from "../../components/overlay";
 import { useState } from "react";
 import axios from "axios";
+
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 function FlightDetailSidebar({ flight }) {
     return (
         <OverlaySidebar className="right-0 p-6">

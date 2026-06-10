@@ -88,7 +88,13 @@ export async function clientLoader() {
     };
     return mockApi;
 }
-
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 export default function BookingLayout({ loaderData }) {
     const location = useLocation();
     const isInSeatmap = location.pathname === "/booking/details";

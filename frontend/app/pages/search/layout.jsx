@@ -9,6 +9,13 @@ const apiUrl = import.meta.env.VITE_BACKEND_URL;
 export function meta() {
     return [{ title: "Search - SkyBridge Airlines" }];
 }
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 function Bookpop() {
     const searchParams = use(SearchParametersContext);
     console.log("searchContext in Bookpop: ", searchParams);

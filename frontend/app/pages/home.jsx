@@ -65,6 +65,14 @@ export async function loader() {
         ],
     };
 }
+
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 export default function Home({ loaderData }) {
     return (
         <div>

@@ -6,7 +6,13 @@ import { BookingContext } from "./context";
 export function meta() {
     return [{ title: "Booking - Passengers | SkyBridge Airlines" }];
 }
-
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 function PassengerForm({ count, selectedPassenger, passenger, setPassenger }) {
     const bookingContext = use(BookingContext);
     const navigate = useNavigate();

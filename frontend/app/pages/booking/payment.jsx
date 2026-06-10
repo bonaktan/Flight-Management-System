@@ -7,6 +7,13 @@ import axios from "axios";
 export function meta() {
     return [{ title: "Booking - Payment | SkyBridge Airlines" }];
 }
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 

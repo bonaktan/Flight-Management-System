@@ -10,7 +10,13 @@ import { InputField } from "../../components/input";
 export function meta() {
     return [{ title: "Account - SkyBridge Airlines" }];
 }
-
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 export const middleware = [authMiddleware];
 
 function EditModal({ parameter, children, className }) {

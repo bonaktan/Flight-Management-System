@@ -7,7 +7,13 @@ const apiUrl = import.meta.env.VITE_BACKEND_URL;
 export function meta() {
     return [{ title: "Booking - Flight Details | SkyBridge Airlines" }];
 }
-
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 function StructuralZone({ zone }) {
     if (zone.label == "door")
         return (
