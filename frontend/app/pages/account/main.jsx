@@ -3,6 +3,8 @@ import { FlightCard } from "../../components/flightCard";
 import { OverlayBase, OverlaySidebar } from "../../components/overlay";
 import { useState } from "react";
 import axios from "axios";
+import { OverlayModal } from "../../components/overlay";
+import QRCode from "react-qr-code";
 
 export function HydrateFallback() {
     return (
@@ -36,14 +38,58 @@ function FlightDetailSidebar({ flight }) {
     );
 }
 
+function BoardingPass({ passenger }) {
+    return (
+        <div className="flex w-full items-center border">
+            <div id="left" className="w-3/4 flex flex-col gap-0">
+                <p className="w-full bg-blaze-core text-cloud-warm font-semibold pl-2">SkyBridge Airways - {`Sky0067`}</p>
+                <div className="flex w-full p-2">
+                    <p className="font-bold text-2xl">MNL</p>
+                    <div className="w-full flex items-center">
+                        <span className="material-symbols-outlined">flight_takeoff</span>
+                        <div className="flex-1 w-full border-t-2 border-dotted border-altitude-tint" />
+                        <span className="material-symbols-outlined">flight_land</span>
+                    </div>
+                    <p className="font-bold text-2xl">JKT</p>
+                </div>
+                <div className="flex justify-between gap-1">
+                    <p className="px-2">Name: {passenger.name}</p>
+                    <p className="px-2">Seat: {passenger.seat}</p>
+                </div>
+                <div className="flex justify-between gap-1">
+                    <p className="px-2">Departure Date:</p>
+                    <p className="px-2">June 1, 2024 20:00</p>
+                </div>
+                <p className="w-full bg-blaze-core text-cloud-warm font-semibold pl-2 italic text-xs">Have a safe flight!</p>
+            </div>
+            <div id="right" className="w-1/4 p-2">
+                <QRCode value={`Name: ${passenger.name}\nSeat: ${passenger.seat}\nFlightID: ${passenger.flightId}`} size={128} />
+            </div>
+        </div>
+    );
+}
+
 function PassengerDetail({ passenger }) {
+    const [openPrintPage, setOpenPrintPage] = useState(false);
     return (
         <div className="flex w-full bg-blaze-tint p-2 items-center rounded-lg">
             <div className="w-4/5 px-4">
                 {passenger.name} - Seat {passenger.seat}
             </div>
             <div className="w-1/5">
-                <button className="py-2 px-4 bg-blaze-core text-cloud-warm font-semibold rounded-md">Print</button>
+                <button className="py-2 px-4 bg-blaze-core text-cloud-warm font-semibold rounded-md" onClick={() => setOpenPrintPage(true)}>
+                    Print
+                </button>
+                <OverlayBase open={openPrintPage} setOpen={setOpenPrintPage}>
+                    <OverlayModal className="w-1/2">
+                        <div className="p-4 w-full">
+                            <div className="text-2xl font-semibold mb-4">Boarding Pass</div>
+                            <div className="flex flex-col gap-2">
+                                <BoardingPass passenger={passenger} />
+                            </div>
+                        </div>
+                    </OverlayModal>
+                </OverlayBase>
             </div>
         </div>
     );
