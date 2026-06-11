@@ -101,11 +101,13 @@ bool Menu::authenticate() {
     std::cout << "  |      AIRLINE MANAGEMENT SYSTEM           |\n";
     std::cout << "  |           Access Required                |\n";
     std::cout << "  *------------------------------------------*\n\n";
-    const std::string CORRECT_PASSWORD = "12345678";
     int attempts = 3;
     while (attempts-- > 0) {
+        std::string email = Input::getInput("Email: ");
         std::string pass = Input::getInput("Password: ");
-        if (pass == CORRECT_PASSWORD) {
+        auto& auth = API::Auth::getInstance();
+        bool response = auth.login(email, pass);
+        if (response) {
             std::cout << "\n  [OK] Access granted.\n";
             return true;
         }

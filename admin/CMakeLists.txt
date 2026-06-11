@@ -11,6 +11,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --- Fetch FTXUI --------------------------------------------------------------
 find_package(ftxui CONFIG REQUIRED)
+include(FetchContent)
+FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
+                         GIT_TAG f091b2c061b307ee89b164c39976fc9202a1c79d) # Replace with your desired git commit from: https://github.com/libcpr/cpr/releases
+FetchContent_MakeAvailable(cpr)
+FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+FetchContent_MakeAvailable(json)
 
 # --- Source Files -------------------------------------------------------------
 set(SOURCES
@@ -19,6 +25,7 @@ set(SOURCES
 
     # API layer
     api/account.cpp
+    api/authentication.cpp
     api/airplane.cpp
     api/airport.cpp
     api/booking.cpp
@@ -51,4 +58,5 @@ target_link_libraries(SkyBridgeAirways-AdminTUI
     PRIVATE ftxui::screen
     PRIVATE ftxui::dom
     PRIVATE ftxui::component
-)
+    PRIVATE cpr::cpr
+    PRIVATE nlohmann_json::nlohmann_json)
