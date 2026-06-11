@@ -1,7 +1,11 @@
 #include <algorithm>
 #include <fstream>
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/dom/table.hpp>
+#include <ftxui/screen/screen.hpp>
 #include <iomanip>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
@@ -10,7 +14,7 @@
 #include "./api.h"
 
 using namespace Skybridge;
-
+API::Airplane* API::Airplane::instance = nullptr;
 void API::Airplane::save() {
     std::ofstream f(Data::FILE_AIRPLANES);
     for (auto& a : Data::airplanes)
@@ -34,28 +38,37 @@ void API::Airplane::load() {
     }
 }
 
-void API::Airplane::view() {
-    Display::printHeader("AIRPLANES");
-    if (Data::airplanes.empty()) {
-        std::cout << "  No records found.\n";
-        return;
+std::vector<std::vector<std::string>> API::Airplane::view() {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/airplane/view").text);
+
+    std::vector<std::vector<std::string>> data = {{"ID", "Location", "Model"}};
+    for (const auto& entry : apiReturn) {
+        data.push_back({entry["id"].get<std::string>(),
+                        entry["location"].get<std::string>(),
+                        entry["model"].get<std::string>()});
     }
-    std::cout << "  " << std::left << std::setw(15) << "ID" << std::setw(28)
-              << "Model" << std::setw(12) << "Location" << "\n";
-    Display::printDivider();
-    for (auto& a : Data::airplanes)
-        std::cout << "  " << std::setw(15) << a.id << std::setw(28) << a.model
-                  << std::setw(12) << a.location << "\n";
+    return data;
 }
 
 void API::Airplane::add() {
     Display::printHeader("ADD AIRPLANE");
-    Structs::Airplane a;
-    a.id = Input::getInput("Airplane ID (e.g. RP-C8888): ");
-    a.model = Input::getInput("Model (e.g. Boeing 737): ");
-    a.location = Input::getInput("Location (Airport ID, or blank): ");
-    Data::airplanes.push_back(a);
-    API::Airplane::save();
+    nlohmann::json airplane;
+    airplane["airplane_id"] = Input::getInput("Airplane ID (e.g. RP-C8888): ");
+    airplane["model"] = Input::getInput("Model (e.g. Boeing 737): ");
+    airplane["location"] = Input::getInput("Location (Airport ID): ");
+
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.post("/admin/airplane/add", airplane);
+    if (apiReturn.status_code == 201 || apiReturn.status_code == 200) {
+        nlohmann::json response = nlohmann::json::parse(apiReturn.text);
+        std::cout << "\n  [OK] Airplane added.\n";
+    } else {
+        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
+        std::cerr << "\n  [ERROR] Failed to add airplane: "
+                  << errorResponse.value("message", "Unknown error") << "\n";
+    }
     std::cout << "\n  [OK] Airplane added.\n";
 }
 
@@ -80,13 +93,7 @@ void API::Airplane::modify() {
 void API::Airplane::remove() {
     Display::printHeader("DELETE AIRPLANE");
     std::string id = Input::getInput("Enter Airplane ID to delete: ");
-    auto it = std::remove_if(
-        Data::airplanes.begin(), Data::airplanes.end(),
-        [&id](const Structs::Airplane& a) { return a.id == id; });
-    if (it != Data::airplanes.end()) {
-        Data::airplanes.erase(it, Data::airplanes.end());
-        API::Airplane::save();
-        std::cout << "\n  [OK] Airplane deleted.\n";
-    } else
-        std::cout << "\n  [!!] Airplane not found.\n";
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.del("/admin/airplane/delete/" + id);
+     std::cout << "\n  [OK] Airplane deleted.\n";
 }

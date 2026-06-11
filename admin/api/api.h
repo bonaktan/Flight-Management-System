@@ -14,36 +14,19 @@ class ApiClient {
    private:
     static ApiClient* instance;
     cpr::Cookies cookies;
-    const std::string base_url = "https://skybridge.bonnybonnybonaktan.xyz/api";
-
+    const std::string base_url =
+        "http://localhost:8080/api";  // TODO: flags for dev/prod
     ApiClient() = default;
-    void checkSession(const cpr::Cookies& updated_cookies) {
-        if (!updated_cookies.empty()) cookies = updated_cookies;
-    }
+    void checkSession(const cpr::Cookies& updated_cookies);
 
    public:
     ApiClient(const ApiClient&) = delete;
     ApiClient& operator=(const ApiClient&) = delete;
+    static ApiClient& getInstance();
 
-    static ApiClient& getInstance() {
-        if (!instance) instance = new ApiClient();
-        return *instance;
-    }
-
-    cpr::Response get(const std::string& endpoint) {
-        auto response = cpr::Get(cpr::Url{base_url + endpoint}, cookies);
-        checkSession(response.cookies);
-        return response;
-    }
-
-    cpr::Response post(const std::string& endpoint, nlohmann::json payload) {
-        auto response =
-            cpr::Post(cpr::Url{base_url + endpoint},
-                      cpr::Header{{"Content-Type", "application/json"}},
-                      cpr::Body{payload.dump()}, cookies);
-        checkSession(response.cookies);
-        return response;
-    }
+    cpr::Response get(const std::string& endpoint);
+    cpr::Response post(const std::string& endpoint, nlohmann::json payload);
+    cpr::Response del(const std::string& endpoint);
 };
 
 class Auth {
@@ -64,38 +47,90 @@ class Auth {
 };
 
 class Account {
+   private:
+    static Account* instance;
+    Account() = default;
+
    public:
+    Account(const Account&) = delete;
+    Account& operator=(const Account&) = delete;
+
+    static Account& getInstance() {
+        if (!instance) instance = new Account();
+        return *instance;
+    }
+    std::string name = "Account";
+    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
     static void save();
     static void load();
     static long long nextId();
-    static void view();
+    static std::vector<std::vector<std::string>> view();
     static void add();
     static void modify();
     static void remove();
 };
 
 class Airplane {
+   private:
+    static Airplane* instance;
+    Airplane() = default;
+
    public:
+    Airplane(const Airplane&) = delete;
+    Airplane& operator=(const Airplane&) = delete;
+
+    static Airplane& getInstance() {
+        if (!instance) instance = new Airplane();
+        return *instance;
+    }
+    std::string name = "Airplane";
+    std::vector<std::string> UNSUPPORTED_OPS = {};
     static void save();
     static void load();
-    static void view();
+    static std::vector<std::vector<std::string>> view();
     static void add();
     static void modify();
     static void remove();
 };
 
 class Airport {
+   private:
+    static Airport* instance;
+    Airport() = default;
+
    public:
+    Airport(const Airport&) = delete;
+    Airport& operator=(const Airport&) = delete;
+
+    static Airport& getInstance() {
+        if (!instance) instance = new Airport();
+        return *instance;
+    }
+    std::string name = "Airport";
+    std::vector<std::string> UNSUPPORTED_OPS = {};
     static void save();
     static void load();
-    static void view();
+    static std::vector<std::vector<std::string>> view();
     static void add();
     static void modify();
     static void remove();
 };
 
 class Booking {
+   private:
+    static Booking* instance;
+    Booking() = default;
+
    public:
+    Booking(const Booking&) = delete;
+    Booking& operator=(const Booking&) = delete;
+
+    static Booking& getInstance() {
+        if (!instance) instance = new Booking();
+        return *instance;
+    }
+    std::string name = "Booking";
+    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
     static void save();
     static void load();
     static long long nextId();
@@ -106,17 +141,43 @@ class Booking {
 };
 
 class Flight {
+   private:
+    static Flight* instance;
+    Flight() = default;
+
    public:
+    Flight(const Flight&) = delete;
+    Flight& operator=(const Flight&) = delete;
+
+    static Flight& getInstance() {
+        if (!instance) instance = new Flight();
+        return *instance;
+    }
+    std::string name = "Flight";
+    std::vector<std::string> UNSUPPORTED_OPS = {"view"};
     static void save();
     static void load();
-    static void view();
+    static std::vector<std::vector<std::string>> view();
     static void add();
     static void modify();
     static void remove();
 };
 
 class Passenger {
+   private:
+    static Passenger* instance;
+    Passenger() = default;
+
    public:
+    Passenger(const Passenger&) = delete;
+    Passenger& operator=(const Passenger&) = delete;
+
+    static Passenger& getInstance() {
+        if (!instance) instance = new Passenger();
+        return *instance;
+    }
+    std::string name = "Passenger";
+    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
     static void save();
     static void load();
     static long long nextId();
@@ -127,7 +188,20 @@ class Passenger {
 };
 
 class SeatClass {
+   private:
+    static SeatClass* instance;
+    SeatClass() = default;
+
    public:
+    SeatClass(const SeatClass&) = delete;
+    SeatClass& operator=(const SeatClass&) = delete;
+
+    static SeatClass& getInstance() {
+        if (!instance) instance = new SeatClass();
+        return *instance;
+    }
+    std::string name = "Seat Class";
+    std::vector<std::string> UNSUPPORTED_OPS = {};
     static void save();
     static void load();
     static long long nextId();
@@ -138,7 +212,20 @@ class SeatClass {
 };
 
 class Staff {
+   private:
+    static Staff* instance;
+    Staff() = default;
+
    public:
+    Staff(const Staff&) = delete;
+    Staff& operator=(const Staff&) = delete;
+
+    static Staff& getInstance() {
+        if (!instance) instance = new Staff();
+        return *instance;
+    }
+    std::string name = "Staff";
+    std::vector<std::string> UNSUPPORTED_OPS = {};
     static void save();
     static void load();
     static long long nextId();
@@ -147,7 +234,6 @@ class Staff {
     static void modify();
     static void remove();
 };
-
 
 }  // namespace Skybridge::API
 #endif

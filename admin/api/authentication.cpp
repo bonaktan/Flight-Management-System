@@ -5,10 +5,8 @@
 #include "./api.h"
 
 using namespace Skybridge;
-namespace Skybridge::API {
-    Auth* Auth::instance = nullptr;
-    ApiClient* ApiClient::instance = nullptr;
-}
+API::Auth* API::Auth::instance = nullptr;
+
 bool API::Auth::login(std::string& email, std::string& password) {
     API::ApiClient& client = API::ApiClient::getInstance();
     auto response =

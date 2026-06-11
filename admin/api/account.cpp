@@ -8,7 +8,7 @@
 #include "./api.h"
 
 using namespace Skybridge;
-
+API::Account* API::Account::instance = nullptr;
 void API::Account::save() {
     std::ofstream f(Data::FILE_ACCOUNTS);
     for (auto& a : Data::accounts)
@@ -45,20 +45,22 @@ long long API::Account::nextId() {
     return mx + 1;
 }
 
-void API::Account::view() {
-    Display::printHeader("ACCOUNTS");
-    if (Data::accounts.empty()) {
-        std::cout << "  No records found.\n";
-        return;
+std::vector<std::vector<std::string>> API::Account::view() {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/account/view").text);
+    std::vector<std::vector<std::string>> data = {{"ID", "Account Name",
+                                                   "Email", "Permissions",
+                                                   "Created At", "Updated At"}};
+    for (const auto& entry : apiReturn) {
+        data.push_back({std::to_string(entry["id"].get<int>()),
+                        entry["account_name"].get<std::string>(),
+                        entry["email"].get<std::string>(),
+                        entry["permissions"].get<std::string>(),
+                        entry["created_at"].get<std::string>(),
+                        entry["updated_at"].get<std::string>()});
     }
-    std::cout << "  " << std::left << std::setw(5) << "ID" << std::setw(22)
-              << "Name" << std::setw(30) << "Email" << std::setw(15)
-              << "Permissions" << "\n";
-    Display::printDivider();
-    for (auto& a : Data::accounts)
-        std::cout << "  " << std::setw(5) << a.id << std::setw(22)
-                  << a.account_name << std::setw(30) << a.email << std::setw(15)
-                  << a.permissions << "\n";
+    return data;
 }
 
 void API::Account::add() {
@@ -101,14 +103,8 @@ void API::Account::modify() {
 
 void API::Account::remove() {
     Display::printHeader("DELETE ACCOUNT");
-    long long id = Input::getLLInput("Enter Account ID to delete: ");
-    auto it =
-        std::remove_if(Data::accounts.begin(), Data::accounts.end(),
-                       [id](const Structs::Account& a) { return a.id == id; });
-    if (it != Data::accounts.end()) {
-        Data::accounts.erase(it, Data::accounts.end());
-        API::Account::save();
-        std::cout << "\n  [OK] Account deleted.\n";
-    } else
-        std::cout << "\n  [!!] Account not found.\n";
+    std::string id = Input::getInput("Enter Account ID to delete: ");
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.del("/admin/account/delete/" + id);
+    std::cout << "\n  [OK] Account deleted.\n";
 }

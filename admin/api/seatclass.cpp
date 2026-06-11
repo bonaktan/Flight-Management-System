@@ -10,7 +10,7 @@
 #include "./api.h"
 
 using namespace Skybridge;
-
+API::SeatClass* API::SeatClass::instance = nullptr;
 void API::SeatClass::save() {
     std::ofstream f(Data::FILE_SEATCLASSES);
     for (auto& sc : Data::seatClasses)

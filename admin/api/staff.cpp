@@ -10,7 +10,7 @@
 #include "./api.h"
 
 using namespace Skybridge;
-
+API::Staff* API::Staff::instance = nullptr;
 void API::Staff::save() {
     std::ofstream f(Data::FILE_STAFFS);
     for (auto& s : Data::staffs)

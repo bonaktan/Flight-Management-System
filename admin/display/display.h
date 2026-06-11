@@ -1,5 +1,6 @@
 #pragma once
 
+#include <any>
 #ifndef SKYBRIDGE_DISPLAY
 #define SKYBRIDGE_DISPLAY
 
@@ -18,10 +19,10 @@ Structs::BookingStatus strToBookingStatus(const std::string& s);
 }  // namespace Display
 
 namespace Skybridge::Menu {
-void subMenu(const std::string& title, void (*viewFn)(), void (*addFn)(),
-             void (*modFn)(), void (*delFn)());
+void subMenu(auto& apiCaller);
 void mainMenu();
 bool authenticate();
+bool contains(std::vector<std::string>& vector, std::string value);
 }  // namespace Menu
 
 #endif

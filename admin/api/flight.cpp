@@ -10,7 +10,7 @@
 #include "./api.h"
 
 using namespace Skybridge;
-
+API::Flight* API::Flight::instance = nullptr;
 void API::Flight::save() {
     std::ofstream f(Data::FILE_FLIGHTS);
     for (auto& fl : Data::flights)
@@ -44,40 +44,38 @@ void API::Flight::load() {
     }
 }
 
-void API::Flight::view() {
-    Display::printHeader("FLIGHTS");
-    if (Data::flights.empty()) {
-        std::cout << "  No records found.\n";
-        return;
-    }
-    std::cout << "  " << std::left << std::setw(12) << "ID" << std::setw(10)
-              << "Dep.AP" << std::setw(10) << "Arr.AP" << std::setw(12)
-              << "Price" << std::setw(12) << "Duration" << std::setw(22)
-              << "Departure" << std::setw(12) << "Frequency" << "\n";
-    Display::printDivider();
-    for (auto& fl : Data::flights)
-        std::cout << "  " << std::setw(12) << fl.id << std::setw(10)
-                  << fl.departure_airport_id << std::setw(10)
-                  << fl.arrival_airport_id << std::setw(12) << std::fixed
-                  << std::setprecision(2) << fl.base_ticket_price
-                  << std::setw(12) << fl.flight_time << std::setw(22)
-                  << fl.departure << std::setw(12) << fl.frequency << "\n";
+std::vector<std::vector<std::string>> API::Flight::view() {
+    Display::printHeader("FLIGHTS - Not Supported");
+    return std::vector<std::vector<std::string>>{};
 }
 
 void API::Flight::add() {
     Display::printHeader("ADD FLIGHT");
-    Structs::Flight fl;
-    fl.id = Input::getInput("Flight ID (e.g. PR101): ");
-    fl.departure_airport_id = Input::getInput("Departure Airport ID: ");
-    fl.arrival_airport_id = Input::getInput("Arrival Airport ID: ");
-    fl.base_ticket_price = Input::getDoubleInput("Base Ticket Price: ");
-    fl.flight_time = Input::getInput("Flight Time (e.g. 02:30:00): ");
-    fl.departure = Input::getInput("Departure (YYYY-MM-DD HH:MM:SS): ");
-    fl.frequency = Input::getInput("Frequency (e.g. 7 days): ");
-    fl.created_at = "NOW()";
-    Data::flights.push_back(fl);
-    save();
-    std::cout << "\n  [OK] Flight added.\n";
+    nlohmann::json flight;
+    flight["flight_id"] = Input::getInput("Flight ID (e.g. SKY421): ");
+    flight["departure_airport_id"] =
+        Input::getInput("Departure Airport ID (e.g. MNL): ");
+    flight["arrival_airport_id"] =
+        Input::getInput("Arrival Airport ID (e.g. CEB): ");
+    flight["flight_time"] = Input::getInput("Flight Time (e.g. 01:30:00): ");
+    flight["base_ticket_price"] =
+        std::stoi(Input::getInput("Base Ticket Price (e.g. 4000): "));
+    flight["start_of_operations"] = Input::getInput(
+        "Start of Operations (e.g. 2026-06-05T15:00:00+08:00): ");
+    flight["frequency"] = Input::getInput("Frequency (e.g. P1D): ");
+    flight["airplane"] = Input::getInput("Airplane ID (e.g. SB-W0001): ");
+
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.post("/admin/flight/add", flight);
+
+    if (apiReturn.status_code == 201 || apiReturn.status_code == 200) {
+        nlohmann::json response = nlohmann::json::parse(apiReturn.text);
+        std::cout << "\n  [OK] Flight added.\n";
+    } else {
+        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
+        std::cerr << "\n  [ERROR] Failed to add flight: "
+                  << errorResponse.value("message", "Unknown error") << "\n";
+    }
 }
 
 void API::Flight::modify() {
@@ -112,13 +110,8 @@ void API::Flight::modify() {
 void API::Flight::remove() {
     Display::printHeader("DELETE FLIGHT");
     std::string id = Input::getInput("Enter Flight ID to delete: ");
-    auto it = std::remove_if(
-        Data::flights.begin(), Data::flights.end(),
-        [&id](const Structs::Flight& fl) { return fl.id == id; });
-    if (it != Data::flights.end()) {
-        Data::flights.erase(it, Data::flights.end());
-        API::Flight::save();
-        std::cout << "\n  [OK] Flight deleted.\n";
-    } else
-        std::cout << "\n  [!!] Flight not found.\n";
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.del("/admin/flight/delete/" + id);
+    // TODO: error handling
+    std::cout << "\n  [OK] Flight deleted.\n";
 }

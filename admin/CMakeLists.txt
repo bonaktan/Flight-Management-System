@@ -26,6 +26,7 @@ set(SOURCES
     # API layer
     api/account.cpp
     api/authentication.cpp
+    api/client.cpp
     api/airplane.cpp
     api/airport.cpp
     api/booking.cpp

@@ -10,7 +10,7 @@
 #include "./api.h"
 
 using namespace Skybridge;
-
+API::Booking* API::Booking::instance = nullptr;
 void API::Booking::save() {
     std::ofstream f(Data::FILE_BOOKINGS);
     for (auto& b : Data::bookings)
