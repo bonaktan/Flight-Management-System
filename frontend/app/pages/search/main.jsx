@@ -43,7 +43,7 @@ function FlightCard({ flight, value, selectValue }) {
     const departureDate = new Date(flight.departure);
     const arrivalDate = addTime(departureDate, flight.flight_time);
     return (
-        <div className="flex gap-2 w-full">
+        <div className="flex w-full my-2">
             <div className="w-2/5 p-2 border border-[#ccc] rounded-sm flex flex-col gap-2">
                 <p className="border-b">{flight.id}</p>
                 <div className="flex justify-center items-center">
@@ -82,7 +82,7 @@ function FlightCard({ flight, value, selectValue }) {
                                 selectValue({ flight: flight.id, seatClass: key });
                             }}
                             key={key}
-                            className={`transition border boorder-[#ccc] w-1/5 ${value.flight == flight.id && value.seatClass == key ? "bg-blaze-core" : ""}`}>
+                            className={`transition border boorder-[#ccc] w-1/5 font-bold ${value.flight == flight.id && value.seatClass == key ? "bg-blaze-core text-cloud-warm" : ""}`}>
                             {flightPrice}
                         </button>
                     );

@@ -8,7 +8,7 @@ export default function Layout() {
                     <div>
                         <p className="text-3xl text-center tracking-wider">SkyBridge Airlines</p>
                     </div>
-                    <div className="p-8">
+                    <div className="px-8">
                         <Outlet />
                     </div>
                 </div>

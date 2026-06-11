@@ -33,23 +33,33 @@ function Bookpop() {
     }, [searchParams.selectedFlightAndClass.flight]);
     return (
         <div
-            className={`w-full border-2 p-2 flex justify-between absolute bottom-0 transition-transform duration-300 bg-white ${
+            className={`w-full border-2 p-2 flex justify-between absolute bottom-0 transition-all duration-300 bg-cloud-warm ${
                 searchParams.selectedFlightAndClass.flight ? "translate-y-0" : "translate-y-full"
-            } ${visible ? "z-10" : "-z-10"}`}>
-            {searchParams.selectedFlightAndClass.flight}
-            <div className="flex justify-start flex-col">
-                <p>Flight ID</p>
+            } ${visible ? "z-10" : "-z-10"} z-10`}>
+            <div className="flex justify-start flex-col w-1/5 gap-1">
+                <p className="font-bold">
+                    {" "}
+                    {searchParams.selectedFlightAndClass.flight} | <span className="capitalize">{searchParams.selectedFlightAndClass.seatClass}</span>
+                </p>
                 <p className="flex items-center gap-2">
-                    MNL
+                    {searchParams.origin}
                     <span className="material-symbols-outlined rotate-90">flight</span>
-                    CEB
+                    {searchParams.destination}
                 </p>
             </div>
-            <div className="text-center">
+            <div className="flex flex-col w-1/5 text-center gap-1">
+                <p className="font-bold">Departure</p>
+                <p className="flex items-center gap-2">{searchParams.selectedFlightAndClass.departure_date}</p>
+            </div>
+            <div className="text-center w-1/5">
                 <p className="font-bold">Passengers</p>
                 <p>2</p>
             </div>
-            <button className="border px-4" onClick={onConfirm}>
+            <div className="text-center w-1/5">
+                <p className="font-bold">Price</p>
+                <p>{1000 * 2}</p>
+            </div>
+            <button className="border px-4 w-1/5 rounded-sm bg-blaze-core font-bold text-cloud-warm" onClick={onConfirm}>
                 Book
             </button>
         </div>
@@ -258,7 +268,7 @@ export default function SearchLayout({ loaderData }) {
                 <button onClick={() => setSearchContext({ field: "sort", value: "flight_time" })}>Flight Duration</button>
                 <button onClick={() => setSearchContext({ field: "sort", value: "departure" })}>Departure Time</button>
             </div> */}
-            <div id="results" className="flex flex-col gap-2 p-5">
+            <div id="results" className="flex flex-col gap-5 p-5 mb-20">
                 <div id="header" className="flex w-full gap-2">
                     <div className="w-2/5" />
                     <div className="text-center w-1/5">Economy</div>
