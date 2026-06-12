@@ -2,18 +2,11 @@ import { use, useState } from "react";
 import { BookingContext, SeatMapContext } from "./context";
 import axios from "axios";
 import { Link, useNavigate } from "react-router";
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 export function meta() {
     return [{ title: "Booking - Flight Details | SkyBridge Airlines" }];
 }
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
+
 function StructuralZone({ zone }) {
     if (zone.label == "door")
         return (
@@ -154,7 +147,7 @@ export async function clientLoader() {
     let apiReturn;
     const bookingContext = JSON.parse(sessionStorage.getItem("bookingState"));
     try {
-        apiReturn = await axios.get(`${apiUrl}/api/search/airplane/seatmap`, {
+        apiReturn = await axios.get("/api/search/airplane/seatmap", {
             params: { flight: bookingContext.flightId, departure_date: bookingContext.departure_date },
         });
     } catch (e) {
@@ -162,7 +155,7 @@ export async function clientLoader() {
     }
     return { seatmapLayout: apiReturn.data };
 }
-clientLoader.hydrate = true;
+
 export default function AircraftSeatmap({ loaderData }) {
     const bookingContext = use(BookingContext);
     const navigate = useNavigate();

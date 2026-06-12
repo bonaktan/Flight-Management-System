@@ -7,19 +7,6 @@ import axios from "axios";
 export function meta() {
     return [{ title: "Booking - Payment | SkyBridge Airlines" }];
 }
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
-export async function clientLoader() {
-    // Opt into a fallback while server loader runs
-    return;
-}
-clientLoader.hydrate = true;
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
 function PaymentSubsection({ name, selected, setSelected, setError, children }) {
     return (

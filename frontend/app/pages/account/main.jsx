@@ -6,13 +6,6 @@ import axios from "axios";
 import { OverlayModal } from "../../components/overlay";
 import QRCode from "react-qr-code";
 
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
 function FlightDetailSidebar({ flight }) {
     return (
         <OverlaySidebar className="right-0 p-6">

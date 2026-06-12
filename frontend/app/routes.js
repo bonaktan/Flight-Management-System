@@ -1,7 +1,7 @@
 import { index, layout, route } from "@react-router/dev/routes";
 
 export default [
-    layout("components/layout.jsx", [
+    layout("./components/layout.jsx", [
         index("./pages/home.jsx"),
         route("about", "./pages/about.jsx"),
         route("support", "./pages/support.jsx"),
@@ -14,15 +14,15 @@ export default [
             // ]),
         ]),
 
-        route("booking", "pages/booking/layout.jsx", [
-            route("form", "pages/booking/form.jsx"),
-            route("seatmap", "pages/booking/seatmap.jsx"),
-            route("details", "pages/booking/flightdetails.jsx"),
-            route("payment", "pages/booking/payment.jsx"),
-            route("confirmation", "pages/booking/confirmation.jsx"),
+        route("booking", "./pages/booking/layout.jsx", [
+            route("form", "./pages/booking/form.jsx"),
+            route("seatmap", "./pages/booking/seatmap.jsx"),
+            route("details", "./pages/booking/flightdetails.jsx"),
+            route("payment", "./pages/booking/payment.jsx"),
+            route("confirmation", "./pages/booking/confirmation.jsx"),
         ]),
 
-        route("search", "pages/search/layout.jsx", [index("pages/search/main.jsx")]),
+        route("search", "./pages/search/layout.jsx", [index("./pages/search/main.jsx")]),
     ]),
     route("/auth", "./pages/account/auth/layout.jsx", [
         route("login", "./pages/account/auth/login.jsx"),

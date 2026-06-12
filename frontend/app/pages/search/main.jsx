@@ -5,13 +5,6 @@ import { SearchParametersContext } from "./searchContext";
 import { addTime } from "../../components/datetime";
 import "./bookpop.css";
 
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
 export default function Search() {
     const searchParams = use(SearchParametersContext);
     // todo: passengers are not yet handled

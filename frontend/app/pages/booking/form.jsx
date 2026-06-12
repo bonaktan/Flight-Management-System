@@ -7,18 +7,6 @@ export function meta() {
     return [{ title: "Booking - Passengers | SkyBridge Airlines" }];
 }
 
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
-export async function clientLoader() {
-    // Opt into a fallback while server loader runs
-    return;
-}
-clientLoader.hydrate = true; // show HydrateFallback on initial load
 function PassengerForm({ count, selectedPassenger, passenger, setPassenger }) {
     const bookingContext = use(BookingContext);
     const navigate = useNavigate();

@@ -3,7 +3,7 @@ import { BookingContext } from "./context";
 import { use, useEffect, useReducer, useState } from "react";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { FlightCard } from "../../components/flightCard";
-export const middleware = [authMiddleware];
+export const clientMiddleware = [authMiddleware];
 
 function HeaderLogos({ logo, label, page }) {
     return (
@@ -88,13 +88,7 @@ export async function clientLoader() {
     };
     return mockApi;
 }
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
+
 export default function BookingLayout({ loaderData }) {
     const location = useLocation();
     const isInSeatmap = location.pathname === "/booking/details";

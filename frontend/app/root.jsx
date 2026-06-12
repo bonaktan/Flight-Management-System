@@ -3,9 +3,9 @@ import "./app.css";
 import { UserContext } from "./middleware/context";
 import { userMiddleware } from "./middleware/auth.middleware";
 
-export const middleware = [userMiddleware];
+export const clientMiddleware = [userMiddleware];
 
-export async function loader({ context }) {
+export async function clientLoader({ context }) {
     const user = context.get(UserContext);
     let nonce;
     try {
@@ -24,14 +24,14 @@ export default function Root({ loaderData }) {
                 <head>
                     <meta charSet="utf-8" />
                     <meta name="viewport" content="width=device-width, initial-scale=1" />
-                    {cspNonce && <meta property="csp-nonce" content={cspNonce} />}
+                    {cspNonce && <meta property="csp-nonce" />}
                     <Meta />
-                    <Links nonce={cspNonce} />
+                    <Links />
                 </head>
                 <body>
                     <Outlet />
-                    <ScrollRestoration nonce={cspNonce} />
-                    <Scripts nonce={cspNonce} />
+                    <ScrollRestoration />
+                    <Scripts />
                 </body>
             </html>
         </UserContext>

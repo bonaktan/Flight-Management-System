@@ -6,18 +6,11 @@ import { UserContext } from "../../middleware/context";
 import { use, useState } from "react";
 import { OverlayBase, OverlayModal } from "../../components/overlay";
 import { InputField } from "../../components/input";
-// const apiUrl = import.meta.env.VITE_BACKEND_URL;
 export function meta() {
     return [{ title: "Account - SkyBridge Airlines" }];
 }
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
-export const middleware = [authMiddleware];
+
+export const clientMiddleware = [authMiddleware];
 
 function EditModal({ parameter, children, className }) {
     return (

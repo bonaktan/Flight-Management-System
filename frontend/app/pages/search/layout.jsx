@@ -5,7 +5,6 @@ import { createSearchParams, Outlet, useNavigate } from "react-router";
 import { SearchParametersContext } from "./searchContext";
 import { use, useEffect, useReducer, useState } from "react";
 import axios from "axios";
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
 export function meta() {
     return [{ title: "Search - SkyBridge Airlines" }];
 }
@@ -72,7 +71,7 @@ async function fetchFlights(searchContext) {
     let apiReturn = { apiReturn: null, apiError: null };
     try {
         apiReturn.apiReturn = (
-            await axios.get(`${apiUrl}/api/search/flights`, {
+            await axios.get("/api/search/flights", {
                 params: {
                     origin: searchContext["origin"],
                     destination: searchContext["destination"],
@@ -89,29 +88,12 @@ async function fetchFlights(searchContext) {
     return apiReturn;
 }
 
-export async function loader(request) {
-    const searchParams = new URL(request.url).searchParams;
-    const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
-    return { airports: airports, searchParams: Object.fromEntries(searchParams) };
-}
-export async function clientLoader({ serverLoader, request }) {
+export async function clientLoader({ request }) {
     const searchParams = Object.fromEntries(new URL(request.url).searchParams);
-
-    const [serverData, flights] = await Promise.all([
-        serverLoader(),
-        fetchFlights(searchParams), // client reads params independently
-    ]);
-
-    return { flights, ...serverData };
+    const [airports, flights] = await Promise.all([axios.get("/api/search/airports").then((r) => r.data), fetchFlights(searchParams)]);
+    return { flights, airports, searchParams };
 }
-clientLoader.hydrate = true;
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
+
 export default function SearchLayout({ loaderData }) {
     const navigate = useNavigate();
     const [selectedFlightAndClass, setSelectedFlightAndClass] = useReducer(

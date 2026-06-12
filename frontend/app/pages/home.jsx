@@ -11,14 +11,12 @@ import seoul from "../assets/pubs/seoul.jpg";
 import tokyo from "../assets/pubs/tokyo.jpg";
 import axios from "axios";
 
-const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
 export function meta() {
     return [{ title: "SkyBridge Airlines" }];
 }
 
-export async function loader() {
-    const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
+export async function clientLoader() {
+    const airports = (await axios.get("/api/search/airports")).data;
     const date = new Date().toISOString().split("T")[0];
     return {
         airports: airports,
@@ -68,17 +66,7 @@ export async function loader() {
         ],
     };
 }
-export async function clientLoader({ serverLoader }) {
-    return serverLoader();
-}
-clientLoader.hydrate = true; // show HydrateFallback on initial load
-export function HydrateFallback() {
-    return (
-        <div className="flex justify-center items-center">
-            <p>Loading...</p>
-        </div>
-    );
-}
+
 export default function Home({ loaderData }) {
     return (
         <div>
