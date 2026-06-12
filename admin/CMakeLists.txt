@@ -9,12 +9,30 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# --- Cross-Compoilation Options -----------------------------------------------
+set(CPR_USE_SYSTEM_CURL OFF)
+set(CURL_USE_SCHANNEL ON) 
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(CPR_BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(FTXUI_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(CURL_STATICLIB ON CACHE BOOL "" FORCE)
+
 # --- Fetch FTXUI --------------------------------------------------------------
-find_package(ftxui CONFIG REQUIRED)
 include(FetchContent)
-FetchContent_Declare(cpr GIT_REPOSITORY https://github.com/libcpr/cpr.git
-                         GIT_TAG f091b2c061b307ee89b164c39976fc9202a1c79d) # Replace with your desired git commit from: https://github.com/libcpr/cpr/releases
+
+FetchContent_Declare(ftxui
+  GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI
+  GIT_TAG v6.1.9  # Replace with a version, tag, or commit hash
+)
+FetchContent_MakeAvailable(ftxui)
+
+FetchContent_Declare(cpr
+    GIT_REPOSITORY https://github.com/libcpr/cpr.git
+    GIT_TAG f091b2c061b307ee89b164c39976fc9202a1c79d
+)
 FetchContent_MakeAvailable(cpr)
+
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
 FetchContent_MakeAvailable(json)
 
@@ -55,6 +73,9 @@ target_include_directories(SkyBridgeAirways-AdminTUI
 )
 
 # --- Link Libraries -----------------------------------------------------------
+target_link_options(SkyBridgeAirways-AdminTUI 
+    PRIVATE -static -static-libgcc -static-libstdc++
+)
 target_link_libraries(SkyBridgeAirways-AdminTUI
     PRIVATE ftxui::screen
     PRIVATE ftxui::dom
