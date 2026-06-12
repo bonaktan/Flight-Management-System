@@ -12,6 +12,15 @@
 using namespace Skybridge;
 API::Flight* API::Flight::instance = nullptr;
 
+std::vector<std::vector<std::string>> API::Flight::view() {
+    return std::vector<std::vector<std::string>>{
+        {"ID", "Name", "Capacity", "Country", "City"}};
+}
+std::vector<std::vector<std::string>> API::Flight::view_one(std::string id) {
+    return std::vector<std::vector<std::string>>{
+        {"ID", "Name", "Capacity", "Country", "City"}};
+}
+
 void API::Flight::add() {
     Display::printHeader("ADD FLIGHT");
     nlohmann::json flight;
@@ -41,32 +50,26 @@ void API::Flight::add() {
     }
 }
 
-void API::Flight::modify() {
-    Display::printHeader("MODIFY FLIGHT");
-    std::string id = Input::getInput("Enter Flight ID to modify: ");
-    for (auto& fl : Data::flights) {
-        if (fl.id == id) {
-            std::string v;
-            v = Input::getInput("New Dep Airport [" + fl.departure_airport_id +
-                                "]: ");
-            if (!v.empty()) fl.departure_airport_id = v;
-            v = Input::getInput("New Arr Airport [" + fl.arrival_airport_id +
-                                "]: ");
-            if (!v.empty()) fl.arrival_airport_id = v;
-            std::string pr = Input::getInput(
-                "New Price [" + std::to_string(fl.base_ticket_price) + "]: ");
-            if (!pr.empty()) fl.base_ticket_price = std::stod(pr);
-            v = Input::getInput("New Flight Time [" + fl.flight_time + "]: ");
-            if (!v.empty()) fl.flight_time = v;
-            v = Input::getInput("New Departure [" + fl.departure + "]: ");
-            if (!v.empty()) fl.departure = v;
-            v = Input::getInput("New Frequency [" + fl.frequency + "]: ");
-            if (!v.empty()) fl.frequency = v;
-            std::cout << "\n  [OK] Flight updated.\n";
-            return;
-        }
-    }
-    std::cout << "\n  [!!] Flight not found.\n";
+std::vector<std::vector<std::string>> API::Flight::modify(std::string id,
+                                                           std::string field,
+                                                           std::string value) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.patch(
+        "/admin/flight/update/" + id, nlohmann::json{{"field", field}, {"value", value}});
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Departure Airport", "Arrival Airport", "Base Ticket Price",
+         "Flight Time", "Departure", "Frequency", "Created At", "Airplane ID"}};
+    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
+    data.push_back({newData["id"].get<std::string>(),
+                    newData["departure_airport_id"].get<std::string>(),
+                    newData["arrival_airport_id"].get<std::string>(),
+                    std::to_string(newData["base_ticket_price"].get<double>()),
+                    newData["flight_time"].get<std::string>(),
+                    newData["departure"].get<std::string>(),
+                    newData["frequency"].get<std::string>(),
+                    newData["created_at"].get<std::string>(),
+                    newData["airplane_id"].get<std::string>()});
+    return data;
 }
 
 void API::Flight::remove() {

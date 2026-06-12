@@ -16,7 +16,7 @@ class ApiClient {
     cpr::Cookies cookies;
     const std::string base_url =
         "http://localhost:8080/api";  // TODO: flags for dev/prod
-        // "https://skybridge.bonnybonnybonaktan.xyz/api";
+    // "https://skybridge.bonnybonnybonaktan.xyz/api";
     ApiClient() = default;
     void checkSession(const cpr::Cookies& updated_cookies);
 
@@ -28,6 +28,8 @@ class ApiClient {
     cpr::Response get(const std::string& endpoint);
     cpr::Response post(const std::string& endpoint, nlohmann::json payload);
     cpr::Response del(const std::string& endpoint);
+    cpr::Response patch(const std::string& endpoint,
+                                   nlohmann::json payload);
 };
 
 class Auth {
@@ -61,11 +63,14 @@ class Account {
         return *instance;
     }
     std::string name = "Account";
-    std::vector<std::string> UNSUPPORTED_OPS = {"add", "modify"};
+    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
     static long long nextId();
     static std::vector<std::vector<std::string>> view();
+    static std::vector<std::vector<std::string>> view_one(std::string id);
     static void add();
-    static void modify();
+    static std::vector<std::vector<std::string>> modify(std::string id,
+                                                        std::string field,
+                                                        std::string value);
     static void remove();
 };
 
@@ -83,10 +88,13 @@ class Airplane {
         return *instance;
     }
     std::string name = "Airplane";
-    std::vector<std::string> UNSUPPORTED_OPS = {"modify"};
+    std::vector<std::string> UNSUPPORTED_OPS = {};
     static std::vector<std::vector<std::string>> view();
+    static std::vector<std::vector<std::string>> view_one(std::string id);
     static void add();
-    static void modify();
+    static std::vector<std::vector<std::string>> modify(std::string id,
+                                                        std::string field,
+                                                        std::string value);
     static void remove();
 };
 
@@ -104,10 +112,13 @@ class Airport {
         return *instance;
     }
     std::string name = "Airport";
-    std::vector<std::string> UNSUPPORTED_OPS = {"modify"};
+    std::vector<std::string> UNSUPPORTED_OPS = {};
     static std::vector<std::vector<std::string>> view();
+    static std::vector<std::vector<std::string>> view_one(std::string id);
     static void add();
-    static void modify();
+    static std::vector<std::vector<std::string>> modify(std::string id,
+                                                        std::string field,
+                                                        std::string value);
     static void remove();
 };
 
@@ -125,11 +136,15 @@ class Booking {
         return *instance;
     }
     std::string name = "Booking";
-    std::vector<std::string> UNSUPPORTED_OPS = {"add", "modify"};
+    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
+
     static long long nextId();
     static void view();
+    static std::vector<std::vector<std::string>> view_one(std::string id);
     static void add();
-    static void modify();
+    static std::vector<std::vector<std::string>> modify(std::string id,
+                                                        std::string field,
+                                                        std::string value);
     static void remove();
 };
 
@@ -147,10 +162,13 @@ class Flight {
         return *instance;
     }
     std::string name = "Flight";
-    std::vector<std::string> UNSUPPORTED_OPS = {"view", "modify"};
+    std::vector<std::string> UNSUPPORTED_OPS = {"view"};
     static std::vector<std::vector<std::string>> view();
+    static std::vector<std::vector<std::string>> view_one(std::string id);
     static void add();
-    static void modify();
+    static std::vector<std::vector<std::string>> modify(std::string id,
+                                                        std::string field,
+                                                        std::string value);
     static void remove();
 };
 
@@ -168,11 +186,13 @@ class Passenger {
         return *instance;
     }
     std::string name = "Passenger";
-    std::vector<std::string> UNSUPPORTED_OPS = {"add", "modify"};
+    std::vector<std::string> UNSUPPORTED_OPS = {"view", "add", "modify"};
     static long long nextId();
     static void view();
     static void add();
-    static void modify();
+    static std::vector<std::vector<std::string>> modify(std::string id,
+                                                        std::string field,
+                                                        std::string value);
     static void remove();
 };
 }  // namespace Skybridge::API

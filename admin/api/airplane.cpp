@@ -21,12 +21,29 @@ std::vector<std::vector<std::string>> API::Airplane::view() {
     nlohmann::json apiReturn =
         nlohmann::json::parse(client.get("/admin/airplane/view").text);
 
-    std::vector<std::vector<std::string>> data = {{"ID", "Location", "Model"}};
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Location", "Model", "Seatmap", "Seat Class"}};
     for (const auto& entry : apiReturn) {
         data.push_back({entry["id"].get<std::string>(),
                         entry["location"].get<std::string>(),
-                        entry["model"].get<std::string>()});
+                        entry["model"].get<std::string>(),
+                        entry["seatmap"].dump(), entry["seat_class"].dump()});
     }
+    return data;
+}
+
+std::vector<std::vector<std::string>> API::Airplane::view_one(std::string id) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/airplane/view/" + id).text);
+
+    std::vector<std::vector<std::string>> data = {
+        {"id", "location", "model", "seatmap", "seat_class"}};
+    data.push_back({apiReturn["id"].get<std::string>(),
+                    apiReturn["location"].get<std::string>(),
+                    apiReturn["model"].get<std::string>(),
+                    apiReturn["seatmap"].dump(),
+                    apiReturn["seat_class"].dump()});
     return data;
 }
 
@@ -50,27 +67,26 @@ void API::Airplane::add() {
     std::cout << "\n  [OK] Airplane added.\n";
 }
 
-void API::Airplane::modify() {
-    Display::printHeader("MODIFY AIRPLANE");
-    std::string id = Input::getInput("Enter Airplane ID to modify: ");
-    for (auto& a : Data::airplanes) {
-        if (a.id == id) {
-            std::string v;
-            v = Input::getInput("New Model [" + a.model + "]: ");
-            if (!v.empty()) a.model = v;
-            v = Input::getInput("New Location [" + a.location + "]: ");
-            if (!v.empty()) a.location = v;
-            std::cout << "\n  [OK] Airplane updated.\n";
-            return;
-        }
-    }
-    std::cout << "\n  [!!] Airplane not found.\n";
+std::vector<std::vector<std::string>> API::Airplane::modify(std::string id,
+                                                            std::string field,
+                                                            std::string value) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn =
+        client.patch("/admin/airplane/update/" + id,
+                     nlohmann::json{{"field", field}, {"value", value}});
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Model", "Location", "Seatmap", "Seat Class"}};
+    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
+    data.push_back({newData["id"].get<std::string>(),
+                    newData["model"].get<std::string>(),
+                    newData["location"].get<std::string>(),
+                    newData["seatmap"].dump(), newData["seat_class"].dump()});
+    return data;
 }
-
 void API::Airplane::remove() {
     Display::printHeader("DELETE AIRPLANE");
     std::string id = Input::getInput("Enter Airplane ID to delete: ");
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/airplane/delete/" + id);
-     std::cout << "\n  [OK] Airplane deleted.\n";
+    std::cout << "\n  [OK] Airplane deleted.\n";
 }

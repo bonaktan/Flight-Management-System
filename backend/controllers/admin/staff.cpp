@@ -67,6 +67,35 @@ void api::admin::view_staff(
         });
 }
 
+void api::admin::view_single_staff(
+    const HttpRequestPtr& req,
+    std::function<void(const HttpResponsePtr&)>&& callback, std::string id) {
+    orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
+    dbClient->execSqlAsync(
+        "SELECT id, name, current_location, role, schedule, created_at FROM "
+        "staff WHERE id=$1;",
+        [callback](const drogon::orm::Result& result) {
+            Json::Value jsonResponse;
+            Json::Value rowResult;
+            rowResult["id"] = (Json::Int64)result[0]["id"].as<long long>();
+            rowResult["name"] = result[0]["name"].as<std::string>();
+            rowResult["current_location"] =
+                result[0]["current_location"].as<std::string>();
+            rowResult["role"] = result[0]["role"].as<std::string>();
+            rowResult["schedule"] = result[0]["schedule"].as<std::string>();
+            rowResult["created_at"] = result[0]["created_at"].as<std::string>();
+            jsonResponse.append(rowResult);
+
+            callback(HttpResponse::newHttpJsonResponse(jsonResponse));
+        },
+        [callback](const drogon::orm::DrogonDbException& e) {
+            callback(Skybridge::Utils::error("Database error",
+                                             k500InternalServerError,
+                                             Json::Value(e.base().what())));
+        },
+        id);
+}
+
 void api::admin::delete_staff(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)>&& callback, std::string id) {

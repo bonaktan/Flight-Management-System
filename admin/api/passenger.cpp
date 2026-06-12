@@ -56,36 +56,38 @@ void API::Passenger::add() {
     std::cout << "\n  [OK] Passenger added with ID " << p.id << "\n";
 }
 
-void API::Passenger::modify() {
-    Display::printHeader("MODIFY PASSENGER");
-    long long id = Input::getLLInput("Enter Passenger ID to modify: ");
-    for (auto& p : Data::passengers) {
-        if (p.id == id) {
-            std::string v;
-            v = Input::getInput("New FFC [" + p.frequent_flyer_code + "]: ");
-            if (!v.empty()) p.frequent_flyer_code = v;
-            v = Input::getInput("New Title [" + p.title + "]: ");
-            if (!v.empty()) p.title = v;
-            v = Input::getInput("New First Name [" + p.first_name + "]: ");
-            if (!v.empty()) p.first_name = v;
-            v = Input::getInput("New Last Name [" + p.last_name + "]: ");
-            if (!v.empty()) p.last_name = v;
-            v = Input::getInput("New Birthdate [" + p.birthdate + "]: ");
-            if (!v.empty()) p.birthdate = v;
-            v = Input::getInput("New Email [" + p.contact_email + "]: ");
-            if (!v.empty()) p.contact_email = v;
-            v = Input::getInput("New Emrg Name [" + p.emergency_contact_name +
-                                "]: ");
-            if (!v.empty()) p.emergency_contact_name = v;
-            v = Input::getInput("New Emrg Email [" + p.emergency_contact_email +
-                                "]: ");
-            if (!v.empty()) p.emergency_contact_email = v;
-            p.updated_at = "NOW()";
-            std::cout << "\n  [OK] Passenger updated.\n";
-            return;
-        }
-    }
-    std::cout << "\n  [!!] Passenger not found.\n";
+std::vector<std::vector<std::string>> API::Passenger::modify(
+    std::string id, std::string field, std::string value) {
+    // Display::printHeader("MODIFY PASSENGER");
+    // long long id = Input::getLLInput("Enter Passenger ID to modify: ");
+    // for (auto& p : Data::passengers) {
+    //     if (p.id == id) {
+    //         std::string v;
+    //         v = Input::getInput("New FFC [" + p.frequent_flyer_code + "]: ");
+    //         if (!v.empty()) p.frequent_flyer_code = v;
+    //         v = Input::getInput("New Title [" + p.title + "]: ");
+    //         if (!v.empty()) p.title = v;
+    //         v = Input::getInput("New First Name [" + p.first_name + "]: ");
+    //         if (!v.empty()) p.first_name = v;
+    //         v = Input::getInput("New Last Name [" + p.last_name + "]: ");
+    //         if (!v.empty()) p.last_name = v;
+    //         v = Input::getInput("New Birthdate [" + p.birthdate + "]: ");
+    //         if (!v.empty()) p.birthdate = v;
+    //         v = Input::getInput("New Email [" + p.contact_email + "]: ");
+    //         if (!v.empty()) p.contact_email = v;
+    //         v = Input::getInput("New Emrg Name [" + p.emergency_contact_name +
+    //                             "]: ");
+    //         if (!v.empty()) p.emergency_contact_name = v;
+    //         v = Input::getInput("New Emrg Email [" + p.emergency_contact_email +
+    //                             "]: ");
+    //         if (!v.empty()) p.emergency_contact_email = v;
+    //         p.updated_at = "NOW()";
+    //         std::cout << "\n  [OK] Passenger updated.\n";
+    //         return;
+    //     }
+    // }
+    // std::cout << "\n  [!!] Passenger not found.\n";
+    return std::vector<std::vector<std::string>>{};
 }
 
 void API::Passenger::remove() {

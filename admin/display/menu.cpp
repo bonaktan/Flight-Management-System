@@ -27,7 +27,7 @@ void Menu::subMenu(auto& apiCaller) {
         !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"add"});
     bool hasView =
         !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"view"});
-     bool hasModify =
+    bool hasModify =
         !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"modify"});
 
     while (choice != 0) {
@@ -54,27 +54,18 @@ void Menu::subMenu(auto& apiCaller) {
         Display::clearScreen();
         if (hasView && choice == 1) {
             std::vector<std::vector<std::string>> data = apiCaller.view();
-            // Create table
-            auto table = ftxui::Table(data);
-
-            table.SelectAll().Border(ftxui::LIGHT);
-            table.SelectAll().Separator(ftxui::LIGHT);
-
-            table.SelectRow(0).Decorate(ftxui::bold);
-            table.SelectRow(0).SeparatorVertical(ftxui::LIGHT);
-            table.SelectRow(0).Border(ftxui::LIGHT);
-
-            auto document = table.Render();
-
-            auto screen = ftxui::Screen::Create(
-                ftxui::Dimension::Full(), ftxui::Dimension::Fit(document));
-            Render(screen, document);
-
-            std::cout << screen.ToString() << std::endl;
+            Display::Table(data);
         } else if (hasAdd && choice == 2) {
             apiCaller.add();
         } else if (hasModify && choice == 3) {
-            apiCaller.modify();
+            std::string id = Input::getInput("Choice: ");
+            std::vector<std::vector<std::string>> data = apiCaller.view_one(id);
+            Display::Table(data);
+            std::string field = Input::getInput("Field to Modify: ");
+            std::string value = Input::getInput("Value to Modify: ");
+            std::vector<std::vector<std::string>> newData =
+                apiCaller.modify(id, field, value);
+            Display::Table(newData);
         } else if (choice == 4) {
             apiCaller.remove();
         } else if (choice == 0) {

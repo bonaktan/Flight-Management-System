@@ -11,40 +11,6 @@
 
 using namespace Skybridge;
 API::Booking* API::Booking::instance = nullptr;
-void API::Booking::save() {
-    std::ofstream f(Data::FILE_BOOKINGS);
-    for (auto& b : Data::bookings)
-        f << b.id << "|" << b.passenger_id << "|" << Escape::escape(b.flight_id)
-          << "|" << b.account_id << "|" << std::fixed << std::setprecision(2)
-          << b.calculated_price << "|" << Escape::escape(b.payment_option)
-          << "|" << Escape::escape(b.payment_detail) << "|"
-          << Escape::escape(Display::bookingStatusToStr(b.booking_status))
-          << "|" << Escape::escape(b.created_at) << "|"
-          << Escape::escape(b.updated_at) << "\n";
-}
-
-void API::Booking::load() {
-    Data::bookings.clear();
-    std::ifstream f(Data::FILE_BOOKINGS);
-    std::string line;
-    while (std::getline(f, line)) {
-        if (line.empty()) continue;
-        auto t = Escape::splitLine(line);
-        if (t.size() < 10) continue;
-        Structs::Booking b;
-        b.id = std::stoll(t[0]);
-        b.passenger_id = std::stoll(t[1]);
-        b.flight_id = t[2];
-        b.account_id = std::stoll(t[3]);
-        b.calculated_price = std::stod(t[4]);
-        b.payment_option = t[5];
-        b.payment_detail = t[6];
-        b.booking_status = Display::strToBookingStatus(t[7]);
-        b.created_at = t[8];
-        b.updated_at = t[9];
-        Data::bookings.push_back(b);
-    }
-}
 
 long long API::Booking::nextId() {
     long long mx = 0;
@@ -97,40 +63,29 @@ void API::Booking::add() {
         b.booking_status = Structs::BookingStatus::PENDING;
     b.created_at = b.updated_at = "NOW()";
     Data::bookings.push_back(b);
-    API::Booking::save();
     std::cout << "\n  [OK] Booking added with ID " << b.id << "\n";
 }
 
-void API::Booking::modify() {
-    Display::printHeader("MODIFY BOOKING");
-    long long id = Input::getLLInput("Enter Booking ID to modify: ");
-    for (auto& b : Data::bookings) {
-        if (b.id == id) {
-            std::string v;
-            v = Input::getInput("New Payment Option [" + b.payment_option +
-                                "]: ");
-            if (!v.empty()) b.payment_option = v;
-            v = Input::getInput("New Payment Detail [" + b.payment_detail +
-                                "]: ");
-            if (!v.empty()) b.payment_detail = v;
-            std::cout << "  New Status [1=pending, 2=confirmed, 3=cancelled] "
-                         "(current: "
-                      << Display::bookingStatusToStr(b.booking_status) << "): ";
-            std::string sc;
-            std::getline(std::cin, sc);
-            if (sc == "1")
-                b.booking_status = Structs::BookingStatus::PENDING;
-            else if (sc == "2")
-                b.booking_status = Structs::BookingStatus::CONFIRMED;
-            else if (sc == "3")
-                b.booking_status = Structs::BookingStatus::CANCELLED;
-            b.updated_at = "NOW()";
-            API::Booking::save();
-            std::cout << "\n  [OK] Booking updated.\n";
-            return;
-        }
-    }
-    std::cout << "\n  [!!] Booking not found.\n";
+std::vector<std::vector<std::string>> API::Booking::modify(std::string id,
+                                                            std::string field,
+                                                            std::string value) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.patch(
+        "/admin/booking/update/" + id, nlohmann::json{{"field", field}, {"value", value}});
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Flight ID", "Account ID", "Payment Option", "Payment Detail",
+         "Booking Status", "Created At", "Updated At", "Departure Date"}};
+    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
+    data.push_back({std::to_string(newData["id"].get<long long>()),
+                    newData["flight_id"].get<std::string>(),
+                    std::to_string(newData["account_id"].get<long long>()),
+                    newData["payment_option"].get<std::string>(),
+                    newData["payment_detail"].dump(),
+                    newData["booking_status"].get<std::string>(),
+                    newData["created_at"].get<std::string>(),
+                    newData["updated_at"].get<std::string>(),
+                    newData["departure_date"].get<std::string>()});
+    return data;
 }
 
 void API::Booking::remove() {
@@ -141,7 +96,6 @@ void API::Booking::remove() {
                        [id](const Structs::Booking& b) { return b.id == id; });
     if (it != Data::bookings.end()) {
         Data::bookings.erase(it, Data::bookings.end());
-        save();
         std::cout << "\n  [OK] Booking deleted.\n";
     } else
         std::cout << "\n  [!!] Booking not found.\n";

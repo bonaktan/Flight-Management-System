@@ -34,6 +34,19 @@ std::vector<std::vector<std::string>> API::Account::view() {
     return data;
 }
 
+std::vector<std::vector<std::string>> API::Account::view_one(std::string id) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/account/view/" + id).text);
+    std::vector<std::vector<std::string>> data = {
+        {"id", "account_name", "email", "permissions"}};
+    data.push_back({std::to_string(apiReturn["id"].get<int>()),
+                    apiReturn["account_name"].get<std::string>(),
+                    apiReturn["email"].get<std::string>(),
+                    apiReturn["permissions"].dump()});
+    return data;
+}
+
 void API::Account::add() {
     Display::printHeader("ADD ACCOUNT");
     Structs::Account a;
@@ -47,27 +60,20 @@ void API::Account::add() {
     std::cout << "\n  [OK] Account added with ID " << a.id << "\n";
 }
 
-void API::Account::modify() {
-    Display::printHeader("MODIFY ACCOUNT");
-    long long id = Input::getLLInput("Enter Account ID to modify: ");
-    for (auto& a : Data::accounts) {
-        if (a.id == id) {
-            std::cout << "  Leave blank to keep current value.\n\n";
-            std::string v;
-            v = Input::getInput("New Name [" + a.account_name + "]: ");
-            if (!v.empty()) a.account_name = v;
-            v = Input::getInput("New Email [" + a.email + "]: ");
-            if (!v.empty()) a.email = v;
-            v = Input::getInput("New Password Hash [***]: ");
-            if (!v.empty()) a.password_hash = v;
-            v = Input::getInput("New Permissions [" + a.permissions + "]: ");
-            if (!v.empty()) a.permissions = v;
-            a.updated_at = "NOW()";
-            std::cout << "\n  [OK] Account updated.\n";
-            return;
-        }
-    }
-    std::cout << "\n  [!!] Account not found.\n";
+std::vector<std::vector<std::string>> API::Account::modify(std::string id,
+                                                           std::string field,
+                                                           std::string value) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.patch(
+        "/admin/account/update/" + id,  nlohmann::json{{"field", field}, {"value", value}});
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Account Name", "Email", "Permissions"}};
+    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
+        data.push_back({std::to_string(newData["id"].get<int>()),
+                        newData["account_name"].get<std::string>(),
+                        newData["email"].get<std::string>(),
+                        newData["permissions"].dump()});
+    return data;
 }
 
 void API::Account::remove() {
