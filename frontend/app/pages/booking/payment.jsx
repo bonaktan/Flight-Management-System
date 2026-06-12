@@ -45,7 +45,7 @@ function PaymentSubsection({ name, selected, setSelected, setError, children }) 
 function waitForPopupMessage(win) {
     return new Promise((resolve, reject) => {
         function onMessage(event) {
-            // if (event.origin !== "https://yoursite.com") return;
+            if (event.origin !== window.location.origin) return;
             if (event.data?.type === "PAYMENT_COMPLETE") {
                 cleanup();
                 resolve(event.data);
@@ -120,7 +120,7 @@ export default function BookingPayment() {
             navigate("/booking/confirmation");
         } catch (err) {
             console.log(err);
-            setPaymentError(err.response.data.error);
+            setPaymentError(err.response?.data?.error || err.message || "Payment failed");
             setPaymentStatus("error");
         } finally {
             paymentPopupRef.current = null;
@@ -140,7 +140,7 @@ export default function BookingPayment() {
             navigate("/booking/confirmation");
         } catch (err) {
             console.log(err);
-            setPaymentError(err.response.data);
+            setPaymentError(err.response?.data?.error || err.response?.data || err.message || "Payment failed");
         }
     }
     return (

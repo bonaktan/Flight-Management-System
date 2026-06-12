@@ -19,7 +19,7 @@ export default function Login() {
                 navigate("/"); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
-                if (e.status == 401) {
+                if (e.response?.status === 401) {
                     setError("Invalid Credentials.");
                 } else {
                     console.error(e);

@@ -130,14 +130,21 @@ export default function BookingLayout({ loaderData }) {
             return ret;
         },
         (() => {
-            const saved = sessionStorage.getItem("bookingState");
-            return saved
-                ? JSON.parse(saved)
-                : {
-                      flightId: null,
-                      departure_date: null,
-                      passengers: [],
-                  };
+            if (typeof window !== "undefined") {
+                const saved = sessionStorage.getItem("bookingState");
+                if (saved) {
+                    try {
+                        return JSON.parse(saved);
+                    } catch (e) {
+                        console.error("Failed to parse bookingState", e);
+                    }
+                }
+            }
+            return {
+                flightId: null,
+                departure_date: null,
+                passengers: [],
+            };
         })(),
     );
     useEffect(() => {

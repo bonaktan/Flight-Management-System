@@ -25,11 +25,13 @@ function Bookpop() {
     const [visible, setVisible] = useState(false);
 
     useEffect(() => {
+        let timer;
         if (searchParams.selectedFlightAndClass.flight) {
-            setTimeout(() => setVisible(true), 300);
+            timer = setTimeout(() => setVisible(true), 300);
         } else {
             setVisible(false);
         }
+        return () => clearTimeout(timer);
     }, [searchParams.selectedFlightAndClass.flight]);
     return (
         <div

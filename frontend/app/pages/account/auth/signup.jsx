@@ -27,9 +27,10 @@ export default function Signup() {
                 navigate("/"); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
-                if (e.status == 400) {
+                const status = e.response?.status;
+                if (status === 400) {
                     setError("Inputs are misformatted.");
-                } else if (e.status == 409) {
+                } else if (status === 409) {
                     setError("An account with the same email already exists.");
                 } else {
                     console.error(e);
