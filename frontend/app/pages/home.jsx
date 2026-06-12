@@ -34,32 +34,35 @@ export async function loader() {
         fly_to: [
             {
                 name: "Manila",
-                description: "Lorem ipsum dolor sit amet.",
+                description:
+                    "Where the city never quite sleeps — and somehow, neither do you. Loud, warm, and alive in ways that take a few days to understand.",
                 image: manila,
             },
             {
                 name: "Cebu",
-                description: "Lorem ipsum dolor sit amet",
+                description:
+                    "A city that earns its slowness. Between the sea and the hills, time moves differently here — and that's exactly the point.",
                 image: cebu,
             },
             {
                 name: "Boracay",
-                description: "Lorem ipsum dolor sit amet",
+                description: "White sand fine enough to forget everything. Stay long enough and you might not remember why you were in a hurry.",
                 image: boracay,
             },
             {
                 name: "New York",
-                description: "Lorem ipsum dolor sit amet",
+                description:
+                    "The city that never sleeps. A place where dreams are made, and sometimes broken, but always chased with relentless energy.",
                 image: newYork,
             },
             {
                 name: "Seoul",
-                description: "Lorem ipsum dolor sit amet",
+                description: "The capital of South Korea, known for its vibrant culture, modern architecture, and delicious cuisine.",
                 image: seoul,
             },
             {
                 name: "Tokyo",
-                description: "Lorem ipsum dolor sit amet",
+                description: "The bustling capital of Japan, where tradition meets innovation in a way that's both exciting and overwhelming.",
                 image: tokyo,
             },
         ],

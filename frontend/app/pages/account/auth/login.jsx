@@ -5,6 +5,7 @@ import axios from "axios";
 
 export default function Login() {
     const [username, setUsername] = useState("");
+    const [passwordvis, setPasswordvis] = useState(false);
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
@@ -41,10 +42,14 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             icon="key"
-                            type="password"
+                            type={passwordvis ? "text" : "password"}
                             name="Password"
                             required
                         />
+                    </div>
+                    <div>
+                        <input id="check" type="checkbox" checked={passwordvis} onChange={(e) => setPasswordvis((prev) => !prev)} />
+                        <label htmlFor="check"> Show Password</label>
                     </div>
                 </div>
                 <button onClick={login} className="p-3 bg-blaze-core text-cloud-warm font-bold">
