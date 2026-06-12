@@ -10,13 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # --- Cross-Compoilation Options -----------------------------------------------
-set(CPR_USE_SYSTEM_CURL OFF)
-set(CURL_USE_SCHANNEL ON) 
 
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-set(CPR_BUILD_SHARED OFF CACHE BOOL "" FORCE)
-set(FTXUI_BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-set(CURL_STATICLIB ON CACHE BOOL "" FORCE)
 
 # --- Fetch FTXUI --------------------------------------------------------------
 include(FetchContent)
@@ -73,9 +67,6 @@ target_include_directories(SkyBridgeAirways-AdminTUI
 )
 
 # --- Link Libraries -----------------------------------------------------------
-target_link_options(SkyBridgeAirways-AdminTUI 
-    PRIVATE -static -static-libgcc -static-libstdc++
-)
 target_link_libraries(SkyBridgeAirways-AdminTUI
     PRIVATE ftxui::screen
     PRIVATE ftxui::dom
