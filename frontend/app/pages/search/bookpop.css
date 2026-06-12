@@ -1,3 +1,4 @@
 .active {
     transform: translateY(-5rem);
+    background-color: var(--cloud-white);
 }

@@ -15,7 +15,6 @@ export default async function fetchUser(request) {
         status = apiReturn.status;
         user = apiReturn.data;
     } catch (e) {
-        console.log(e);
         status = e.response?.status;
     }
     return { logged_in: status == 200 ? true : false, status: status, user: user };

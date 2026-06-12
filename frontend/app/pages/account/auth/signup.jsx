@@ -6,6 +6,7 @@ import axios from "axios";
 export default function Signup() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [passwordvis, setPasswordvis] = useState(false);
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
@@ -24,11 +25,18 @@ export default function Signup() {
                 password: password,
             })
             .then((e) => {
-                console.log(e);
                 navigate("/"); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
-                console.error(e);
+                const status = e.response?.status;
+                if (status === 400) {
+                    setError("Inputs are misformatted.");
+                } else if (status === 409) {
+                    setError("An account with the same email already exists.");
+                } else {
+                    console.error(e);
+                    setError("Something went wrong. Check Console for details.");
+                }
             });
     }
     return (
@@ -47,7 +55,7 @@ export default function Signup() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             icon="key"
-                            type="password"
+                            type={passwordvis ? "text" : "password"}
                             name="Password"
                             required
                         />
@@ -57,10 +65,14 @@ export default function Signup() {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             icon="key"
-                            type="password"
+                            type={passwordvis ? "text" : "password"}
                             name="Confirm Password"
                             required
                         />
+                    </div>
+                    <div>
+                        <input id="check" type="checkbox" checked={passwordvis} onChange={(e) => setPasswordvis((prev) => !prev)} />
+                        <label htmlFor="check"> Show Password</label>
                     </div>
                 </div>
                 <button onClick={signup} className="p-3 bg-blaze-core text-cloud-warm font-bold">

@@ -5,7 +5,9 @@ import axios from "axios";
 
 export default function Login() {
     const [username, setUsername] = useState("");
+    const [passwordvis, setPasswordvis] = useState(false);
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
     const navigate = useNavigate();
     function login(e) {
         e.preventDefault();
@@ -15,11 +17,15 @@ export default function Login() {
                 password: password,
             })
             .then((e) => {
-                console.log(e);
                 navigate("/"); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
-                console.error(e);
+                if (e.response?.status === 401) {
+                    setError("Invalid Credentials.");
+                } else {
+                    console.error(e);
+                    setError("Something went wrong. Check Console for details.");
+                }
             });
     }
 
@@ -36,10 +42,14 @@ export default function Login() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             icon="key"
-                            type="password"
+                            type={passwordvis ? "text" : "password"}
                             name="Password"
                             required
                         />
+                    </div>
+                    <div>
+                        <input id="check" type="checkbox" checked={passwordvis} onChange={(e) => setPasswordvis((prev) => !prev)} />
+                        <label htmlFor="check"> Show Password</label>
                     </div>
                 </div>
                 <button onClick={login} className="p-3 bg-blaze-core text-cloud-warm font-bold">
@@ -53,6 +63,7 @@ export default function Login() {
                 </span>
                 .
             </p>
+            <p className="text-center">{error}</p>
         </>
     );
 }

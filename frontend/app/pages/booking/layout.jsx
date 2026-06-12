@@ -1,8 +1,8 @@
 import { Link, Outlet, useLocation } from "react-router";
 import { BookingContext } from "./context";
-import { useReducer } from "react";
+import { use, useEffect, useReducer, useState } from "react";
 import { authMiddleware } from "../../middleware/auth.middleware";
-
+import { FlightCard } from "../../components/flightCard";
 export const middleware = [authMiddleware];
 
 function HeaderLogos({ logo, label, page }) {
@@ -14,7 +14,8 @@ function HeaderLogos({ logo, label, page }) {
     );
 }
 function BillingCard() {
-    const isRoundTrip = true;
+    const bookingContext = use(BookingContext);
+    const isRoundTrip = false; // WARN: change to true once implemented na yung ano
     return (
         <div className="">
             <div className="flex justify-between bg-blaze-deep text-white p-2">
@@ -25,42 +26,42 @@ function BillingCard() {
                 <div>PHP 6,696.96</div>
             </div>
             <div className="border"></div>
-            <FlightSubcard />
+            <FlightCard flight={bookingContext.selectedFlight} />
             {isRoundTrip && (
                 <>
                     <div className="border" />
-                    <FlightSubcard />
+                    <FlightCard />
                 </>
             )}
         </div>
     );
 }
 
-function FlightSubcard() {
-    return (
-        <div>
-            <div className="flex justify-between bg-altitude-ink text-white p-2">
-                <div>
-                    <div>Return</div>
-                    <div className="text-sm">June 30, 2026</div>
-                </div>
-                <div>Economy</div>
-            </div>
-            <div className="flex justify-between items-center mt-2">
-                <div>
-                    <div>03:45</div>
-                    <div>MNL</div>
-                </div>
-                <span className="material-symbols-outlined">flight_takeoff</span>
-                <div>
-                    <div>09:00</div>
-                    <div>CEB</div>
-                </div>
-            </div>
-            <div className="text-center">Flight Details</div>
-        </div>
-    );
-}
+// function FlightSubcard() {
+//     return (
+//         <div>
+//             <div className="flex justify-between bg-altitude-ink text-white p-2">
+//                 <div>
+//                     <div>Return</div>
+//                     <div className="text-sm">June 30, 2026</div>
+//                 </div>
+//                 <div>Economy</div>
+//             </div>
+//             <div className="flex justify-between items-center mt-2">
+//                 <div>
+//                     <div>03:45</div>
+//                     <div>MNL</div>
+//                 </div>
+//                 <span className="material-symbols-outlined">flight_takeoff</span>
+//                 <div>
+//                     <div>09:00</div>
+//                     <div>CEB</div>
+//                 </div>
+//             </div>
+//             <div className="text-center">Flight Details</div>
+//         </div>
+//     );
+// }
 const passengerObject = {
     title: "",
     first_name: "",
@@ -75,12 +76,32 @@ const passengerObject = {
     selected_seat: "",
 };
 
-export default function BookingLayout() {
+export async function clientLoader() {
+    const mockApi = {
+        airplane_id: "SB-W0001",
+        departure: "2026-06-30 15:00:00",
+        destination: "CEB",
+        flightId: "SKY067",
+        flight_time: 5400,
+        model: "Airbus A320",
+        origin: "MNL",
+    };
+    return mockApi;
+}
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
+export default function BookingLayout({ loaderData }) {
     const location = useLocation();
     const isInSeatmap = location.pathname === "/booking/details";
+
+    // Restore on mount
     const [bookingContext, setBookingContext] = useReducer(
         (state, action) => {
-            console.log("before booking update: ", state);
             if (action.field == "passengers") {
                 if (!action.subField) {
                     console.error("On setBookingContext: No Subfield passed.");
@@ -94,11 +115,9 @@ export default function BookingLayout() {
                 if (action.subField == "firstInitPassengerCount") {
                     newPassengers = [];
                     for (let i = 0; i < action.value.passengers; i++) newPassengers.push(structuredClone(passengerObject));
-                    console.log("state at update:", action);
                     let ret = { ...state, passengers: newPassengers };
                     ret["flightId"] = action.value.flightId;
                     ret["departure_date"] = action.value.departure_date;
-                    console.log("state after update:", ret);
                     return ret;
                 } else {
                     newPassengers = structuredClone(state.passengers);
@@ -108,17 +127,35 @@ export default function BookingLayout() {
                 }
             }
             let ret = { ...state, [action.field]: action.value };
-            console.log("Update in bookingContext: ", ret);
             return ret;
         },
-        {
-            flightId: null,
-            departure_date: null,
-            passengers: [],
-        },
+        (() => {
+            if (typeof window !== "undefined") {
+                const saved = sessionStorage.getItem("bookingState");
+                if (saved) {
+                    try {
+                        return JSON.parse(saved);
+                    } catch (e) {
+                        console.error("Failed to parse bookingState", e);
+                    }
+                }
+            }
+            return {
+                flightId: null,
+                departure_date: null,
+                passengers: [],
+            };
+        })(),
     );
+    useEffect(() => {
+        const handleBeforeUnload = () => {
+            sessionStorage.setItem("bookingState", JSON.stringify(bookingContext));
+        };
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }, [bookingContext]);
     return (
-        <BookingContext value={{ ...bookingContext, setBookingContext: setBookingContext }}>
+        <BookingContext value={{ ...bookingContext, setBookingContext: setBookingContext, selectedFlight: loaderData }}>
             <div>
                 <div id="steps" className="flex items-center justify-center gap-4 w-full bg-orange-300 p-2">
                     <HeaderLogos logo="flight_takeoff" label="Flights" page="/search" />

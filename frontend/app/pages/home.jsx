@@ -13,6 +13,10 @@ import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
+export function meta() {
+    return [{ title: "SkyBridge Airlines" }];
+}
+
 export async function loader() {
     const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
     const date = new Date().toISOString().split("T")[0];
@@ -30,36 +34,50 @@ export async function loader() {
         fly_to: [
             {
                 name: "Manila",
-                description: "Lorem ipsum dolor sit amet.",
+                description:
+                    "Where the city never quite sleeps — and somehow, neither do you. Loud, warm, and alive in ways that take a few days to understand.",
                 image: manila,
             },
             {
                 name: "Cebu",
-                description: "Lorem ipsum dolor sit amet",
+                description:
+                    "A city that earns its slowness. Between the sea and the hills, time moves differently here — and that's exactly the point.",
                 image: cebu,
             },
             {
                 name: "Boracay",
-                description: "Lorem ipsum dolor sit amet",
+                description: "White sand fine enough to forget everything. Stay long enough and you might not remember why you were in a hurry.",
                 image: boracay,
             },
             {
                 name: "New York",
-                description: "Lorem ipsum dolor sit amet",
+                description:
+                    "The city that never sleeps. A place where dreams are made, and sometimes broken, but always chased with relentless energy.",
                 image: newYork,
             },
             {
                 name: "Seoul",
-                description: "Lorem ipsum dolor sit amet",
+                description: "The capital of South Korea, known for its vibrant culture, modern architecture, and delicious cuisine.",
                 image: seoul,
             },
             {
                 name: "Tokyo",
-                description: "Lorem ipsum dolor sit amet",
+                description: "The bustling capital of Japan, where tradition meets innovation in a way that's both exciting and overwhelming.",
                 image: tokyo,
             },
         ],
     };
+}
+export async function clientLoader({ serverLoader }) {
+    return serverLoader();
+}
+clientLoader.hydrate = true; // show HydrateFallback on initial load
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
 }
 export default function Home({ loaderData }) {
     return (
@@ -96,7 +114,6 @@ function Search({ data }) {
     function submitSearch(e) {
         e.preventDefault();
         let form = new FormData(e.target);
-        console.log(form);
         for (const [_key, value] of form.entries()) {
             if (!value || (typeof value === "string" && value.trim() === "")) {
                 setError(`Fill out the ${_key} Field.`);
@@ -139,7 +156,8 @@ function Search({ data }) {
                             type="button"
                             key={key}
                             value={key}
-                            className={`transition flex justify-center items-center w-32 text-center cursor-pointer ${flightMode == i ? "bg-blaze-core text-blaze-tint" : ""}`}>
+                            className={`transition flex justify-center items-center w-32 text-center cursor-pointer ${flightMode == i ? "bg-blaze-core text-blaze-tint" : ""} ${key == "round_trip" && "opacity-20 hover:cursor-not-allowed"}`}
+                            disabled={key == "round_trip"}>
                             {value.name}
                         </button>
                     ))}
@@ -247,7 +265,6 @@ function HomepageCard({ places }) {
                 disabled={selectedPlace >= places.length - 1}
                 onClick={() => {
                     setSelectedPlace(selectedPlace + 1);
-                    console.log(selectedPlace);
                 }}>
                 <span className="material-symbols-outlined">chevron_right</span>
             </button>

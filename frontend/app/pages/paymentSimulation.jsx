@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 
 const COUNTDOWN = 3;
-
+export function meta() {
+    return [{ title: "Payment Provider Simulation :3" }];
+}
 // It simulates a payment processor UI: counts down, then fires postMessage back to the opener.
 export default function PaymentSimulation() {
     const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN);

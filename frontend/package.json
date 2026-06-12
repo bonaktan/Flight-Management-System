@@ -8,6 +8,8 @@
         "start": "node ./server.js"
     },
     "dependencies": {
+        "@barcode-bakery/barcode-pdf417": "^2.0.0",
+        "@barcode-bakery/barcode-react": "^2.0.0",
         "@react-router/express": "^7.15.0",
         "@react-router/node": "^7.15.0",
         "@react-router/serve": "^7.15.0",
@@ -18,14 +20,15 @@
         "isbot": "^5.1.40",
         "react": "^19.2.6",
         "react-dom": "^19.2.6",
+        "react-qr-code": "^2.2.0",
         "react-router": "^7.15.0",
         "tailwindcss": "^4.3.0"
     },
     "devDependencies": {
         "@react-router/dev": "^7.15.0",
+        "@types/node": "^22",
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
-        "@types/node": "^22",
         "@vitejs/plugin-react": "^6.0.1",
         "vite": "^8.0.12"
     }
