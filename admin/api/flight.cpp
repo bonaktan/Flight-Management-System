@@ -11,43 +11,6 @@
 
 using namespace Skybridge;
 API::Flight* API::Flight::instance = nullptr;
-void API::Flight::save() {
-    std::ofstream f(Data::FILE_FLIGHTS);
-    for (auto& fl : Data::flights)
-        f << Escape::escape(fl.id) << "|"
-          << Escape::escape(fl.departure_airport_id) << "|"
-          << Escape::escape(fl.arrival_airport_id) << "|" << std::fixed
-          << std::setprecision(2) << fl.base_ticket_price << "|"
-          << Escape::escape(fl.flight_time) << "|"
-          << Escape::escape(fl.departure) << "|" << Escape::escape(fl.frequency)
-          << "|" << Escape::escape(fl.created_at) << "\n";
-}
-
-void API::Flight::load() {
-    Data::flights.clear();
-    std::ifstream f(Data::FILE_FLIGHTS);
-    std::string line;
-    while (std::getline(f, line)) {
-        if (line.empty()) continue;
-        auto t = Escape::splitLine(line);
-        if (t.size() < 8) continue;
-        Structs::Flight fl;
-        fl.id = t[0];
-        fl.departure_airport_id = t[1];
-        fl.arrival_airport_id = t[2];
-        fl.base_ticket_price = std::stod(t[3]);
-        fl.flight_time = t[4];
-        fl.departure = t[5];
-        fl.frequency = t[6];
-        fl.created_at = t[7];
-        Data::flights.push_back(fl);
-    }
-}
-
-std::vector<std::vector<std::string>> API::Flight::view() {
-    Display::printHeader("FLIGHTS - Not Supported");
-    return std::vector<std::vector<std::string>>{};
-}
 
 void API::Flight::add() {
     Display::printHeader("ADD FLIGHT");
@@ -59,7 +22,7 @@ void API::Flight::add() {
         Input::getInput("Arrival Airport ID (e.g. CEB): ");
     flight["flight_time"] = Input::getInput("Flight Time (e.g. 01:30:00): ");
     flight["base_ticket_price"] =
-        std::stoi(Input::getInput("Base Ticket Price (e.g. 4000): "));
+        Input::getIntInput("Base Ticket Price (e.g. 4000): ");
     flight["start_of_operations"] = Input::getInput(
         "Start of Operations (e.g. 2026-06-05T15:00:00+08:00): ");
     flight["frequency"] = Input::getInput("Frequency (e.g. P1D): ");
@@ -99,7 +62,6 @@ void API::Flight::modify() {
             if (!v.empty()) fl.departure = v;
             v = Input::getInput("New Frequency [" + fl.frequency + "]: ");
             if (!v.empty()) fl.frequency = v;
-            API::Flight::save();
             std::cout << "\n  [OK] Flight updated.\n";
             return;
         }

@@ -15,28 +15,6 @@
 
 using namespace Skybridge;
 API::Airplane* API::Airplane::instance = nullptr;
-void API::Airplane::save() {
-    std::ofstream f(Data::FILE_AIRPLANES);
-    for (auto& a : Data::airplanes)
-        f << Escape::escape(a.id) << "|" << Escape::escape(a.model) << "|"
-          << Escape::escape(a.location) << "\n";
-}
-
-void API::Airplane::load() {
-    Data::airplanes.clear();
-    std::ifstream f(Data::FILE_AIRPLANES);
-    std::string line;
-    while (std::getline(f, line)) {
-        if (line.empty()) continue;
-        auto t = Escape::splitLine(line);
-        if (t.size() < 3) continue;
-        Structs::Airplane a;
-        a.id = t[0];
-        a.model = t[1];
-        a.location = t[2];
-        Data::airplanes.push_back(a);
-    }
-}
 
 std::vector<std::vector<std::string>> API::Airplane::view() {
     API::ApiClient& client = API::ApiClient::getInstance();
@@ -82,7 +60,6 @@ void API::Airplane::modify() {
             if (!v.empty()) a.model = v;
             v = Input::getInput("New Location [" + a.location + "]: ");
             if (!v.empty()) a.location = v;
-            API::Airplane::save();
             std::cout << "\n  [OK] Airplane updated.\n";
             return;
         }

@@ -16,6 +16,7 @@ class ApiClient {
     cpr::Cookies cookies;
     const std::string base_url =
         "http://localhost:8080/api";  // TODO: flags for dev/prod
+        // "https://skybridge.bonnybonnybonaktan.xyz/api";
     ApiClient() = default;
     void checkSession(const cpr::Cookies& updated_cookies);
 
@@ -60,9 +61,7 @@ class Account {
         return *instance;
     }
     std::string name = "Account";
-    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
-    static void save();
-    static void load();
+    std::vector<std::string> UNSUPPORTED_OPS = {"add", "modify"};
     static long long nextId();
     static std::vector<std::vector<std::string>> view();
     static void add();
@@ -84,9 +83,7 @@ class Airplane {
         return *instance;
     }
     std::string name = "Airplane";
-    std::vector<std::string> UNSUPPORTED_OPS = {};
-    static void save();
-    static void load();
+    std::vector<std::string> UNSUPPORTED_OPS = {"modify"};
     static std::vector<std::vector<std::string>> view();
     static void add();
     static void modify();
@@ -107,9 +104,7 @@ class Airport {
         return *instance;
     }
     std::string name = "Airport";
-    std::vector<std::string> UNSUPPORTED_OPS = {};
-    static void save();
-    static void load();
+    std::vector<std::string> UNSUPPORTED_OPS = {"modify"};
     static std::vector<std::vector<std::string>> view();
     static void add();
     static void modify();
@@ -130,9 +125,7 @@ class Booking {
         return *instance;
     }
     std::string name = "Booking";
-    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
-    static void save();
-    static void load();
+    std::vector<std::string> UNSUPPORTED_OPS = {"add", "modify"};
     static long long nextId();
     static void view();
     static void add();
@@ -154,9 +147,7 @@ class Flight {
         return *instance;
     }
     std::string name = "Flight";
-    std::vector<std::string> UNSUPPORTED_OPS = {"view"};
-    static void save();
-    static void load();
+    std::vector<std::string> UNSUPPORTED_OPS = {"view", "modify"};
     static std::vector<std::vector<std::string>> view();
     static void add();
     static void modify();
@@ -177,63 +168,12 @@ class Passenger {
         return *instance;
     }
     std::string name = "Passenger";
-    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
-    static void save();
-    static void load();
+    std::vector<std::string> UNSUPPORTED_OPS = {"add", "modify"};
     static long long nextId();
     static void view();
     static void add();
     static void modify();
     static void remove();
 };
-
-class SeatClass {
-   private:
-    static SeatClass* instance;
-    SeatClass() = default;
-
-   public:
-    SeatClass(const SeatClass&) = delete;
-    SeatClass& operator=(const SeatClass&) = delete;
-
-    static SeatClass& getInstance() {
-        if (!instance) instance = new SeatClass();
-        return *instance;
-    }
-    std::string name = "Seat Class";
-    std::vector<std::string> UNSUPPORTED_OPS = {};
-    static void save();
-    static void load();
-    static long long nextId();
-    static void view();
-    static void add();
-    static void modify();
-    static void remove();
-};
-
-class Staff {
-   private:
-    static Staff* instance;
-    Staff() = default;
-
-   public:
-    Staff(const Staff&) = delete;
-    Staff& operator=(const Staff&) = delete;
-
-    static Staff& getInstance() {
-        if (!instance) instance = new Staff();
-        return *instance;
-    }
-    std::string name = "Staff";
-    std::vector<std::string> UNSUPPORTED_OPS = {};
-    static void save();
-    static void load();
-    static long long nextId();
-    static void view();
-    static void add();
-    static void modify();
-    static void remove();
-};
-
 }  // namespace Skybridge::API
 #endif

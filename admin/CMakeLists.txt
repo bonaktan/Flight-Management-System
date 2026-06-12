@@ -44,8 +44,6 @@ set(SOURCES
     api/booking.cpp
     api/flight.cpp
     api/passenger.cpp
-    api/seatclass.cpp
-    api/staff.cpp
 
     # Controls
     controls/escape.cpp

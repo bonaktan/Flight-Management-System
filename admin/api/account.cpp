@@ -9,35 +9,6 @@
 
 using namespace Skybridge;
 API::Account* API::Account::instance = nullptr;
-void API::Account::save() {
-    std::ofstream f(Data::FILE_ACCOUNTS);
-    for (auto& a : Data::accounts)
-        f << a.id << "|" << Escape::escape(a.account_name) << "|"
-          << Escape::escape(a.email) << "|" << Escape::escape(a.password_hash)
-          << "|" << Escape::escape(a.permissions) << "|"
-          << Escape::escape(a.created_at) << "|" << Escape::escape(a.updated_at)
-          << "\n";
-}
-
-void API::Account::load() {
-    Data::accounts.clear();
-    std::ifstream f(Data::FILE_ACCOUNTS);
-    std::string line;
-    while (getline(f, line)) {
-        if (line.empty()) continue;
-        auto t = Escape::splitLine(line);
-        if (t.size() < 7) continue;
-        Structs::Account a;
-        a.id = stoll(t[0]);
-        a.account_name = t[1];
-        a.email = t[2];
-        a.password_hash = t[3];
-        a.permissions = t[4];
-        a.created_at = t[5];
-        a.updated_at = t[6];
-        Data::accounts.push_back(a);
-    }
-}
 
 long long API::Account::nextId() {
     long long mx = 0;
@@ -73,7 +44,6 @@ void API::Account::add() {
     a.permissions = Input::getInput("Permissions (JSON string, e.g. {}): ");
     a.created_at = a.updated_at = "NOW()";
     Data::accounts.push_back(a);
-    API::Account::save();
     std::cout << "\n  [OK] Account added with ID " << a.id << "\n";
 }
 
@@ -93,7 +63,6 @@ void API::Account::modify() {
             v = Input::getInput("New Permissions [" + a.permissions + "]: ");
             if (!v.empty()) a.permissions = v;
             a.updated_at = "NOW()";
-            API::Account::save();
             std::cout << "\n  [OK] Account updated.\n";
             return;
         }

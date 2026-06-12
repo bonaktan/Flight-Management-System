@@ -11,44 +11,6 @@
 
 using namespace Skybridge;
 API::Passenger* API::Passenger::instance = nullptr;
-void API::Passenger::save() {
-    std::ofstream f(Data::FILE_PASSENGERS);
-    for (auto& p : Data::passengers)
-        f << p.id << "|" << Escape::escape(p.frequent_flyer_code) << "|"
-          << Escape::escape(p.title) << "|" << Escape::escape(p.first_name)
-          << "|" << Escape::escape(p.last_name) << "|"
-          << Escape::escape(p.birthdate) << "|"
-          << Escape::escape(p.contact_email) << "|"
-          << Escape::escape(p.emergency_contact_name) << "|"
-          << Escape::escape(p.emergency_contact_email) << "|" << p.associated_to
-          << "|" << Escape::escape(p.created_at) << "|"
-          << Escape::escape(p.updated_at) << "\n";
-}
-
-void API::Passenger::load() {
-    Data::passengers.clear();
-    std::ifstream f(Data::FILE_PASSENGERS);
-    std::string line;
-    while (std::getline(f, line)) {
-        if (line.empty()) continue;
-        auto t = Escape::splitLine(line);
-        if (t.size() < 12) continue;
-        Structs::Passenger p;
-        p.id = std::stoll(t[0]);
-        p.frequent_flyer_code = t[1];
-        p.title = t[2];
-        p.first_name = t[3];
-        p.last_name = t[4];
-        p.birthdate = t[5];
-        p.contact_email = t[6];
-        p.emergency_contact_name = t[7];
-        p.emergency_contact_email = t[8];
-        p.associated_to = std::stoll(t[9]);
-        p.created_at = t[10];
-        p.updated_at = t[11];
-        Data::passengers.push_back(p);
-    }
-}
 
 long long API::Passenger::nextId() {
     long long mx = 0;
@@ -91,7 +53,6 @@ void API::Passenger::add() {
     p.associated_to = Input::getLLInput("Associated Account ID: ");
     p.created_at = p.updated_at = "NOW()";
     Data::passengers.push_back(p);
-    API::Passenger::save();
     std::cout << "\n  [OK] Passenger added with ID " << p.id << "\n";
 }
 
@@ -120,7 +81,6 @@ void API::Passenger::modify() {
                                 "]: ");
             if (!v.empty()) p.emergency_contact_email = v;
             p.updated_at = "NOW()";
-            API::Passenger::save();
             std::cout << "\n  [OK] Passenger updated.\n";
             return;
         }
@@ -136,7 +96,6 @@ void API::Passenger::remove() {
         [id](const Structs::Passenger& p) { return p.id == id; });
     if (it != Data::passengers.end()) {
         Data::passengers.erase(it, Data::passengers.end());
-        API::Passenger::save();
         std::cout << "\n  [OK] Passenger deleted.\n";
     } else
         std::cout << "\n  [!!] Passenger not found.\n";

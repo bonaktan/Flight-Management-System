@@ -11,29 +11,6 @@
 
 using namespace Skybridge;
 API::Airport* API::Airport::instance = nullptr;
-void API::Airport::save() {
-    std::ofstream f(Data::FILE_AIRPORTS);
-    for (auto& a : Data::airports)
-        f << Escape::escape(a.id) << "|" << Escape::escape(a.name) << "|"
-          << a.capacity << "|" << Escape::escape(a.created_at) << "\n";
-}
-
-void API::Airport::load() {
-    Data::airports.clear();
-    std::ifstream f(Data::FILE_AIRPORTS);
-    std::string line;
-    while (std::getline(f, line)) {
-        if (line.empty()) continue;
-        auto t = Escape::splitLine(line);
-        if (t.size() < 4) continue;
-        Structs::Airport a;
-        a.id = t[0];
-        a.name = t[1];
-        a.capacity = std::stoi(t[2]);
-        a.created_at = t[3];
-        Data::airports.push_back(a);
-    }
-}
 
 std::vector<std::vector<std::string>> API::Airport::view() {
     API::ApiClient& client = API::ApiClient::getInstance();
@@ -56,7 +33,7 @@ void API::Airport::add() {
     airport["name"] = Input::getInput(
         "Airport Name (e.g. Ninoy-Aquino International Airport): ");
     airport["airport_id"] = Input::getInput("Airport ID (e.g. MNL): ");
-    airport["capacity"] = std::stoi(Input::getInput("Capacity (e.g. 50): "));
+    airport["capacity"] = Input::getIntInput("Capacity (e.g. 50): ");
     airport["country"] = Input::getInput("Country (e.g. Philippines): ");
     airport["city"] = Input::getInput("City (e.g. Manila): ");
 
@@ -84,7 +61,6 @@ void API::Airport::modify() {
             std::string c = Input::getInput("New Capacity [" +
                                             std::to_string(a.capacity) + "]: ");
             if (!c.empty()) a.capacity = std::stoi(c);
-            API::Airport::save();
             std::cout << "\n  [OK] Airport updated.\n";
             return;
         }

@@ -23,8 +23,12 @@ bool Menu::contains(std::vector<std::string>& vector, std::string value) {
 
 void Menu::subMenu(auto& apiCaller) {
     int choice = -1;
-    bool hasAdd = !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"add"});
-    bool hasView = !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"view"});
+    bool hasAdd =
+        !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"add"});
+    bool hasView =
+        !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"view"});
+     bool hasModify =
+        !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"modify"});
 
     while (choice != 0) {
         if (choice != -1) Display::pause();
@@ -32,7 +36,7 @@ void Menu::subMenu(auto& apiCaller) {
         Display::printHeader(apiCaller.name + " - TABLE MENU");
         if (hasView) std::cout << "  [1] View All\n";
         if (hasAdd) std::cout << "  [2] Add New\n";
-        std::cout << "  [3] Modify\n";
+        if (hasModify) std::cout << "  [3] Modify\n";
         std::cout << "  [4] Delete\n";
         std::cout << "  [0] Back to Main Menu\n\n";
         std::string ch = Input::getInput("Choice: ");
@@ -48,48 +52,35 @@ void Menu::subMenu(auto& apiCaller) {
         }
 
         Display::clearScreen();
-        switch (choice) {
-            case 1: {
-                std::vector<std::vector<std::string>> data = apiCaller.view();
-                // Create table
-                auto table = ftxui::Table(data);
+        if (hasView && choice == 1) {
+            std::vector<std::vector<std::string>> data = apiCaller.view();
+            // Create table
+            auto table = ftxui::Table(data);
 
-                table.SelectAll().Border(ftxui::LIGHT);
-                table.SelectAll().Separator(ftxui::LIGHT);
+            table.SelectAll().Border(ftxui::LIGHT);
+            table.SelectAll().Separator(ftxui::LIGHT);
 
-                table.SelectRow(0).Decorate(ftxui::bold);
-                table.SelectRow(0).SeparatorVertical(ftxui::LIGHT);
-                table.SelectRow(0).Border(ftxui::LIGHT);
+            table.SelectRow(0).Decorate(ftxui::bold);
+            table.SelectRow(0).SeparatorVertical(ftxui::LIGHT);
+            table.SelectRow(0).Border(ftxui::LIGHT);
 
-                auto document = table.Render();
+            auto document = table.Render();
 
-                auto screen = ftxui::Screen::Create(
-                    ftxui::Dimension::Full(), ftxui::Dimension::Fit(document));
-                Render(screen, document);
+            auto screen = ftxui::Screen::Create(
+                ftxui::Dimension::Full(), ftxui::Dimension::Fit(document));
+            Render(screen, document);
 
-                std::cout << screen.ToString() << std::endl;
-
-                break;
-            }
-            case 2: {
-                apiCaller.add();
-                break;
-            }
-            case 3: {
-                apiCaller.modify();
-                break;
-            }
-            case 4: {
-                apiCaller.remove();
-                break;
-            }
-            case 0: {
-                break;
-            }
-            default: {
-                std::cout << "\n  Invalid choice.\n";
-                break;
-            }
+            std::cout << screen.ToString() << std::endl;
+        } else if (hasAdd && choice == 2) {
+            apiCaller.add();
+        } else if (hasModify && choice == 3) {
+            apiCaller.modify();
+        } else if (choice == 4) {
+            apiCaller.remove();
+        } else if (choice == 0) {
+            break;
+        } else {
+            std::cout << "\n  Invalid choice.\n";
         }
     }
 }
@@ -101,8 +92,6 @@ void Menu::mainMenu() {
     Booking& booking = Booking::getInstance();
     Flight& flight = Flight::getInstance();
     Passenger& passenger = Passenger::getInstance();
-    SeatClass& seatClass = SeatClass::getInstance();
-    Staff& staff = Staff::getInstance();
     int choice = -1;
     while (choice != 0) {
         Display::clearScreen();
