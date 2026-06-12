@@ -19,9 +19,7 @@
         "prepare": "husky"
     },
     "dependencies": {
-        "@barcode-bakery/barcode-pdf417": "^2.0.0",
-        "husky": "^9.1.7",
-        "react-qr-code": "^2.2.0"
+        "husky": "^9.1.7"
     },
     "devDependencies": {
         "@eslint-react/eslint-plugin": "^5.7.7",
