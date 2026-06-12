@@ -13,12 +13,43 @@ using namespace Skybridge;
 API::Flight* API::Flight::instance = nullptr;
 
 std::vector<std::vector<std::string>> API::Flight::view() {
-    return std::vector<std::vector<std::string>>{
-        {"ID", "Name", "Capacity", "Country", "City"}};
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/flight/view").text);
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Departure Airport", "Arrival Airport", "Base Price",
+         "Flight Time", "Departure", "Frequency", "Created At", "Airplane ID"}};
+    for (const auto& entry : apiReturn) {
+        data.push_back({entry["id"].get<std::string>(),
+                        entry["departure_airport_id"].get<std::string>(),
+                        entry["arrival_airport_id"].get<std::string>(),
+                        std::to_string(entry["base_ticket_price"].get<double>()),
+                        entry["flight_time"].get<std::string>(),
+                        entry["departure"].get<std::string>(),
+                        entry["frequency"].get<std::string>(),
+                        entry["created_at"].get<std::string>(),
+                        entry["airplane_id"].get<std::string>()});
+    }
+    return data;
 }
+
 std::vector<std::vector<std::string>> API::Flight::view_one(std::string id) {
-    return std::vector<std::vector<std::string>>{
-        {"ID", "Name", "Capacity", "Country", "City"}};
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/flight/view/" + id).text);
+    std::vector<std::vector<std::string>> data = {
+        {"id", "departure_airport_id", "arrival_airport_id", "base_ticket_price",
+         "flight_time", "departure", "frequency", "created_at", "airplane_id"}};
+    data.push_back({apiReturn["id"].get<std::string>(),
+                    apiReturn["departure_airport_id"].get<std::string>(),
+                    apiReturn["arrival_airport_id"].get<std::string>(),
+                    std::to_string(apiReturn["base_ticket_price"].get<double>()),
+                    apiReturn["flight_time"].get<std::string>(),
+                    apiReturn["departure"].get<std::string>(),
+                    apiReturn["frequency"].get<std::string>(),
+                    apiReturn["created_at"].get<std::string>(),
+                    apiReturn["airplane_id"].get<std::string>()});
+    return data;
 }
 
 void API::Flight::add() {

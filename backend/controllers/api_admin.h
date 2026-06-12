@@ -20,6 +20,10 @@ class admin : public drogon::HttpController<admin> {
                "AdminFilter");
     METHOD_ADD(admin::add_staff, "/staff/add", Post, "AuthFilter",
                "AdminFilter");
+    METHOD_ADD(admin::add_booking, "/booking/add", Post, "AuthFilter",
+               "AdminFilter");
+    // METHOD_ADD(admin::add_passenger, "/passenger/add", Post, "AuthFilter",
+    //            "AdminFilter");
 
     METHOD_ADD(admin::view_airplanes, "/airplane/view", Get, "AuthFilter",
                "AdminFilter");
@@ -28,6 +32,12 @@ class admin : public drogon::HttpController<admin> {
     METHOD_ADD(admin::view_account, "/account/view", Get, "AuthFilter",
                "AdminFilter");
     METHOD_ADD(admin::view_staff, "/staff/view", Get, "AuthFilter",
+               "AdminFilter");
+    METHOD_ADD(admin::view_flights, "/flight/view", Get, "AuthFilter",
+               "AdminFilter");
+    METHOD_ADD(admin::view_bookings, "/booking/view", Get, "AuthFilter",
+               "AdminFilter");
+    METHOD_ADD(admin::view_passengers, "/passenger/view", Get, "AuthFilter",
                "AdminFilter");
 
     METHOD_ADD(admin::view_single_airplane, "/airplane/view/{id}", Get,
@@ -38,6 +48,12 @@ class admin : public drogon::HttpController<admin> {
                "AuthFilter", "AdminFilter");
     METHOD_ADD(admin::view_single_staff, "/staff/view/{id}", Get, "AuthFilter",
                "AdminFilter");
+    METHOD_ADD(admin::view_single_flight, "/flight/view/{id}", Get,
+               "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::view_single_booking, "/booking/view/{id}", Get,
+               "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::view_single_passenger, "/passenger/view/{id}", Get,
+               "AuthFilter", "AdminFilter");
 
     METHOD_ADD(admin::update_account, "/account/update/{id}", Patch,
                "AuthFilter", "AdminFilter");
@@ -47,6 +63,10 @@ class admin : public drogon::HttpController<admin> {
                "AuthFilter", "AdminFilter");
     METHOD_ADD(admin::update_flight, "/flight/update/{id}", Patch, "AuthFilter",
                "AdminFilter");
+    METHOD_ADD(admin::update_booking, "/booking/update/{id}", Patch,
+               "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::update_passenger, "/passenger/update/{id}", Patch,
+               "AuthFilter", "AdminFilter");
 
     METHOD_ADD(admin::delete_airplane, "/airplane/delete/{id}", Delete,
                "AuthFilter", "AdminFilter");
@@ -57,6 +77,10 @@ class admin : public drogon::HttpController<admin> {
     METHOD_ADD(admin::delete_staff, "/staff/delete/{id}", Delete, "AuthFilter",
                "AdminFilter");
     METHOD_ADD(admin::delete_flight, "/flight/delete/{id}", Delete,
+               "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::delete_booking, "/booking/delete/{id}", Delete,
+               "AuthFilter", "AdminFilter");
+    METHOD_ADD(admin::delete_passenger, "/passenger/delete/{id}", Delete,
                "AuthFilter", "AdminFilter");
     METHOD_LIST_END
 
@@ -70,6 +94,10 @@ class admin : public drogon::HttpController<admin> {
                      std::function<void(const HttpResponsePtr&)>&& callback);
     void add_staff(const HttpRequestPtr& req,
                    std::function<void(const HttpResponsePtr&)>&& callback);
+    void add_booking(const HttpRequestPtr& req,
+                     std::function<void(const HttpResponsePtr&)>&& callback);
+    // void add_passenger(const HttpRequestPtr& req,
+    //                    std::function<void(const HttpResponsePtr&)>&& callback);
 
     void view_account(const HttpRequestPtr& req,
                       std::function<void(const HttpResponsePtr&)>&& callback);
@@ -79,6 +107,13 @@ class admin : public drogon::HttpController<admin> {
                        std::function<void(const HttpResponsePtr&)>&& callback);
     void view_airplanes(const HttpRequestPtr& req,
                         std::function<void(const HttpResponsePtr&)>&& callback);
+    void view_flights(const HttpRequestPtr& req,
+                      std::function<void(const HttpResponsePtr&)>&& callback);
+    void view_bookings(const HttpRequestPtr& req,
+                       std::function<void(const HttpResponsePtr&)>&& callback);
+    void view_passengers(
+        const HttpRequestPtr& req,
+        std::function<void(const HttpResponsePtr&)>&& callback);
 
     void view_single_account(
         const HttpRequestPtr& req,
@@ -90,6 +125,15 @@ class admin : public drogon::HttpController<admin> {
         const HttpRequestPtr& req,
         std::function<void(const HttpResponsePtr&)>&& callback, std::string id);
     void view_single_airplane(
+        const HttpRequestPtr& req,
+        std::function<void(const HttpResponsePtr&)>&& callback, std::string id);
+    void view_single_flight(
+        const HttpRequestPtr& req,
+        std::function<void(const HttpResponsePtr&)>&& callback, std::string id);
+    void view_single_booking(
+        const HttpRequestPtr& req,
+        std::function<void(const HttpResponsePtr&)>&& callback, std::string id);
+    void view_single_passenger(
         const HttpRequestPtr& req,
         std::function<void(const HttpResponsePtr&)>&& callback, std::string id);
 
@@ -105,6 +149,12 @@ class admin : public drogon::HttpController<admin> {
     void update_flight(const HttpRequestPtr& req,
                        std::function<void(const HttpResponsePtr&)>&& callback,
                        std::string id);
+    void update_booking(const HttpRequestPtr& req,
+                        std::function<void(const HttpResponsePtr&)>&& callback,
+                        std::string id);
+    void update_passenger(
+        const HttpRequestPtr& req,
+        std::function<void(const HttpResponsePtr&)>&& callback, std::string id);
 
     void delete_airplane(const HttpRequestPtr& req,
                          std::function<void(const HttpResponsePtr&)>&& callback,
@@ -121,12 +171,19 @@ class admin : public drogon::HttpController<admin> {
     void delete_flight(const HttpRequestPtr& req,
                        std::function<void(const HttpResponsePtr&)>&& callback,
                        std::string id);
+    void delete_booking(const HttpRequestPtr& req,
+                        std::function<void(const HttpResponsePtr&)>&& callback,
+                        std::string id);
+    void delete_passenger(
+        const HttpRequestPtr& req,
+        std::function<void(const HttpResponsePtr&)>&& callback, std::string id);
 
    private:
     const valijson::Schema& add_flight_schema();
     const valijson::Schema& add_airplane_schema();
     const valijson::Schema& add_airport_schema();
     const valijson::Schema& add_staff_schema();
+    const valijson::Schema& add_admin_booking_schema();
     const valijson::Schema& update_schema();
 };
 }  // namespace api

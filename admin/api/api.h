@@ -28,8 +28,7 @@ class ApiClient {
     cpr::Response get(const std::string& endpoint);
     cpr::Response post(const std::string& endpoint, nlohmann::json payload);
     cpr::Response del(const std::string& endpoint);
-    cpr::Response patch(const std::string& endpoint,
-                                   nlohmann::json payload);
+    cpr::Response patch(const std::string& endpoint, nlohmann::json payload);
 };
 
 class Auth {
@@ -136,10 +135,9 @@ class Booking {
         return *instance;
     }
     std::string name = "Booking";
-    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
+    std::vector<std::string> UNSUPPORTED_OPS = {};
 
-    static long long nextId();
-    static void view();
+    static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static void add();
     static std::vector<std::vector<std::string>> modify(std::string id,
@@ -162,7 +160,7 @@ class Flight {
         return *instance;
     }
     std::string name = "Flight";
-    std::vector<std::string> UNSUPPORTED_OPS = {"view"};
+    std::vector<std::string> UNSUPPORTED_OPS = {};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static void add();
@@ -187,8 +185,9 @@ class Passenger {
     }
     std::string name = "Passenger";
     std::vector<std::string> UNSUPPORTED_OPS = {"view", "add", "modify"};
-    static long long nextId();
-    static void view();
+
+    static std::vector<std::vector<std::string>> view();
+    static std::vector<std::vector<std::string>> view_one(std::string id);
     static void add();
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,

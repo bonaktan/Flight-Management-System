@@ -12,69 +12,77 @@
 using namespace Skybridge;
 API::Booking* API::Booking::instance = nullptr;
 
-long long API::Booking::nextId() {
-    long long mx = 0;
-    for (auto& b : Data::bookings) mx = std::max(mx, b.id);
-    return mx + 1;
+std::vector<std::vector<std::string>> API::Booking::view() {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/booking/view").text);
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Flight ID", "Account ID", "Payment Option", "Payment Detail",
+         "Status", "Departure Date", "Created At", "Updated At"}};
+    for (const auto& entry : apiReturn) {
+        data.push_back({std::to_string(entry["id"].get<long long>()),
+                        entry["flight_id"].get<std::string>(),
+                        std::to_string(entry["account_id"].get<long long>()),
+                        entry["payment_option"].get<std::string>(),
+                        entry["payment_detail"].dump(),
+                        entry["booking_status"].get<std::string>(),
+                        entry["departure_date"].get<std::string>(),
+                        entry["created_at"].get<std::string>(),
+                        entry["updated_at"].get<std::string>()});
+    }
+    return data;
 }
 
-void API::Booking::view() {
-    Display::printHeader("BOOKINGS");
-    if (Data::bookings.empty()) {
-        std::cout << "  No records found.\n";
-        return;
-    }
-    std::cout << "  " << std::left << std::setw(5) << "ID" << std::setw(11)
-              << "Passenger" << std::setw(12) << "Flight" << std::setw(9)
-              << "Account" << std::setw(12) << "Price" << std::setw(12)
-              << "Payment" << std::setw(12) << "Status" << "\n";
-    Display::printDivider();
-    for (auto& b : Data::bookings)
-        std::cout << "  " << std::setw(5) << b.id << std::setw(11)
-                  << b.passenger_id << std::setw(12) << b.flight_id
-                  << std::setw(9)
-                  << (b.account_id == -1 ? "N/A" : std::to_string(b.account_id))
-                  << std::setw(12) << std::fixed << std::setprecision(2)
-                  << b.calculated_price << std::setw(12) << b.payment_option
-                  << std::setw(12)
-                  << Display::bookingStatusToStr(b.booking_status) << "\n";
+std::vector<std::vector<std::string>> API::Booking::view_one(std::string id) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/booking/view/" + id).text);
+    std::vector<std::vector<std::string>> data = {
+        {"id", "flight_id", "account_id", "payment_option", "payment_detail",
+         "booking_status", "departure_date", "created_at", "updated_at"}};
+    data.push_back({std::to_string(apiReturn["id"].get<long long>()),
+                    apiReturn["flight_id"].get<std::string>(),
+                    std::to_string(apiReturn["account_id"].get<long long>()),
+                    apiReturn["payment_option"].get<std::string>(),
+                    apiReturn["payment_detail"].dump(),
+                    apiReturn["booking_status"].get<std::string>(),
+                    apiReturn["departure_date"].get<std::string>(),
+                    apiReturn["created_at"].get<std::string>(),
+                    apiReturn["updated_at"].get<std::string>()});
+    return data;
 }
 
 void API::Booking::add() {
     Display::printHeader("ADD BOOKING");
-    Structs::Booking b;
-    b.id = API::Booking::nextId();
-    b.passenger_id = Input::getLLInput("Passenger ID: ");
-    b.flight_id = Input::getInput("Flight ID: ");
-    std::string ac = Input::getInput("Account ID (blank if none): ");
-    b.account_id = ac.empty() ? -1 : std::stoll(ac);
-    b.calculated_price = Input::getDoubleInput("Calculated Price: ");
-    b.payment_option = Input::getInput("Payment Option (cash/card/etc): ");
-    b.payment_detail =
-        Input::getInput("Payment Detail (JSON string, e.g. {}): ");
-    std::cout << "  Status [1=pending, 2=confirmed, 3=cancelled]: ";
-    std::string sc;
-    std::getline(std::cin, sc);
-    if (sc == "2")
-        b.booking_status = Structs::BookingStatus::CONFIRMED;
-    else if (sc == "3")
-        b.booking_status = Structs::BookingStatus::CANCELLED;
-    else
-        b.booking_status = Structs::BookingStatus::PENDING;
-    b.created_at = b.updated_at = "NOW()";
-    Data::bookings.push_back(b);
-    std::cout << "\n  [OK] Booking added with ID " << b.id << "\n";
+    nlohmann::json booking;
+    booking["flight_id"]      = Input::getInput("Flight ID (e.g. SKY001): ");
+    booking["account_id"]     = std::stoll(Input::getInput("Account ID: "));
+    booking["payment_option"] = Input::getInput("Payment Option: ");
+    booking["payment_detail"] = nlohmann::json::parse(Input::getInput("Payment Detail (JSON): "));
+    booking["booking_status"] = Input::getInput("Booking Status: ");
+    booking["departure_date"] = Input::getInput("Departure Date (ISO 8601): ");
+
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.post("/admin/booking/add", booking);
+    if (apiReturn.status_code == 200 || apiReturn.status_code == 201) {
+        std::cout << "\n  [OK] Booking added.\n";
+    } else {
+        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
+        std::cerr << "\n  [ERROR] Failed to add booking: "
+                  << errorResponse.value("message", "Unknown error") << "\n";
+    }
 }
 
 std::vector<std::vector<std::string>> API::Booking::modify(std::string id,
                                                             std::string field,
                                                             std::string value) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    cpr::Response apiReturn = client.patch(
-        "/admin/booking/update/" + id, nlohmann::json{{"field", field}, {"value", value}});
+    cpr::Response apiReturn =
+        client.patch("/admin/booking/update/" + id,
+                     nlohmann::json{{"field", field}, {"value", value}});
     std::vector<std::vector<std::string>> data = {
         {"ID", "Flight ID", "Account ID", "Payment Option", "Payment Detail",
-         "Booking Status", "Created At", "Updated At", "Departure Date"}};
+         "Status", "Departure Date", "Created At", "Updated At"}};
     nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
     data.push_back({std::to_string(newData["id"].get<long long>()),
                     newData["flight_id"].get<std::string>(),
@@ -82,21 +90,22 @@ std::vector<std::vector<std::string>> API::Booking::modify(std::string id,
                     newData["payment_option"].get<std::string>(),
                     newData["payment_detail"].dump(),
                     newData["booking_status"].get<std::string>(),
+                    newData["departure_date"].get<std::string>(),
                     newData["created_at"].get<std::string>(),
-                    newData["updated_at"].get<std::string>(),
-                    newData["departure_date"].get<std::string>()});
+                    newData["updated_at"].get<std::string>()});
     return data;
 }
 
 void API::Booking::remove() {
     Display::printHeader("DELETE BOOKING");
-    long long id = Input::getLLInput("Enter Booking ID to delete: ");
-    auto it =
-        std::remove_if(Data::bookings.begin(), Data::bookings.end(),
-                       [id](const Structs::Booking& b) { return b.id == id; });
-    if (it != Data::bookings.end()) {
-        Data::bookings.erase(it, Data::bookings.end());
+    std::string id = Input::getInput("Enter Booking ID to delete: ");
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.del("/admin/booking/delete/" + id);
+    if (apiReturn.status_code == 200) {
         std::cout << "\n  [OK] Booking deleted.\n";
-    } else
-        std::cout << "\n  [!!] Booking not found.\n";
+    } else {
+        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
+        std::cerr << "\n  [ERROR] Failed to delete booking: "
+                  << errorResponse.value("message", "Unknown error") << "\n";
+    }
 }
