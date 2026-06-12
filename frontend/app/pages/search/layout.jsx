@@ -3,13 +3,14 @@
 import { CounterField, InputField, SelectionField } from "../../components/input";
 import { createSearchParams, Outlet, useNavigate } from "react-router";
 import { SearchParametersContext } from "./searchContext";
-import { use, useReducer } from "react";
+import { use, useEffect, useReducer, useState } from "react";
 import axios from "axios";
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
+export function meta() {
+    return [{ title: "Search - SkyBridge Airlines" }];
+}
 function Bookpop() {
     const searchParams = use(SearchParametersContext);
-    console.log("searchContext in Bookpop: ", searchParams);
     const navigate = useNavigate();
     function onConfirm() {
         navigate("/booking/form", {
@@ -21,23 +22,46 @@ function Bookpop() {
             },
         });
     }
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        let timer;
+        if (searchParams.selectedFlightAndClass.flight) {
+            timer = setTimeout(() => setVisible(true), 300);
+        } else {
+            setVisible(false);
+        }
+        return () => clearTimeout(timer);
+    }, [searchParams.selectedFlightAndClass.flight]);
     return (
         <div
-            className={`w-full border-2 p-2 flex justify-between transition ${searchParams.selectedFlightAndClass ? "active" : ""} absolute -bottom-20 `}>
-            {searchParams.selectedFlightAndClass.flight}
-            <div className="flex justify-start flex-col">
-                <p>Flight ID</p>
+            className={`w-full border-2 p-2 flex justify-between absolute bottom-0 transition-all duration-300 bg-cloud-warm ${
+                searchParams.selectedFlightAndClass.flight ? "translate-y-0" : "translate-y-full"
+            } ${visible ? "z-10" : "-z-10"} z-10`}>
+            <div className="flex justify-start flex-col w-1/5 gap-1">
+                <p className="font-bold">
+                    {" "}
+                    {searchParams.selectedFlightAndClass.flight} | <span className="capitalize">{searchParams.selectedFlightAndClass.seatClass}</span>
+                </p>
                 <p className="flex items-center gap-2">
-                    MNL
+                    {searchParams.origin}
                     <span className="material-symbols-outlined rotate-90">flight</span>
-                    CEB
+                    {searchParams.destination}
                 </p>
             </div>
-            <div className="text-center">
+            <div className="flex flex-col w-1/5 text-center gap-1">
+                <p className="font-bold">Departure</p>
+                <p className="flex items-center gap-2">{searchParams.selectedFlightAndClass.departure_date}</p>
+            </div>
+            <div className="text-center w-1/5">
                 <p className="font-bold">Passengers</p>
                 <p>2</p>
             </div>
-            <button className="border px-4" onClick={onConfirm}>
+            <div className="text-center w-1/5">
+                <p className="font-bold">Price</p>
+                <p>{1000 * 2}</p>
+            </div>
+            <button className="border px-4 w-1/5 rounded-sm bg-blaze-core font-bold text-cloud-warm" onClick={onConfirm}>
                 Book
             </button>
         </div>
@@ -46,7 +70,6 @@ function Bookpop() {
 
 async function fetchFlights(searchContext) {
     let apiReturn = { apiReturn: null, apiError: null };
-    console.log("searchContext: ", searchContext);
     try {
         apiReturn.apiReturn = (
             await axios.get(`${apiUrl}/api/search/flights`, {
@@ -68,17 +91,27 @@ async function fetchFlights(searchContext) {
 
 export async function loader(request) {
     const searchParams = new URL(request.url).searchParams;
-    console.log(searchParams);
     const airports = (await axios.get(`${apiUrl}/api/search/airports`)).data;
     return { airports: airports, searchParams: Object.fromEntries(searchParams) };
 }
-export async function clientLoader({ serverLoader }) {
-    const serverData = await serverLoader();
-    const flights = await fetchFlights(serverData.searchParams);
-    return { flights: flights, ...serverData };
+export async function clientLoader({ serverLoader, request }) {
+    const searchParams = Object.fromEntries(new URL(request.url).searchParams);
+
+    const [serverData, flights] = await Promise.all([
+        serverLoader(),
+        fetchFlights(searchParams), // client reads params independently
+    ]);
+
+    return { flights, ...serverData };
 }
 clientLoader.hydrate = true;
-
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 export default function SearchLayout({ loaderData }) {
     const navigate = useNavigate();
     const [selectedFlightAndClass, setSelectedFlightAndClass] = useReducer(
@@ -110,7 +143,7 @@ export default function SearchLayout({ loaderData }) {
             destination: loaderData.searchParams["destination"] || "",
             departure_date: loaderData.searchParams["departure_date"] || "",
             return_date: loaderData.searchParams["return_date"] || "",
-            passengers: loaderData.searchParams["passengers"] || 1,
+            passengers: parseInt(loaderData.searchParams["passengers"]) || 1,
             sort: loaderData.searchParams["sort"] || "price",
         },
     );
@@ -143,7 +176,9 @@ export default function SearchLayout({ loaderData }) {
                             <button
                                 onClick={() => setSearchContext({ field: "flight_mode", value: trip })}
                                 key={trip}
-                                className={`${searchContext.flight_mode == trip ? "bg-blaze-core text-white" : ""} border px-2 text-sm transition whitespace-nowrap h-10`}>
+                                className={`${searchContext.flight_mode == trip ? "bg-blaze-core text-white" : ""} border px-2 text-sm transition whitespace-nowrap h-10 ${trip == "Round Trip" && "opacity-20 hover:cursor-not-allowed"}`}
+                                disabled={trip == "Round Trip"} // WARN: temporarily disabled
+                            >
                                 {trip}
                             </button>
                         ))}
@@ -157,7 +192,6 @@ export default function SearchLayout({ loaderData }) {
                         labDesign="text-sm"
                         selDesign="rounded-sm text-sm"
                         onChange={(e) => {
-                            console.log("select: ", e.target.value);
                             setSearchContext({ field: "origin", value: e.target.value });
                         }}
                         value={searchContext.origin}
@@ -230,18 +264,18 @@ export default function SearchLayout({ loaderData }) {
                     Submit
                 </button>
             </div>
-            <div id="filters" className="flex flex-row align-bottom px-5 gap-5">
+            {/* <div id="filters" className="flex flex-row align-bottom px-5 gap-5">
                 <div>Sort</div>
                 <button onClick={() => setSearchContext({ field: "sort", value: "price" })}>Price</button>
                 <button onClick={() => setSearchContext({ field: "sort", value: "flight_time" })}>Flight Duration</button>
                 <button onClick={() => setSearchContext({ field: "sort", value: "departure" })}>Departure Time</button>
-            </div>
-            <div id="results" className="flex flex-col gap-2 p-5">
+            </div> */}
+            <div id="results" className="flex flex-col gap-5 p-5 mb-20">
                 <div id="header" className="flex w-full gap-2">
                     <div className="w-2/5" />
-                    <div className="text-center w-1/5">Essentials</div>
-                    <div className="text-center w-1/5">Popular</div>
-                    <div className="text-center w-1/5">Ultimate</div>
+                    <div className="text-center w-1/5">Economy</div>
+                    <div className="text-center w-1/5">Business</div>
+                    <div className="text-center w-1/5">First Class</div>
                 </div>
                 <Outlet />
             </div>

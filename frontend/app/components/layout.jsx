@@ -1,7 +1,7 @@
 import { Outlet } from "react-router";
 import { NavLink } from "react-router";
 import logo from "/app/assets/logo.png";
-import { use } from "react";
+import { use, useEffect } from "react";
 import { UserContext } from "../middleware/context";
 
 function Navbar() {
@@ -19,7 +19,7 @@ function Navbar() {
 
 function Footer() {
     return (
-        <div className="border-t p-6 bg-blaze-deep text-cloud-warm flex flex-col">
+        <div className="border-t p-6 bg-blaze-deep text-cloud-warm flex flex-col z-20">
             <div id="top" className="flex lg:items-center justify-between border-b lg:flex-row flex-col lg:align-between items-start">
                 <p className="leading-none mb-2 font-bold text-2xl">
                     SkyBridge <br />

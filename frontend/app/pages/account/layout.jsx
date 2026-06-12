@@ -7,7 +7,16 @@ import { use, useState } from "react";
 import { OverlayBase, OverlayModal } from "../../components/overlay";
 import { InputField } from "../../components/input";
 // const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
+export function meta() {
+    return [{ title: "Account - SkyBridge Airlines" }];
+}
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
 export const middleware = [authMiddleware];
 
 function EditModal({ parameter, children, className }) {
@@ -24,7 +33,6 @@ function EditModal({ parameter, children, className }) {
 function DetailEntry({ field, value, editable = false }) {
     const [showModal, setShowModal] = useState(false);
     const userContext = use(UserContext);
-    console.log(userContext);
     return (
         <div className="flex">
             <div className="flex w-4/5">
@@ -58,7 +66,6 @@ function DetailEntry({ field, value, editable = false }) {
 }
 
 function Dashboard({ account }) {
-    console.log(account);
     const navigate = useNavigate();
     const userContext = use(UserContext);
     async function logout() {
@@ -104,7 +111,6 @@ export async function clientLoader() {
     return ret;
 }
 export default function AccountLayout({ loaderData }) {
-    console.log("loaderData: ", loaderData);
     return (
         <div className="flex">
             <div id="profile" className="w-1/3 p-2">

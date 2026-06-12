@@ -3,17 +3,37 @@ import { InputField } from "../../components/input";
 import { use, useRef, useState } from "react";
 import { BookingContext } from "./context";
 import axios from "axios";
+
+export function meta() {
+    return [{ title: "Booking - Payment | SkyBridge Airlines" }];
+}
+export function HydrateFallback() {
+    return (
+        <div className="flex justify-center items-center">
+            <p>Loading...</p>
+        </div>
+    );
+}
+export async function clientLoader() {
+    // Opt into a fallback while server loader runs
+    return;
+}
+clientLoader.hydrate = true;
 const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
-function PaymentSubsection({ name, selected, setSelected, children }) {
+function PaymentSubsection({ name, selected, setSelected, setError, children }) {
     return (
         <div className="bg-cloud-warm text-altitude-ink p-4 rounded-lg">
-            <div className="flex justify-between text-xl font-bold" onClick={() => setSelected(name)}>
+            <div
+                className="flex justify-between text-xl font-bold"
+                onClick={() => {
+                    (setSelected(name), setError(""));
+                }}>
                 <div>{name}</div>
                 <span className="material-symbols-outlined">{selected === name ? "arrow_drop_up" : "arrow_drop_down"}</span>
             </div>
             <div
-                className={`transition-all duration-500 ease-in-out overflow-hidden ${selected === name ? "max-h-40 opacity-100" : "max-h-0 opacity-0"}`}>
+                className={`transition-all duration-500 ease-in-out overflow-hidden ${selected === name ? "max-h-60 opacity-100" : "max-h-0 opacity-0"}`}>
                 {children}
             </div>
         </div>
@@ -25,8 +45,7 @@ function PaymentSubsection({ name, selected, setSelected, children }) {
 function waitForPopupMessage(win) {
     return new Promise((resolve, reject) => {
         function onMessage(event) {
-            // In production, restrict origin:
-            // if (event.origin !== "https://yoursite.com") return;
+            if (event.origin !== window.location.origin) return;
             if (event.data?.type === "PAYMENT_COMPLETE") {
                 cleanup();
                 resolve(event.data);
@@ -65,13 +84,18 @@ function luhnsAlgorithm(cardNumber) {
     }
     return nCheck % 10 == 0;
 }
+
 async function backendSubmit(payload) {
-    const response = await axios.post(`/api/booking/submit`, payload);
+    const response = await axios.post(`/api/booking/submit`, {
+        flightId: payload.flightId,
+        passengers: payload.passengers,
+        departure_date: payload.departure_date,
+    });
     return response;
 }
 export default function BookingPayment() {
     const navigate = useNavigate();
-    const [selectedMethod, setSelectedMethod] = useState("E-wallet");
+    const [selectedMethod, setSelectedMethod] = useState("");
     const bookingContext = use(BookingContext);
     const [paymentStatus, setPaymentStatus] = useState(null);
     const [paymentError, setPaymentError] = useState(null);
@@ -88,15 +112,15 @@ export default function BookingPayment() {
             paymentPopupRef.current = win;
             const result = await waitForPopupMessage(win);
             if (!win.closed) win.close();
-            console.log(result);
             setPaymentStatus("success");
             // JSON.parse(sessionStorage.getItem("payment_state") || "{}")
             // TODO: send the details to the backend
             await backendSubmit(bookingContext);
+            sessionStorage.removeItem("bookingState");
             navigate("/booking/confirmation");
         } catch (err) {
             console.log(err);
-            setPaymentError(err.message);
+            setPaymentError(err.response?.data?.error || err.message || "Payment failed");
             setPaymentStatus("error");
         } finally {
             paymentPopupRef.current = null;
@@ -110,14 +134,20 @@ export default function BookingPayment() {
             setPaymentError("Invalid Credit Card Number");
             return;
         }
-        await backendSubmit(bookingContext);
-        navigate("/booking/confirmation");
+        try {
+            await backendSubmit(bookingContext);
+            sessionStorage.removeItem("bookingState");
+            navigate("/booking/confirmation");
+        } catch (err) {
+            console.log(err);
+            setPaymentError(err.response?.data?.error || err.response?.data || err.message || "Payment failed");
+        }
     }
     return (
         <div>
             <div className="text-2xl text-altitude-ink font-bold mx-10 my-4">Select your Payment Method</div>
             <div className="bg-blaze-core m-4 p-4 flex flex-col gap-2 rounded-xl">
-                <PaymentSubsection name="Online Banking" selected={selectedMethod} setSelected={setSelectedMethod}>
+                <PaymentSubsection name="Online Banking" selected={selectedMethod} setSelected={setSelectedMethod} setError={setPaymentError}>
                     <div>You will be redirected to the merchant's Website to complete the payment</div>
                     <div className="flex justify-center gap-2 mt-4">
                         <button className="bg-blaze-deep text-white px-4 py-2 rounded-md" onClick={onSubmitOnlineBanking}>
@@ -130,8 +160,9 @@ export default function BookingPayment() {
                             PayPal
                         </button>
                     </div>
+                    <div className="text-center text-red-500">{paymentError}</div>
                 </PaymentSubsection>
-                <PaymentSubsection name="Credit/Debit Card" selected={selectedMethod} setSelected={setSelectedMethod}>
+                <PaymentSubsection name="Credit/Debit Card" selected={selectedMethod} setSelected={setSelectedMethod} setError={setPaymentError}>
                     <div>Please enter you Card Information.</div>
                     <div className="flex justify-center gap-2">
                         <InputField name="Credit Card Number" icon="credit_card" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
@@ -143,9 +174,9 @@ export default function BookingPayment() {
                             Submit
                         </button>
                     </div>
+                    <div className="text-center text-red-500">{paymentError}</div>
                 </PaymentSubsection>
             </div>
-            <div>{paymentError}</div>
         </div>
     );
 }
