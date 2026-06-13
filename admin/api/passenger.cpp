@@ -43,8 +43,22 @@ std::vector<std::vector<std::string>> API::Passenger::view() {
 
 std::vector<std::vector<std::string>> API::Passenger::view_one(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    nlohmann::json apiReturn =
-        nlohmann::json::parse(client.get("/admin/passenger/view/" + id).text);
+    cpr::Response response = client.get("/admin/account/view/" + id);
+
+    if (response.status_code == 404)
+        throw std::runtime_error("Account with ID " + id + " not found");
+    if (response.status_code != 200)
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(response.status_code));
+
+    nlohmann::json apiReturn;
+    try {
+        apiReturn = nlohmann::json::parse(response.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
+    
     std::vector<std::vector<std::string>> data = {
         {"id", "frequent_flyer_code", "title", "first_name", "middle_name",
          "last_name", "birthdate", "gender", "contact_email", "phone_number",
@@ -104,12 +118,25 @@ std::vector<std::vector<std::string>> API::Passenger::modify(
     cpr::Response apiReturn =
         client.patch("/admin/passenger/update/" + id,
                      nlohmann::json{{"field", field}, {"value", value}});
+    if (apiReturn.status_code != 200) {
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(apiReturn.status_code));
+    }
+
     std::vector<std::vector<std::string>> data = {
         {"ID", "Frequent Flyer", "Title", "First Name", "Middle Name",
          "Last Name", "Birthdate", "Gender", "Email", "Phone",
          "Emergency Contact", "Emergency Phone", "Associated To", "Created At",
          "Updated At"}};
-    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
+    nlohmann::json newData;
+
+    try {
+        newData = nlohmann::json::parse(apiReturn.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
+
     data.push_back({std::to_string(newData["id"].get<long long>()),
                     newData["frequent_flyer_code"].get<std::string>(),
                     newData["title"].get<std::string>(),

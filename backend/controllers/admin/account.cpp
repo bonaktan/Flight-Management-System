@@ -37,6 +37,12 @@ void api::admin::view_single_account(
         "SELECT id, account_name, email, permissions "
         "FROM account WHERE id = $1;",
         [callback](const drogon::orm::Result& result) {
+            if (result.empty()) {
+                callback(Skybridge::Utils::error(
+                    "Account not found", k404NotFound,
+                    Json::Value("No account with that ID exists")));
+                return;
+            }
             Json::Value jsonResponse;
             auto row = result[0];
             jsonResponse["id"] = (Json::Int64)row["id"].as<long long>();

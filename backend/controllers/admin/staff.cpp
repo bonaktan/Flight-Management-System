@@ -75,6 +75,12 @@ void api::admin::view_single_staff(
         "SELECT id, name, current_location, role, schedule, created_at FROM "
         "staff WHERE id=$1;",
         [callback](const drogon::orm::Result& result) {
+            if (result.empty()) {
+                callback(Skybridge::Utils::error(
+                    "Staff not found", k404NotFound,
+                    Json::Value("No staff with that ID exists")));
+                return;
+            }
             Json::Value jsonResponse;
             Json::Value rowResult;
             rowResult["id"] = (Json::Int64)result[0]["id"].as<long long>();

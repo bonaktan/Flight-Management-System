@@ -56,6 +56,12 @@ void api::admin::view_single_passenger(
         "created_at, updated_at, middle_name, gender, phone_number, "
         "emergency_contact_phone FROM passenger WHERE id = $1;",
         [callback](const drogon::orm::Result& result) {
+            if (result.empty()) {
+                callback(Skybridge::Utils::error(
+                    "Passenger not found", k404NotFound,
+                    Json::Value("No passenger with that ID exists")));
+                return;
+            }
             Json::Value jsonResponse;
             auto row = result[0];
             jsonResponse["id"] = (Json::Int64)row["id"].as<long long>();

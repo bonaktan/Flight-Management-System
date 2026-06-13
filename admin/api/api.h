@@ -184,7 +184,7 @@ class Passenger {
         return *instance;
     }
     std::string name = "Passenger";
-    std::vector<std::string> UNSUPPORTED_OPS = {"view", "add", "modify"};
+    std::vector<std::string> UNSUPPORTED_OPS = {};
 
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);

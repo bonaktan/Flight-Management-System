@@ -35,8 +35,21 @@ std::vector<std::vector<std::string>> API::Booking::view() {
 
 std::vector<std::vector<std::string>> API::Booking::view_one(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    nlohmann::json apiReturn =
-        nlohmann::json::parse(client.get("/admin/booking/view/" + id).text);
+    cpr::Response response = client.get("/admin/booking/view/" + id);
+
+    if (response.status_code == 404)
+        throw std::runtime_error("Booking with ID " + id + " not found");
+    if (response.status_code != 200)
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(response.status_code));
+
+    nlohmann::json apiReturn;
+    try {
+        apiReturn = nlohmann::json::parse(response.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
     std::vector<std::vector<std::string>> data = {
         {"id", "flight_id", "account_id", "payment_option", "payment_detail",
          "booking_status", "departure_date", "created_at", "updated_at"}};
@@ -55,10 +68,11 @@ std::vector<std::vector<std::string>> API::Booking::view_one(std::string id) {
 void API::Booking::add() {
     Display::printHeader("ADD BOOKING");
     nlohmann::json booking;
-    booking["flight_id"]      = Input::getInput("Flight ID (e.g. SKY001): ");
-    booking["account_id"]     = std::stoll(Input::getInput("Account ID: "));
+    booking["flight_id"] = Input::getInput("Flight ID (e.g. SKY001): ");
+    booking["account_id"] = std::stoll(Input::getInput("Account ID: "));
     booking["payment_option"] = Input::getInput("Payment Option: ");
-    booking["payment_detail"] = nlohmann::json::parse(Input::getInput("Payment Detail (JSON): "));
+    booking["payment_detail"] =
+        nlohmann::json::parse(Input::getInput("Payment Detail (JSON): "));
     booking["booking_status"] = Input::getInput("Booking Status: ");
     booking["departure_date"] = Input::getInput("Departure Date (ISO 8601): ");
 
@@ -74,16 +88,29 @@ void API::Booking::add() {
 }
 
 std::vector<std::vector<std::string>> API::Booking::modify(std::string id,
-                                                            std::string field,
-                                                            std::string value) {
+                                                           std::string field,
+                                                           std::string value) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn =
         client.patch("/admin/booking/update/" + id,
                      nlohmann::json{{"field", field}, {"value", value}});
+    if (apiReturn.status_code != 200) {
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(apiReturn.status_code));
+    }
+
     std::vector<std::vector<std::string>> data = {
         {"ID", "Flight ID", "Account ID", "Payment Option", "Payment Detail",
          "Status", "Departure Date", "Created At", "Updated At"}};
-    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
+    nlohmann::json newData;
+
+    try {
+        newData = nlohmann::json::parse(apiReturn.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
+
     data.push_back({std::to_string(newData["id"].get<long long>()),
                     newData["flight_id"].get<std::string>(),
                     std::to_string(newData["account_id"].get<long long>()),

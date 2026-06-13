@@ -34,8 +34,21 @@ std::vector<std::vector<std::string>> API::Airplane::view() {
 
 std::vector<std::vector<std::string>> API::Airplane::view_one(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    nlohmann::json apiReturn =
-        nlohmann::json::parse(client.get("/admin/airplane/view/" + id).text);
+    cpr::Response response = client.get("/admin/airplane/view/" + id);
+
+    if (response.status_code == 404)
+        throw std::runtime_error("Airplane with ID " + id + " not found");
+    if (response.status_code != 200)
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(response.status_code));
+
+    nlohmann::json apiReturn;
+    try {
+        apiReturn = nlohmann::json::parse(response.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
 
     std::vector<std::vector<std::string>> data = {
         {"id", "location", "model", "seatmap", "seat_class"}};
@@ -74,9 +87,21 @@ std::vector<std::vector<std::string>> API::Airplane::modify(std::string id,
     cpr::Response apiReturn =
         client.patch("/admin/airplane/update/" + id,
                      nlohmann::json{{"field", field}, {"value", value}});
+    if (apiReturn.status_code != 200) {
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(apiReturn.status_code));
+    }
+
     std::vector<std::vector<std::string>> data = {
         {"ID", "Model", "Location", "Seatmap", "Seat Class"}};
-    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
+    nlohmann::json newData;
+    try {
+        newData = nlohmann::json::parse(apiReturn.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
+
     data.push_back({newData["id"].get<std::string>(),
                     newData["model"].get<std::string>(),
                     newData["location"].get<std::string>(),

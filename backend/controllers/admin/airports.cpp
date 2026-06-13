@@ -46,6 +46,12 @@ void api::admin::view_airports(
     dbClient->execSqlAsync(
         "SELECT id, name, capacity, country, city, created_at FROM airport;",
         [callback](const drogon::orm::Result& result) {
+            if (result.empty()) {
+                callback(Skybridge::Utils::error(
+                    "Airport not found", k404NotFound,
+                    Json::Value("No airport with that ID exists")));
+                return;
+            }
             Json::Value jsonResponse;
             for (const orm::Row& row : result) {
                 Json::Value rowResult;

@@ -20,35 +20,51 @@ std::vector<std::vector<std::string>> API::Flight::view() {
         {"ID", "Departure Airport", "Arrival Airport", "Base Price",
          "Flight Time", "Departure", "Frequency", "Created At", "Airplane ID"}};
     for (const auto& entry : apiReturn) {
-        data.push_back({entry["id"].get<std::string>(),
-                        entry["departure_airport_id"].get<std::string>(),
-                        entry["arrival_airport_id"].get<std::string>(),
-                        std::to_string(entry["base_ticket_price"].get<double>()),
-                        entry["flight_time"].get<std::string>(),
-                        entry["departure"].get<std::string>(),
-                        entry["frequency"].get<std::string>(),
-                        entry["created_at"].get<std::string>(),
-                        entry["airplane_id"].get<std::string>()});
+        data.push_back(
+            {entry["id"].get<std::string>(),
+             entry["departure_airport_id"].get<std::string>(),
+             entry["arrival_airport_id"].get<std::string>(),
+             std::to_string(entry["base_ticket_price"].get<double>()),
+             entry["flight_time"].get<std::string>(),
+             entry["departure"].get<std::string>(),
+             entry["frequency"].get<std::string>(),
+             entry["created_at"].get<std::string>(),
+             entry["airplane_id"].get<std::string>()});
     }
     return data;
 }
 
 std::vector<std::vector<std::string>> API::Flight::view_one(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    nlohmann::json apiReturn =
-        nlohmann::json::parse(client.get("/admin/flight/view/" + id).text);
+    cpr::Response response = client.get("/admin/flight/view/" + id);
+
+    if (response.status_code == 404)
+        throw std::runtime_error("Account with ID " + id + " not found");
+    if (response.status_code != 200)
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(response.status_code));
+
+    nlohmann::json apiReturn;
+    try {
+        apiReturn = nlohmann::json::parse(response.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
     std::vector<std::vector<std::string>> data = {
-        {"id", "departure_airport_id", "arrival_airport_id", "base_ticket_price",
-         "flight_time", "departure", "frequency", "created_at", "airplane_id"}};
-    data.push_back({apiReturn["id"].get<std::string>(),
-                    apiReturn["departure_airport_id"].get<std::string>(),
-                    apiReturn["arrival_airport_id"].get<std::string>(),
-                    std::to_string(apiReturn["base_ticket_price"].get<double>()),
-                    apiReturn["flight_time"].get<std::string>(),
-                    apiReturn["departure"].get<std::string>(),
-                    apiReturn["frequency"].get<std::string>(),
-                    apiReturn["created_at"].get<std::string>(),
-                    apiReturn["airplane_id"].get<std::string>()});
+        {"id", "departure_airport_id", "arrival_airport_id",
+         "base_ticket_price", "flight_time", "departure", "frequency",
+         "created_at", "airplane_id"}};
+    data.push_back(
+        {apiReturn["id"].get<std::string>(),
+         apiReturn["departure_airport_id"].get<std::string>(),
+         apiReturn["arrival_airport_id"].get<std::string>(),
+         std::to_string(apiReturn["base_ticket_price"].get<double>()),
+         apiReturn["flight_time"].get<std::string>(),
+         apiReturn["departure"].get<std::string>(),
+         apiReturn["frequency"].get<std::string>(),
+         apiReturn["created_at"].get<std::string>(),
+         apiReturn["airplane_id"].get<std::string>()});
     return data;
 }
 
@@ -82,15 +98,28 @@ void API::Flight::add() {
 }
 
 std::vector<std::vector<std::string>> API::Flight::modify(std::string id,
-                                                           std::string field,
-                                                           std::string value) {
+                                                          std::string field,
+                                                          std::string value) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    cpr::Response apiReturn = client.patch(
-        "/admin/flight/update/" + id, nlohmann::json{{"field", field}, {"value", value}});
+    cpr::Response apiReturn =
+        client.patch("/admin/flight/update/" + id,
+                     nlohmann::json{{"field", field}, {"value", value}});
+    if (apiReturn.status_code != 200) {
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(apiReturn.status_code));
+    }
+
     std::vector<std::vector<std::string>> data = {
         {"ID", "Departure Airport", "Arrival Airport", "Base Ticket Price",
          "Flight Time", "Departure", "Frequency", "Created At", "Airplane ID"}};
-    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
+    nlohmann::json newData;
+    try {
+        newData = nlohmann::json::parse(apiReturn.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
+
     data.push_back({newData["id"].get<std::string>(),
                     newData["departure_airport_id"].get<std::string>(),
                     newData["arrival_airport_id"].get<std::string>(),

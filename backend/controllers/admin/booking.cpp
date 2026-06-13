@@ -95,6 +95,12 @@ void api::admin::view_single_booking(
         "SELECT id, flight_id, account_id, payment_option, payment_detail, "
         "booking_status, created_at, updated_at, departure_date FROM booking WHERE id = $1;",
         [callback](const drogon::orm::Result& result) {
+            if (result.empty()) {
+                callback(Skybridge::Utils::error(
+                    "Booking not found", k404NotFound,
+                    Json::Value("No Booking with that ID exists")));
+                return;
+            }
             Json::Value jsonResponse;
             auto row = result[0];
             jsonResponse["id"] = (Json::Int64)row["id"].as<long long>();

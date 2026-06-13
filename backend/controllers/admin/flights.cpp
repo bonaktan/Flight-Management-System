@@ -84,6 +84,7 @@ void api::admin::view_flights(
 void api::admin::view_single_flight(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)>&& callback, std::string id) {
+        
     orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
     dbClient->execSqlAsync(
         "SELECT id, departure_airport_id, arrival_airport_id, "
@@ -91,6 +92,12 @@ void api::admin::view_single_flight(
         "flight_time, departure, frequency, created_at, airplane_id FROM "
         "flight WHERE id = $1;",
         [callback](const drogon::orm::Result& result) {
+            if (result.empty()) {
+                callback(Skybridge::Utils::error(
+                    "Flight not found", k404NotFound,
+                    Json::Value("No Flight with that ID exists")));
+                return;
+            }
             Json::Value jsonResponse;
             auto row = result[0];
             jsonResponse["id"] = row["id"].as<std::string>();

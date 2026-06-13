@@ -17,6 +17,7 @@ void printDivider();
 std::string bookingStatusToStr(Structs::BookingStatus s);
 Structs::BookingStatus strToBookingStatus(const std::string& s);
 void Table(std::vector<std::vector<std::string>>& data);
+void TableInteractive(std::vector<std::vector<std::string>>& data);
 }  // namespace Display
 
 namespace Skybridge::Menu {

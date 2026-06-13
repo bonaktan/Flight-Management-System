@@ -36,8 +36,22 @@ std::vector<std::vector<std::string>> API::Account::view() {
 
 std::vector<std::vector<std::string>> API::Account::view_one(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    nlohmann::json apiReturn =
-        nlohmann::json::parse(client.get("/admin/account/view/" + id).text);
+    cpr::Response response = client.get("/admin/account/view/" + id);
+
+    if (response.status_code == 404)
+        throw std::runtime_error("Account with ID " + id + " not found");
+    if (response.status_code != 200)
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(response.status_code));
+
+    nlohmann::json apiReturn;
+    try {
+        apiReturn = nlohmann::json::parse(response.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
+    
     std::vector<std::vector<std::string>> data = {
         {"id", "account_name", "email", "permissions"}};
     data.push_back({std::to_string(apiReturn["id"].get<int>()),
@@ -66,13 +80,26 @@ std::vector<std::vector<std::string>> API::Account::modify(std::string id,
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.patch(
         "/admin/account/update/" + id,  nlohmann::json{{"field", field}, {"value", value}});
+    if (apiReturn.status_code != 200) {
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(apiReturn.status_code));
+    }
+
     std::vector<std::vector<std::string>> data = {
         {"ID", "Account Name", "Email", "Permissions"}};
-    nlohmann::json newData = nlohmann::json::parse(apiReturn.text);
-        data.push_back({std::to_string(newData["id"].get<int>()),
-                        newData["account_name"].get<std::string>(),
-                        newData["email"].get<std::string>(),
-                        newData["permissions"].dump()});
+    
+    nlohmann::json newData;
+    
+    try {
+        newData = nlohmann::json::parse(apiReturn.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") + e.what());
+    }
+
+    data.push_back({std::to_string(newData["id"].get<int>()),
+                    newData["account_name"].get<std::string>(),
+                    newData["email"].get<std::string>(),
+                    newData["permissions"].dump()});
     return data;
 }
 

@@ -31,7 +31,7 @@ void Menu::subMenu(auto& apiCaller) {
         !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"modify"});
 
     while (choice != 0) {
-        if (choice != -1) Display::pause();
+        if (!((choice == -1) || (choice == 1))) Display::pause();
         Display::clearScreen();
         Display::printHeader(apiCaller.name + " - TABLE MENU");
         if (hasView) std::cout << "  [1] View All\n";
@@ -54,18 +54,23 @@ void Menu::subMenu(auto& apiCaller) {
         Display::clearScreen();
         if (hasView && choice == 1) {
             std::vector<std::vector<std::string>> data = apiCaller.view();
-            Display::Table(data);
+            Display::TableInteractive(data);
         } else if (hasAdd && choice == 2) {
             apiCaller.add();
         } else if (hasModify && choice == 3) {
-            std::string id = Input::getInput("Choice: ");
-            std::vector<std::vector<std::string>> data = apiCaller.view_one(id);
-            Display::Table(data);
-            std::string field = Input::getInput("Field to Modify: ");
-            std::string value = Input::getInput("Value to Modify: ");
-            std::vector<std::vector<std::string>> newData =
-                apiCaller.modify(id, field, value);
-            Display::Table(newData);
+            std::string id = Input::getInput(apiCaller.name + "ID: ");
+            try {
+                std::vector<std::vector<std::string>> data =
+                    apiCaller.view_one(id);
+                Display::Table(data);
+                std::string field = Input::getInput("Field to Modify: ");
+                std::string value = Input::getInput("New Value: ");
+                std::vector<std::vector<std::string>> newData =
+                    apiCaller.modify(id, field, value);
+                Display::Table(newData);
+            } catch (const std::runtime_error& e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+            }
         } else if (choice == 4) {
             apiCaller.remove();
         } else if (choice == 0) {
@@ -94,10 +99,10 @@ void Menu::mainMenu() {
         std::cout << "  Select a table to manage:\n\n";
         std::cout << "   [1]  Account\n";
         std::cout << "   [2]  Airport\n";
-        // std::cout << "   [3]  Passenger\n";
+        std::cout << "   [3]  Passenger\n";
         std::cout << "   [4]  Flight\n";
         std::cout << "   [5]  Airplane\n";
-        // std::cout << "   [6]  Booking\n";
+        std::cout << "   [6]  Booking\n";
         std::cout << "\n   [0]  Exit\n\n";
 
         std::string ch = Input::getInput("Choice: ");
@@ -122,10 +127,10 @@ void Menu::mainMenu() {
                 Menu::subMenu(airport);
                 break;
             }
-            // case 3: {
-            //     Menu::subMenu(passenger);
-            //     break;
-            // }
+            case 3: {
+                Menu::subMenu(passenger);
+                break;
+            }
             case 4: {
                 Menu::subMenu(flight);
                 break;
@@ -134,10 +139,10 @@ void Menu::mainMenu() {
                 Menu::subMenu(airplane);
                 break;
             }
-            // case 6: {
-            //     Menu::subMenu(booking);
-            //     break;
-            // }
+            case 6: {
+                Menu::subMenu(booking);
+                break;
+            }
             case 0: {
                 std::cout << "\n  Goodbye!\n\n";
                 break;
@@ -164,13 +169,19 @@ bool Menu::authenticate() {
     while (attempts-- > 0) {
         std::string email = Input::getInput("Email: ");
         std::string pass = Input::getInput("Password: ");
-        bool response = auth.login(email, pass);
-        if (response) {
-            std::cout << "\n  [OK] Access granted.\n";
-            return true;
+        try {
+            bool response = auth.login(email, pass);
+            if (response) {
+                std::cout << "\n  [OK] Access granted.\n";
+                return true;
+            }
+            std::cout << "  [!!] Incorrect. " << attempts
+                      << " attempt(s) remaining.\n\n";
+        } catch (const std::runtime_error& e) {
+            std::cout << "\n  [!!] Server error: " << e.what() << "\n";
+            std::cout << "  Unable to reach server. Exiting.\n\n";
+            return false;
         }
-        std::cout << "  [!!] Incorrect. " << attempts
-                  << " attempt(s) remaining.\n\n";
     }
     std::cout << "\n  Access denied. Exiting.\n\n";
     return false;
