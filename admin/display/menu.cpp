@@ -99,7 +99,7 @@ void Menu::mainMenu() {
         std::cout << "  Select a table to manage:\n\n";
         std::cout << "   [1]  Account\n";
         std::cout << "   [2]  Airport\n";
-        std::cout << "   [3]  Passenger\n";
+        // std::cout << "   [3]  Passenger\n";
         std::cout << "   [4]  Flight\n";
         std::cout << "   [5]  Airplane\n";
         std::cout << "   [6]  Booking\n";
@@ -127,10 +127,10 @@ void Menu::mainMenu() {
                 Menu::subMenu(airport);
                 break;
             }
-            case 3: {
-                Menu::subMenu(passenger);
-                break;
-            }
+            // case 3: {
+            //     Menu::subMenu(passenger);
+            //     break;
+            // }
             case 4: {
                 Menu::subMenu(flight);
                 break;

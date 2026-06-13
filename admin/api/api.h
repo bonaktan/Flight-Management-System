@@ -16,7 +16,7 @@ class ApiClient {
     cpr::Cookies cookies;
     const std::string base_url =
         "http://localhost:8080/api";  // TODO: flags for dev/prod
-    // "https://skybridge.bonnybonnybonaktan.xyz/api";
+        // "https://skybridge.bonnybonnybonaktan.xyz/api";
     ApiClient() = default;
     void checkSession(const cpr::Cookies& updated_cookies);
 
@@ -184,7 +184,7 @@ class Passenger {
         return *instance;
     }
     std::string name = "Passenger";
-    std::vector<std::string> UNSUPPORTED_OPS = {};
+    std::vector<std::string> UNSUPPORTED_OPS = {"add"};
 
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);

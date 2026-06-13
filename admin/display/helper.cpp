@@ -69,29 +69,39 @@ void Display::Table(std::vector<std::vector<std::string>>& data) {
 
     if (totalWidth > termWidth) {
         int overflow = totalWidth - termWidth;
-        // Distribute cuts proportionally to each column's natural width
-        if (totalWidth > termWidth) {
-            int overflow = totalWidth - termWidth;
 
-            // Sort column indices by natural width descending
-            std::vector<int> order(cols);
-            std::iota(order.begin(), order.end(), 0);
-            std::sort(order.begin(), order.end(), [&](int a, int b) {
-                return colWidths[a] > colWidths[b];
-            });
+        std::vector<int> order(cols);
+        std::iota(order.begin(), order.end(), 0);
+        std::sort(order.begin(), order.end(),
+                  [&](int a, int b) { return colWidths[a] > colWidths[b]; });
 
-            for (int c : order) {
-                if (overflow <= 0) break;
-                int cut = std::min(overflow,
-                                   colWidths[c] - 3);  // keep at least 3 chars
-                colWidths[c] -= cut;
-                overflow -= cut;
-                int cellMax = colWidths[c];
-                for (auto& row : data)
-                    if ((int)row[c].size() > cellMax)
-                        row[c] =
-                            row[c].substr(0, std::max(3, cellMax - 3)) + "...";
-            }
+        // First pass: truncate data cells only
+        for (int c : order) {
+            if (overflow <= 0) break;
+            int headerLen = (int)data[0][c].size();
+            int minWidth = headerLen;  // preserve header
+            int cut = std::min(overflow, colWidths[c] - minWidth);
+            if (cut <= 0) continue;
+            colWidths[c] -= cut;
+            overflow -= cut;
+            int cellMax = colWidths[c];
+            for (int r = 1; r < (int)data.size(); r++)  // skip header
+                if ((int)data[r][c].size() > cellMax)
+                    data[r][c] =
+                        data[r][c].substr(0, std::max(3, cellMax - 3)) + "...";
+        }
+
+        // Second pass: truncate headers only if still overflowing
+        for (int c : order) {
+            if (overflow <= 0) break;
+            int cut = std::min(overflow, colWidths[c] - 3);
+            if (cut <= 0) continue;
+            colWidths[c] -= cut;
+            overflow -= cut;
+            int cellMax = colWidths[c];
+            if ((int)data[0][c].size() > cellMax)
+                data[0][c] =
+                    data[0][c].substr(0, std::max(3, cellMax - 3)) + "...";
         }
     }
 

@@ -17,7 +17,7 @@ std::vector<std::vector<std::string>> API::Airport::view() {
     nlohmann::json apiReturn =
         nlohmann::json::parse(client.get("/admin/airport/view").text);
     std::vector<std::vector<std::string>> data = {
-        {"ID", "Name", "Capacity", "Country", "City", "Created At"}};
+        {"ID", "Name", "Country", "City", "Capacity", "Created At"}};
     for (const auto& entry : apiReturn) {
         data.push_back({entry["id"].get<std::string>(),
                         entry["name"].get<std::string>(),
@@ -34,7 +34,7 @@ std::vector<std::vector<std::string>> API::Airport::view_one(std::string id) {
     cpr::Response response = client.get("/admin/airport/view/" + id);
 
     if (response.status_code == 404)
-        throw std::runtime_error("Booking with ID " + id + " not found");
+        throw std::runtime_error("Airport with ID " + id + " not found");
     if (response.status_code != 200)
         throw std::runtime_error("Request failed with status: " +
                                  std::to_string(response.status_code));
@@ -48,7 +48,7 @@ std::vector<std::vector<std::string>> API::Airport::view_one(std::string id) {
     }
 
     std::vector<std::vector<std::string>> data = {
-        {"ID", "Name", "Capacity", "Country", "City"}};
+        {"id", "name", "capacity", "country", "city"}};
     data.push_back({
         apiReturn["id"].get<std::string>(),
         apiReturn["name"].get<std::string>(),
@@ -64,7 +64,7 @@ void API::Airport::add() {
     nlohmann::json airport;
     airport["name"] = Input::getInput(
         "Airport Name (e.g. Ninoy-Aquino International Airport): ");
-    airport["airport_id"] = Input::getInput("Airport ID (e.g. MNL): ");
+    airport["airport_id"] = Input::getInput("ICAO Airport ID (e.g. MNL): ");
     airport["capacity"] = Input::getIntInput("Capacity (e.g. 50): ");
     airport["country"] = Input::getInput("Country (e.g. Philippines): ");
     airport["city"] = Input::getInput("City (e.g. Manila): ");

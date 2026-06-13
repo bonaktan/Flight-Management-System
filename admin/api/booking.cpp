@@ -71,10 +71,9 @@ void API::Booking::add() {
     booking["flight_id"] = Input::getInput("Flight ID (e.g. SKY001): ");
     booking["account_id"] = std::stoll(Input::getInput("Account ID: "));
     booking["payment_option"] = Input::getInput("Payment Option: ");
-    booking["payment_detail"] =
-        nlohmann::json::parse(Input::getInput("Payment Detail (JSON): "));
+    booking["payment_detail"] = nlohmann::json{};
     booking["booking_status"] = Input::getInput("Booking Status: ");
-    booking["departure_date"] = Input::getInput("Departure Date (ISO 8601): ");
+    booking["departure_date"] = Input::getInput("Departure Date (): ");
 
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.post("/admin/booking/add", booking);

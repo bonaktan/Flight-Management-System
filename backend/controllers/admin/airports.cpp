@@ -58,8 +58,8 @@ void api::admin::view_airports(
                 rowResult["id"] = row["id"].as<std::string>();
                 rowResult["name"] = row["name"].as<std::string>();
                 rowResult["capacity"] = row["capacity"].as<int>();
-                rowResult["country"] = result[0]["country"].as<std::string>();
-                rowResult["city"] = result[0]["city"].as<std::string>();
+                rowResult["country"] = row["country"].as<std::string>();
+                rowResult["city"] = row["city"].as<std::string>();
                 rowResult["created_at"] = row["created_at"].as<std::string>();
                 jsonResponse.append(rowResult);
             }

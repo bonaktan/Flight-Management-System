@@ -43,7 +43,7 @@ std::vector<std::vector<std::string>> API::Passenger::view() {
 
 std::vector<std::vector<std::string>> API::Passenger::view_one(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    cpr::Response response = client.get("/admin/account/view/" + id);
+    cpr::Response response = client.get("/admin/passenger/view/" + id);
 
     if (response.status_code == 404)
         throw std::runtime_error("Account with ID " + id + " not found");

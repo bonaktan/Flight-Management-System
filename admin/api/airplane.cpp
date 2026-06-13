@@ -63,9 +63,9 @@ std::vector<std::vector<std::string>> API::Airplane::view_one(std::string id) {
 void API::Airplane::add() {
     Display::printHeader("ADD AIRPLANE");
     nlohmann::json airplane;
-    airplane["airplane_id"] = Input::getInput("Airplane ID (e.g. RP-C8888): ");
+    airplane["airplane_id"] = Input::getInput("Airplane ID (e.g. SB-xxxx): ");
     airplane["model"] = Input::getInput("Model (e.g. Boeing 737): ");
-    airplane["location"] = Input::getInput("Location (Airport ID): ");
+    airplane["location"] = Input::getInput("Initial Location (Airport ID): ");
 
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.post("/admin/airplane/add", airplane);
@@ -93,7 +93,7 @@ std::vector<std::vector<std::string>> API::Airplane::modify(std::string id,
     }
 
     std::vector<std::vector<std::string>> data = {
-        {"ID", "Model", "Location", "Seatmap", "Seat Class"}};
+        {"ID", "Location", "Model", "Seatmap", "Seat Class"}};
     nlohmann::json newData;
     try {
         newData = nlohmann::json::parse(apiReturn.text);
@@ -103,8 +103,8 @@ std::vector<std::vector<std::string>> API::Airplane::modify(std::string id,
     }
 
     data.push_back({newData["id"].get<std::string>(),
-                    newData["model"].get<std::string>(),
                     newData["location"].get<std::string>(),
+                    newData["model"].get<std::string>(),
                     newData["seatmap"].dump(), newData["seat_class"].dump()});
     return data;
 }
