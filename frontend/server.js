@@ -3,7 +3,6 @@ import path from "path";
 import { createProxyMiddleware } from "http-proxy-middleware";
 const app = express();
 
-app.use(express.static("build/client"));
 
 const backendUrl = process.env.VITE_BACKEND_URL || "http://localhost:8080";
 
@@ -17,7 +16,7 @@ app.use(
     }),
 );
 
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
     res.setHeader(
         "Content-Security-Policy",
         [
@@ -32,7 +31,9 @@ app.use((req, res, next) => {
     );
     next();
 });
+*/
 
+app.use(express.static("build/client"));
 // SPA fallback
 app.get("*", (req, res) => {
     res.sendFile(path.resolve("build/client/index.html"));
