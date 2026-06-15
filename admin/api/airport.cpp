@@ -10,86 +10,113 @@
 #include "./api.h"
 
 using namespace Skybridge;
+API::Airport* API::Airport::instance = nullptr;
 
-void API::Airport::save() {
-    std::ofstream f(Data::FILE_AIRPORTS);
-    for (auto& a : Data::airports)
-        f << Escape::escape(a.id) << "|" << Escape::escape(a.name) << "|"
-          << a.capacity << "|" << Escape::escape(a.created_at) << "\n";
+std::vector<std::vector<std::string>> API::Airport::view() {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/airport/view").text);
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Name", "Country", "City", "Capacity", "Created At"}};
+    for (const auto& entry : apiReturn) {
+        data.push_back({entry["id"].get<std::string>(),
+                        entry["name"].get<std::string>(),
+                        entry["country"].get<std::string>(),
+                        entry["city"].get<std::string>(),
+                        std::to_string(entry["capacity"].get<int>()),
+                        entry["created_at"].get<std::string>()});
+    }
+    return data;
 }
 
-void API::Airport::load() {
-    Data::airports.clear();
-    std::ifstream f(Data::FILE_AIRPORTS);
-    std::string line;
-    while (std::getline(f, line)) {
-        if (line.empty()) continue;
-        auto t = Escape::splitLine(line);
-        if (t.size() < 4) continue;
-        Structs::Airport a;
-        a.id = t[0];
-        a.name = t[1];
-        a.capacity = std::stoi(t[2]);
-        a.created_at = t[3];
-        Data::airports.push_back(a);
-    }
-}
+std::vector<std::vector<std::string>> API::Airport::view_one(std::string id) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response response = client.get("/admin/airport/view/" + id);
 
-void API::Airport::view() {
-    Display::printHeader("AIRPORTS");
-    if (Data::airports.empty()) {
-        std::cout << "  No records found.\n";
-        return;
+    if (response.status_code == 404)
+        throw std::runtime_error("Airport with ID " + id + " not found");
+    if (response.status_code != 200)
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(response.status_code));
+
+    nlohmann::json apiReturn;
+    try {
+        apiReturn = nlohmann::json::parse(response.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
     }
-    std::cout << "  " << std::left << std::setw(12) << "ID" << std::setw(32)
-              << "Name" << std::setw(10) << "Capacity" << "\n";
-    Display::printDivider();
-    for (auto& a : Data::airports)
-        std::cout << "  " << std::setw(12) << a.id << std::setw(32) << a.name
-                  << std::setw(10) << a.capacity << "\n";
+
+    std::vector<std::vector<std::string>> data = {
+        {"id", "name", "capacity", "country", "city"}};
+    data.push_back({
+        apiReturn["id"].get<std::string>(),
+        apiReturn["name"].get<std::string>(),
+        std::to_string(apiReturn["capacity"].get<int>()),
+        apiReturn["country"].get<std::string>(),
+        apiReturn["city"].get<std::string>(),
+    });
+    return data;
 }
 
 void API::Airport::add() {
     Display::printHeader("ADD AIRPORT");
-    Structs::Airport a;
-    a.id = Input::getInput("Airport ID (e.g. MNL): ");
-    a.name = Input::getInput("Airport Name: ");
-    a.capacity = Input::getIntInput("Capacity: ");
-    a.created_at = "NOW()";
-    Data::airports.push_back(a);
-    API::Airport::save();
-    std::cout << "\n  [OK] Airport added.\n";
+    nlohmann::json airport;
+    airport["name"] = Input::getInput(
+        "Airport Name (e.g. Ninoy-Aquino International Airport): ");
+    airport["airport_id"] = Input::getInput("ICAO Airport ID (e.g. MNL): ");
+    airport["capacity"] = Input::getIntInput("Capacity (e.g. 50): ");
+    airport["country"] = Input::getInput("Country (e.g. Philippines): ");
+    airport["city"] = Input::getInput("City (e.g. Manila): ");
+
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.post("/admin/airport/add", airport);
+
+    if (apiReturn.status_code == 201 || apiReturn.status_code == 200) {
+        nlohmann::json response = nlohmann::json::parse(apiReturn.text);
+        std::cout << "\n  [OK] Airport added.\n";
+    } else {
+        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
+        std::cerr << "\n  [ERROR] Failed to add airport: "
+                  << errorResponse.value("message", "Unknown error") << "\n";
+    }
 }
 
-void API::Airport::modify() {
-    Display::printHeader("MODIFY AIRPORT");
-    std::string id = Input::getInput("Enter Airport ID to modify: ");
-    for (auto& a : Data::airports) {
-        if (a.id == id) {
-            std::string v;
-            v = Input::getInput("New Name [" + a.name + "]: ");
-            if (!v.empty()) a.name = v;
-            std::string c = Input::getInput("New Capacity [" +
-                                            std::to_string(a.capacity) + "]: ");
-            if (!c.empty()) a.capacity = std::stoi(c);
-            API::Airport::save();
-            std::cout << "\n  [OK] Airport updated.\n";
-            return;
-        }
+std::vector<std::vector<std::string>> API::Airport::modify(std::string id,
+                                                           std::string field,
+                                                           std::string value) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn =
+        client.patch("/admin/airport/update/" + id,
+                     nlohmann::json{{"field", field}, {"value", value}});
+    if (apiReturn.status_code != 200) {
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(apiReturn.status_code));
     }
-    std::cout << "\n  [!!] Airport not found.\n";
+
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Name", "Capacity", "Country", "City"}};
+    nlohmann::json newData;
+
+    try {
+        newData = nlohmann::json::parse(apiReturn.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
+
+    data.push_back({newData["id"].get<std::string>(),
+                    newData["name"].get<std::string>(),
+                    std::to_string(newData["capacity"].get<int>()),
+                    newData["country"].get<std::string>(),
+                    newData["city"].get<std::string>()});
+    return data;
 }
 
 void API::Airport::remove() {
     Display::printHeader("DELETE AIRPORT");
     std::string id = Input::getInput("Enter Airport ID to delete: ");
-    auto it =
-        std::remove_if(Data::airports.begin(), Data::airports.end(),
-                       [&id](const Structs::Airport& a) { return a.id == id; });
-    if (it != Data::airports.end()) {
-        Data::airports.erase(it, Data::airports.end());
-        API::Airport::save();
-        std::cout << "\n  [OK] Airport deleted.\n";
-    } else
-        std::cout << "\n  [!!] Airport not found.\n";
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.del("/admin/airport/delete/" + id);
+    std::cout << "\n  [OK] Airport deleted.\n";
 }

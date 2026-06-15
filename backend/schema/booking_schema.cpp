@@ -4,6 +4,49 @@
 #include <valijson/validator.hpp>
 
 #include "../controllers/api_booking.h"
+#include "../controllers/api_admin.h"
+
+const valijson::Schema& api::admin::add_admin_booking_schema() {
+    static valijson::Schema schema = [] {
+        Json::Value s;
+        s["$schema"] = "http://json-schema.org/draft-07/schema#";
+        s["type"]    = "object";
+        s["required"].append("flight_id");
+        s["required"].append("account_id");
+        s["required"].append("payment_option");
+        s["required"].append("payment_detail");
+        s["required"].append("booking_status");
+        s["required"].append("departure_date");
+        s["additionalProperties"] = false;
+
+        Json::Value& p = s["properties"];
+        p["flight_id"]["type"] = "string";
+        p["flight_id"]["pattern"] = "^SKY[0-9]{3}$";
+
+        p["account_id"]["type"] = "integer";
+        p["account_id"]["minimum"] = 1;
+
+        p["payment_option"]["type"] = "string";
+        p["payment_option"]["minLength"] = 1;
+        p["payment_option"]["maxLength"] = 64;
+
+        p["payment_detail"]["type"] = "object";
+
+        p["booking_status"]["type"] = "string";
+        p["booking_status"]["minLength"] = 1;
+        p["booking_status"]["maxLength"] = 64;
+
+        p["departure_date"]["type"] = "string";
+        p["departure_date"]["format"] = "date-time";
+
+        valijson::Schema out;
+        valijson::SchemaParser parser;
+        valijson::adapters::JsonCppAdapter adapter(s);
+        parser.populateSchema(adapter, out);
+        return out;
+    }();
+    return schema;
+}
 
 const valijson::Schema& api::booking::create_booking_schema() {
     static valijson::Schema schema = [] {

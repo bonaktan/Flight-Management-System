@@ -10,134 +10,161 @@
 #include "./api.h"
 
 using namespace Skybridge;
+API::Passenger* API::Passenger::instance = nullptr;
 
-void API::Passenger::save() {
-    std::ofstream f(Data::FILE_PASSENGERS);
-    for (auto& p : Data::passengers)
-        f << p.id << "|" << Escape::escape(p.frequent_flyer_code) << "|"
-          << Escape::escape(p.title) << "|" << Escape::escape(p.first_name)
-          << "|" << Escape::escape(p.last_name) << "|"
-          << Escape::escape(p.birthdate) << "|"
-          << Escape::escape(p.contact_email) << "|"
-          << Escape::escape(p.emergency_contact_name) << "|"
-          << Escape::escape(p.emergency_contact_email) << "|" << p.associated_to
-          << "|" << Escape::escape(p.created_at) << "|"
-          << Escape::escape(p.updated_at) << "\n";
-}
-
-void API::Passenger::load() {
-    Data::passengers.clear();
-    std::ifstream f(Data::FILE_PASSENGERS);
-    std::string line;
-    while (std::getline(f, line)) {
-        if (line.empty()) continue;
-        auto t = Escape::splitLine(line);
-        if (t.size() < 12) continue;
-        Structs::Passenger p;
-        p.id = std::stoll(t[0]);
-        p.frequent_flyer_code = t[1];
-        p.title = t[2];
-        p.first_name = t[3];
-        p.last_name = t[4];
-        p.birthdate = t[5];
-        p.contact_email = t[6];
-        p.emergency_contact_name = t[7];
-        p.emergency_contact_email = t[8];
-        p.associated_to = std::stoll(t[9]);
-        p.created_at = t[10];
-        p.updated_at = t[11];
-        Data::passengers.push_back(p);
+std::vector<std::vector<std::string>> API::Passenger::view() {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    nlohmann::json apiReturn =
+        nlohmann::json::parse(client.get("/admin/passenger/view").text);
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Frequent Flyer", "Title", "First Name", "Middle Name",
+         "Last Name", "Birthdate", "Gender", "Email", "Phone",
+         "Emergency Contact", "Emergency Phone", "Associated To", "Created At",
+         "Updated At"}};
+    for (const auto& entry : apiReturn) {
+        data.push_back({std::to_string(entry["id"].get<long long>()),
+                        entry["frequent_flyer_code"].get<std::string>(),
+                        entry["title"].get<std::string>(),
+                        entry["first_name"].get<std::string>(),
+                        entry["middle_name"].get<std::string>(),
+                        entry["last_name"].get<std::string>(),
+                        entry["birthdate"].get<std::string>(),
+                        entry["gender"].get<std::string>(),
+                        entry["contact_email"].get<std::string>(),
+                        entry["phone_number"].get<std::string>(),
+                        entry["emergency_contact_name"].get<std::string>(),
+                        entry["emergency_contact_phone"].get<std::string>(),
+                        std::to_string(entry["associated_to"].get<long long>()),
+                        entry["created_at"].get<std::string>(),
+                        entry["updated_at"].get<std::string>()});
     }
+    return data;
 }
 
-long long API::Passenger::nextId() {
-    long long mx = 0;
-    for (auto& p : Data::passengers) mx = std::max(mx, p.id);
-    return mx + 1;
-}
+std::vector<std::vector<std::string>> API::Passenger::view_one(std::string id) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response response = client.get("/admin/passenger/view/" + id);
 
-void API::Passenger::view() {
-    Display::printHeader("PASSENGERS");
-    if (Data::passengers.empty()) {
-        std::cout << "  No records found.\n";
-        return;
+    if (response.status_code == 404)
+        throw std::runtime_error("Account with ID " + id + " not found");
+    if (response.status_code != 200)
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(response.status_code));
+
+    nlohmann::json apiReturn;
+    try {
+        apiReturn = nlohmann::json::parse(response.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
     }
-    std::cout << "  " << std::left << std::setw(5) << "ID" << std::setw(8)
-              << "Title" << std::setw(15) << "First" << std::setw(15) << "Last"
-              << std::setw(12) << "Birthdate" << std::setw(26) << "Email"
-              << std::setw(10) << "AcctID" << "\n";
-    Display::printDivider();
-    for (auto& p : Data::passengers)
-        std::cout << "  " << std::setw(5) << p.id << std::setw(8) << p.title
-                  << std::setw(15) << p.first_name << std::setw(15)
-                  << p.last_name << std::setw(12) << p.birthdate
-                  << std::setw(26) << p.contact_email << std::setw(10)
-                  << p.associated_to << "\n";
+    
+    std::vector<std::vector<std::string>> data = {
+        {"id", "frequent_flyer_code", "title", "first_name", "middle_name",
+         "last_name", "birthdate", "gender", "contact_email", "phone_number",
+         "emergency_contact_name", "emergency_contact_phone", "associated_to",
+         "created_at", "updated_at"}};
+    data.push_back({std::to_string(apiReturn["id"].get<long long>()),
+                    apiReturn["frequent_flyer_code"].get<std::string>(),
+                    apiReturn["title"].get<std::string>(),
+                    apiReturn["first_name"].get<std::string>(),
+                    apiReturn["middle_name"].get<std::string>(),
+                    apiReturn["last_name"].get<std::string>(),
+                    apiReturn["birthdate"].get<std::string>(),
+                    apiReturn["gender"].get<std::string>(),
+                    apiReturn["contact_email"].get<std::string>(),
+                    apiReturn["phone_number"].get<std::string>(),
+                    apiReturn["emergency_contact_name"].get<std::string>(),
+                    apiReturn["emergency_contact_phone"].get<std::string>(),
+                    std::to_string(apiReturn["associated_to"].get<long long>()),
+                    apiReturn["created_at"].get<std::string>(),
+                    apiReturn["updated_at"].get<std::string>()});
+    return data;
 }
 
 void API::Passenger::add() {
     Display::printHeader("ADD PASSENGER");
-    Structs::Passenger p;
-    p.id = API::Passenger::nextId();
-    p.frequent_flyer_code =
-        Input::getInput("Frequent Flyer Code (blank if none): ");
-    p.title = Input::getInput("Title (Mr/Ms/Dr...): ");
-    p.first_name = Input::getInput("First Name: ");
-    p.last_name = Input::getInput("Last Name: ");
-    p.birthdate = Input::getInput("Birthdate (YYYY-MM-DD): ");
-    p.contact_email = Input::getInput("Contact Email: ");
-    p.emergency_contact_name = Input::getInput("Emergency Contact Name: ");
-    p.emergency_contact_email = Input::getInput("Emergency Contact Email: ");
-    p.associated_to = Input::getLLInput("Associated Account ID: ");
-    p.created_at = p.updated_at = "NOW()";
-    Data::passengers.push_back(p);
-    API::Passenger::save();
-    std::cout << "\n  [OK] Passenger added with ID " << p.id << "\n";
+    nlohmann::json passenger;
+    passenger["frequent_flyer_code"] = Input::getInput("Frequent Flyer Code: ");
+    passenger["title"] = Input::getInput("Title (Mr/Ms/Dr...): ");
+    passenger["first_name"] = Input::getInput("First Name: ");
+    passenger["middle_name"] = Input::getInput("Middle Name: ");
+    passenger["last_name"] = Input::getInput("Last Name: ");
+    passenger["birthdate"] = Input::getInput("Birthdate (YYYY-MM-DD): ");
+    passenger["gender"] = Input::getInput("Gender: ");
+    passenger["contact_email"] = Input::getInput("Contact Email: ");
+    passenger["phone_number"] = Input::getInput("Phone Number: ");
+    passenger["emergency_contact_name"] =
+        Input::getInput("Emergency Contact Name: ");
+    passenger["emergency_contact_phone"] =
+        Input::getInput("Emergency Contact Phone: ");
+    passenger["associated_to"] =
+        std::stoll(Input::getInput("Associated Account ID: "));
+
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.post("/admin/passenger/add", passenger);
+    if (apiReturn.status_code == 200 || apiReturn.status_code == 201) {
+        std::cout << "\n  [OK] Passenger added.\n";
+    } else {
+        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
+        std::cerr << "\n  [ERROR] Failed to add passenger: "
+                  << errorResponse.value("message", "Unknown error") << "\n";
+    }
 }
 
-void API::Passenger::modify() {
-    Display::printHeader("MODIFY PASSENGER");
-    long long id = Input::getLLInput("Enter Passenger ID to modify: ");
-    for (auto& p : Data::passengers) {
-        if (p.id == id) {
-            std::string v;
-            v = Input::getInput("New FFC [" + p.frequent_flyer_code + "]: ");
-            if (!v.empty()) p.frequent_flyer_code = v;
-            v = Input::getInput("New Title [" + p.title + "]: ");
-            if (!v.empty()) p.title = v;
-            v = Input::getInput("New First Name [" + p.first_name + "]: ");
-            if (!v.empty()) p.first_name = v;
-            v = Input::getInput("New Last Name [" + p.last_name + "]: ");
-            if (!v.empty()) p.last_name = v;
-            v = Input::getInput("New Birthdate [" + p.birthdate + "]: ");
-            if (!v.empty()) p.birthdate = v;
-            v = Input::getInput("New Email [" + p.contact_email + "]: ");
-            if (!v.empty()) p.contact_email = v;
-            v = Input::getInput("New Emrg Name [" + p.emergency_contact_name +
-                                "]: ");
-            if (!v.empty()) p.emergency_contact_name = v;
-            v = Input::getInput("New Emrg Email [" + p.emergency_contact_email +
-                                "]: ");
-            if (!v.empty()) p.emergency_contact_email = v;
-            p.updated_at = "NOW()";
-            API::Passenger::save();
-            std::cout << "\n  [OK] Passenger updated.\n";
-            return;
-        }
+std::vector<std::vector<std::string>> API::Passenger::modify(
+    std::string id, std::string field, std::string value) {
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn =
+        client.patch("/admin/passenger/update/" + id,
+                     nlohmann::json{{"field", field}, {"value", value}});
+    if (apiReturn.status_code != 200) {
+        throw std::runtime_error("Request failed with status: " +
+                                 std::to_string(apiReturn.status_code));
     }
-    std::cout << "\n  [!!] Passenger not found.\n";
+
+    std::vector<std::vector<std::string>> data = {
+        {"ID", "Frequent Flyer", "Title", "First Name", "Middle Name",
+         "Last Name", "Birthdate", "Gender", "Email", "Phone",
+         "Emergency Contact", "Emergency Phone", "Associated To", "Created At",
+         "Updated At"}};
+    nlohmann::json newData;
+
+    try {
+        newData = nlohmann::json::parse(apiReturn.text);
+    } catch (const nlohmann::json::parse_error& e) {
+        throw std::runtime_error(std::string("Failed to parse response: ") +
+                                 e.what());
+    }
+
+    data.push_back({std::to_string(newData["id"].get<long long>()),
+                    newData["frequent_flyer_code"].get<std::string>(),
+                    newData["title"].get<std::string>(),
+                    newData["first_name"].get<std::string>(),
+                    newData["middle_name"].get<std::string>(),
+                    newData["last_name"].get<std::string>(),
+                    newData["birthdate"].get<std::string>(),
+                    newData["gender"].get<std::string>(),
+                    newData["contact_email"].get<std::string>(),
+                    newData["phone_number"].get<std::string>(),
+                    newData["emergency_contact_name"].get<std::string>(),
+                    newData["emergency_contact_phone"].get<std::string>(),
+                    std::to_string(newData["associated_to"].get<long long>()),
+                    newData["created_at"].get<std::string>(),
+                    newData["updated_at"].get<std::string>()});
+    return data;
 }
 
 void API::Passenger::remove() {
     Display::printHeader("DELETE PASSENGER");
-    long long id = Input::getLLInput("Enter Passenger ID to delete: ");
-    auto it = std::remove_if(
-        Data::passengers.begin(), Data::passengers.end(),
-        [id](const Structs::Passenger& p) { return p.id == id; });
-    if (it != Data::passengers.end()) {
-        Data::passengers.erase(it, Data::passengers.end());
-        API::Passenger::save();
+    std::string id = Input::getInput("Enter Passenger ID to delete: ");
+    API::ApiClient& client = API::ApiClient::getInstance();
+    cpr::Response apiReturn = client.del("/admin/passenger/delete/" + id);
+    if (apiReturn.status_code == 200) {
         std::cout << "\n  [OK] Passenger deleted.\n";
-    } else
-        std::cout << "\n  [!!] Passenger not found.\n";
+    } else {
+        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
+        std::cerr << "\n  [ERROR] Failed to delete passenger: "
+                  << errorResponse.value("message", "Unknown error") << "\n";
+    }
 }
