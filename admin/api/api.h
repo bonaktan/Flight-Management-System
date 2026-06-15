@@ -15,8 +15,8 @@ class ApiClient {
     static ApiClient* instance;
     cpr::Cookies cookies;
     const std::string base_url =
-        "http://localhost:8080/api";  // TODO: flags for dev/prod
-        // "https://skybridge.bonnybonnybonaktan.xyz/api";
+        // "http://localhost:8080/api";  // TODO: flags for dev/prod
+        "https://skybridge.bonnybonnybonaktan.xyz/api";
     ApiClient() = default;
     void checkSession(const cpr::Cookies& updated_cookies);
 

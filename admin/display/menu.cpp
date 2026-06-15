@@ -45,9 +45,11 @@ void Menu::subMenu(auto& apiCaller) {
         } catch (const std::invalid_argument&) {
             std::cerr << "Error: Invalid input. Please enter a valid integer."
                       << std::endl;
+            Display::pause();
             continue;
         } catch (const std::out_of_range&) {
             std::cerr << "Error: Input out of range." << std::endl;
+            Display::pause();
             continue;
         }
 
@@ -112,9 +114,11 @@ void Menu::mainMenu() {
         } catch (const std::invalid_argument&) {
             std::cerr << "Error: Invalid input. Please enter a valid integer."
                       << std::endl;
+            Display::pause();
             continue;
         } catch (const std::out_of_range&) {
             std::cerr << "Error: Input out of range." << std::endl;
+            Display::pause();
             continue;
         }
 

@@ -61,7 +61,7 @@ void api::admin::view_single_account(
         },
         id);
 }
-static const std::regex idPattern("^[0-9].*$");
+static const std::regex idPattern("^[0-9]+$");
 void api::admin::update_account(
     const HttpRequestPtr& req,
 

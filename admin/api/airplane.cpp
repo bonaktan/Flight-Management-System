@@ -77,7 +77,6 @@ void API::Airplane::add() {
         std::cerr << "\n  [ERROR] Failed to add airplane: "
                   << errorResponse.value("message", "Unknown error") << "\n";
     }
-    std::cout << "\n  [OK] Airplane added.\n";
 }
 
 std::vector<std::vector<std::string>> API::Airplane::modify(std::string id,

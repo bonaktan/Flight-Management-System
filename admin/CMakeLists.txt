@@ -9,9 +9,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# --- Cross-Compoilation Options -----------------------------------------------
-
-
 # --- Fetch FTXUI --------------------------------------------------------------
 include(FetchContent)
 
@@ -71,3 +68,21 @@ target_link_libraries(SkyBridgeAirways-AdminTUI
     PRIVATE ftxui::component
     PRIVATE cpr::cpr
     PRIVATE nlohmann_json::nlohmann_json)
+
+
+# --- Release Optimizations -----------------------------------------------------
+set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+target_compile_options(SkyBridgeAirways-AdminTUI PRIVATE
+    $<$<CONFIG:Release>:-O2 -DNDEBUG>
+)
+
+# --- Static linking (no external deps on target machine) ----------------------
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_options(SkyBridgeAirways-AdminTUI PRIVATE
+        -static-libgcc
+        -static-libstdc++
+    )
+endif()
+
+# Force all fetched libs to build static
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
