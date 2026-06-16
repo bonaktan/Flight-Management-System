@@ -82,7 +82,7 @@ std::vector<std::vector<std::string>> API::Passenger::view_one(std::string id) {
     return data;
 }
 
-void API::Passenger::add() {
+bool API::Passenger::add(const std::map<std::string, std::string>& fields) {
     Display::printHeader("ADD PASSENGER");
     nlohmann::json passenger;
     passenger["frequent_flyer_code"] = Input::getInput("Frequent Flyer Code: ");
@@ -110,6 +110,7 @@ void API::Passenger::add() {
         std::cerr << "\n  [ERROR] Failed to add passenger: "
                   << errorResponse.value("message", "Unknown error") << "\n";
     }
+    return false;
 }
 
 std::vector<std::vector<std::string>> API::Passenger::modify(

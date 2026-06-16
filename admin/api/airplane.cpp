@@ -60,23 +60,11 @@ std::vector<std::vector<std::string>> API::Airplane::view_one(std::string id) {
     return data;
 }
 
-void API::Airplane::add() {
-    Display::printHeader("ADD AIRPLANE");
-    nlohmann::json airplane;
-    airplane["airplane_id"] = Input::getInput("Airplane ID (e.g. SB-xxxx): ");
-    airplane["model"] = Input::getInput("Model (e.g. Boeing 737): ");
-    airplane["location"] = Input::getInput("Initial Location (Airport ID): ");
-
-    API::ApiClient& client = API::ApiClient::getInstance();
-    cpr::Response apiReturn = client.post("/admin/airplane/add", airplane);
-    if (apiReturn.status_code == 201 || apiReturn.status_code == 200) {
-        nlohmann::json response = nlohmann::json::parse(apiReturn.text);
-        std::cout << "\n  [OK] Airplane added.\n";
-    } else {
-        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
-        std::cerr << "\n  [ERROR] Failed to add airplane: "
-                  << errorResponse.value("message", "Unknown error") << "\n";
-    }
+bool API::Airplane::add(const std::map<std::string, std::string>& fields) {
+    nlohmann::json airplane(fields);
+    auto& client = API::ApiClient::getInstance();
+    cpr::Response r = client.post("/admin/airplane/add", airplane);
+    return r.status_code == 200 || r.status_code == 201;
 }
 
 std::vector<std::vector<std::string>> API::Airplane::modify(std::string id,

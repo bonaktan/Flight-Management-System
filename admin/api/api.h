@@ -15,7 +15,7 @@ struct APIEntity {
   std::string name;
   std::vector<std::string> unsupported_ops;
   std::function<std::vector<std::vector<std::string>>()> view;
-  std::function<void()> add;
+  std::function<bool(const std::map<std::string, std::string>&)> add;
   std::function<std::vector<std::vector<std::string>>(std::string, std::string, std::string)> modify;
   std::function<void()> remove;
 };
@@ -49,7 +49,7 @@ class Auth {
    public:
     Auth(const Auth&) = delete;
     Auth& operator=(const Auth&) = delete;
-
+    std::string user;
     static Auth& getInstance() {
         if (!instance) instance = new Auth();
         return *instance;
@@ -76,7 +76,7 @@ class Account {
     static long long nextId();
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
+    static bool add(const std::map<std::string, std::string>& fields);
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
@@ -100,7 +100,7 @@ class Airplane {
     std::vector<std::string> UNSUPPORTED_OPS = {};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
+    static bool add(const std::map<std::string, std::string>& fields);
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
@@ -124,7 +124,7 @@ class Airport {
     std::vector<std::string> UNSUPPORTED_OPS = {};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
+    static bool add(const std::map<std::string, std::string>& fields);
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
@@ -149,7 +149,7 @@ class Booking {
 
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
+    static bool add(const std::map<std::string, std::string>& fields);
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
@@ -173,7 +173,7 @@ class Flight {
     std::vector<std::string> UNSUPPORTED_OPS = {};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
+    static bool add(const std::map<std::string, std::string>& fields);
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
@@ -198,7 +198,7 @@ class Passenger {
 
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
+    static bool add(const std::map<std::string, std::string>& fields);
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);

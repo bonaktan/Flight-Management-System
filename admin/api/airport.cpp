@@ -59,27 +59,11 @@ std::vector<std::vector<std::string>> API::Airport::view_one(std::string id) {
     return data;
 }
 
-void API::Airport::add() {
-    Display::printHeader("ADD AIRPORT");
-    nlohmann::json airport;
-    airport["name"] = Input::getInput(
-        "Airport Name (e.g. Ninoy-Aquino International Airport): ");
-    airport["airport_id"] = Input::getInput("ICAO Airport ID (e.g. MNL): ");
-    airport["capacity"] = Input::getIntInput("Capacity (e.g. 50): ");
-    airport["country"] = Input::getInput("Country (e.g. Philippines): ");
-    airport["city"] = Input::getInput("City (e.g. Manila): ");
-
-    API::ApiClient& client = API::ApiClient::getInstance();
-    cpr::Response apiReturn = client.post("/admin/airport/add", airport);
-
-    if (apiReturn.status_code == 201 || apiReturn.status_code == 200) {
-        nlohmann::json response = nlohmann::json::parse(apiReturn.text);
-        std::cout << "\n  [OK] Airport added.\n";
-    } else {
-        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
-        std::cerr << "\n  [ERROR] Failed to add airport: "
-                  << errorResponse.value("message", "Unknown error") << "\n";
-    }
+bool API::Airport::add(const std::map<std::string, std::string>& fields) {
+    nlohmann::json airplane(fields);
+    auto& client = API::ApiClient::getInstance();
+    cpr::Response r = client.post("/admin/airport/add", airplane);
+    return r.status_code == 200 || r.status_code == 201;
 }
 
 std::vector<std::vector<std::string>> API::Airport::modify(std::string id,

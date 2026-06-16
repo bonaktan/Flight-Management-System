@@ -206,20 +206,16 @@ ftxui::Component Display::TableInteractiveComponent(
             "Confirm",
             [=] {
                 if (*form_mode == 1) {
-                    // add: call entity.add() — wire your own add() args here
-                    data->push_back(*form_fields);
-                    *selected_row = (int)data->size() - 1;
-                    *scroll_y = *selected_row;
+                    // build map from headers + form values
+                    std::map<std::string, std::string> fields;
+                    for (int i = 0; i < (int)(*data)[0].size(); ++i)
+                        fields[(*data)[0][i]] = (*form_fields)[i];
+
+                    if (entity.add(fields))
+                        data->push_back(
+                            *form_fields);  // only append if API succeeded
                 } else if (*form_mode == 2) {
-                    if (*selected_row >= 1 &&
-                        *selected_row < (int)data->size()) {
-                        std::string id = (*data)[*selected_row][0];
-                        // modify each changed field
-                        for (int i = 1; i < (int)form_fields->size(); ++i) {
-                            modify_fn(id, (*data)[0][i], (*form_fields)[i]);
-                        }
-                        (*data)[*selected_row] = *form_fields;
-                    }
+                    // modify stays the same, or similar map approach
                 }
                 *form_mode = 0;
             },

@@ -68,6 +68,7 @@ void Menu::mainMenu() {
         _passengerInstance.view,   _passengerInstance.add,
         _passengerInstance.modify, _passengerInstance.remove,
     };
+    Auth& authInstance = Auth::getInstance();
     std::vector<APIEntity> entities = {Account, Airplane, Airport,
                                        Booking, Flight,   Passenger};
 
@@ -136,7 +137,7 @@ void Menu::mainMenu() {
             ftxui::vbox({
                 ftxui::vbox(nav_elems),
                 ftxui::filler(),
-                ftxui::vbox({ftxui::text("user") | ftxui::bold,
+                ftxui::vbox({ftxui::text(authInstance.user) | ftxui::bold,
                              ftxui::text("Administrator") | ftxui::dim}),
                 ftxui::separator(),
                 logout_btn->Render() | size(ftxui::WIDTH, ftxui::EQUAL, 20),

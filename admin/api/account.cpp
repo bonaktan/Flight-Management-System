@@ -61,7 +61,7 @@ std::vector<std::vector<std::string>> API::Account::view_one(std::string id) {
     return data;
 }
 
-void API::Account::add() {
+bool API::Account::add(const std::map<std::string, std::string>& fields) {
     Display::printHeader("ADD ACCOUNT");
     Structs::Account a;
     a.id = API::Account::nextId();
@@ -72,6 +72,7 @@ void API::Account::add() {
     a.created_at = a.updated_at = "NOW()";
     Data::accounts.push_back(a);
     std::cout << "\n  [OK] Account added with ID " << a.id << "\n";
+    return false;
 }
 
 std::vector<std::vector<std::string>> API::Account::modify(std::string id,

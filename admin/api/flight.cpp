@@ -68,7 +68,7 @@ std::vector<std::vector<std::string>> API::Flight::view_one(std::string id) {
     return data;
 }
 
-void API::Flight::add() {
+bool API::Flight::add(const std::map<std::string, std::string>& fields) {
     Display::printHeader("ADD FLIGHT");
     nlohmann::json flight;
     flight["flight_id"] = Input::getInput("Flight ID (e.g. SKY421): ");
@@ -95,6 +95,7 @@ void API::Flight::add() {
         std::cerr << "\n  [ERROR] Failed to add flight: "
                   << errorResponse.value("message", "Unknown error") << "\n";
     }
+    return false;
 }
 
 std::vector<std::vector<std::string>> API::Flight::modify(std::string id,
