@@ -10,6 +10,16 @@
 #include "../main.h"
 
 namespace Skybridge::API {
+
+struct APIEntity {
+  std::string name;
+  std::vector<std::string> unsupported_ops;
+  std::function<std::vector<std::vector<std::string>>()> view;
+  std::function<void()> add;
+  std::function<std::vector<std::vector<std::string>>(std::string, std::string, std::string)> modify;
+  std::function<void()> remove;
+};
+
 class ApiClient {
    private:
     static ApiClient* instance;

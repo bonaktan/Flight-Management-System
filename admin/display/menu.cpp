@@ -28,106 +28,125 @@ bool Menu::contains(std::vector<std::string>& vector, std::string value) {
 }
 
 void Menu::mainMenu() {
-    Account& account = Account::getInstance();
-    Airplane& airplane = Airplane::getInstance();
-    Airport& airport = Airport::getInstance();
-    Booking& booking = Booking::getInstance();
-    Flight& flight = Flight::getInstance();
-    Passenger& passenger = Passenger::getInstance();
-    ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
-
-    const std::vector<std::string> nav_labels = {"Airports", "Airplanes",
-                                                 "Flights", "Booking"};
-    int selected = -1;
-    int selected_tab = 4;  // 4 = placeholder (no selection)
-
-    // Sample data per section — replace with your real data
-    std::vector<std::vector<std::vector<std::string>>> section_data = {
-        {{"IATA", "Name", "City"},
-         {"MNL", "Ninoy Aquino Intl", "Manila"},
-         {"CEB", "Mactan-Cebu Intl", "Cebu"}},
-        {{"Tail", "Model", "Seats"},
-         {"RP-C001", "A320", "180"},
-         {"RP-C002", "B737", "160"}},
-        {{"No.", "From", "To", "Dep"},
-         {"SK101", "MNL", "CEB", "08:00"},
-         {"SK202", "CEB", "MNL", "14:00"}},
-        {{"ID", "Passenger", "Flight"},
-         {"B001", "Juan Dela Cruz", "SK101"},
-         {"B002", "Maria Santos", "SK202"}},
+    Account& _accountInstance = Account::getInstance();
+    APIEntity Account = {
+        _accountInstance.name,   _accountInstance.UNSUPPORTED_OPS,
+        _accountInstance.view,   _accountInstance.add,
+        _accountInstance.modify, _accountInstance.remove,
+    };
+    Airplane& _airplaneInstance = Airplane::getInstance();
+    APIEntity Airplane = {
+        _airplaneInstance.name,   _airplaneInstance.UNSUPPORTED_OPS,
+        _airplaneInstance.view,   _airplaneInstance.add,
+        _airplaneInstance.modify, _airplaneInstance.remove,
     };
 
-    // Build content views (one per section + placeholder)
+    Airport& _airportInstance = Airport::getInstance();
+    APIEntity Airport = {
+        _airportInstance.name,   _airportInstance.UNSUPPORTED_OPS,
+        _airportInstance.view,   _airportInstance.add,
+        _airportInstance.modify, _airportInstance.remove,
+    };
+
+    Booking& _bookingInstance = Booking::getInstance();
+    APIEntity Booking = {
+        _bookingInstance.name,   _bookingInstance.UNSUPPORTED_OPS,
+        _bookingInstance.view,   _bookingInstance.add,
+        _bookingInstance.modify, _bookingInstance.remove,
+    };
+
+    Flight& _flightInstance = Flight::getInstance();
+    APIEntity Flight = {
+        _flightInstance.name,   _flightInstance.UNSUPPORTED_OPS,
+        _flightInstance.view,   _flightInstance.add,
+        _flightInstance.modify, _flightInstance.remove,
+    };
+
+    Passenger& _passengerInstance = Passenger::getInstance();
+    APIEntity Passenger = {
+        _passengerInstance.name,   _passengerInstance.UNSUPPORTED_OPS,
+        _passengerInstance.view,   _passengerInstance.add,
+        _passengerInstance.modify, _passengerInstance.remove,
+    };
+    std::vector<APIEntity> entities = {Account, Airplane, Airport,
+                                       Booking, Flight,   Passenger};
+
+    const std::vector<std::string> nav_labels = {"Accounts", "Airplanes",
+                                                 "Airports", "Booking",
+                                                 "Flights",  "Passengers"};
+    const int N = (int)entities.size();
+
+    auto screen = ftxui::ScreenInteractive::Fullscreen();
+    int selected = -1;
+    int selected_tab = N;  // N = placeholder index
+
     std::vector<ftxui::Component> content_views;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < N; ++i) {
         content_views.push_back(Display::TableInteractiveComponent(
-            section_data[i], [&selected, &selected_tab] {
+            entities[i], [&selected, &selected_tab, N] {
                 selected = -1;
-                selected_tab = 4;
+                selected_tab = N;
             }));
     }
-    content_views.push_back(ftxui::Renderer([] {  // placeholder at index 4
+    content_views.push_back(ftxui::Renderer([] {  // placeholder
         return ftxui::text("Select a section from the sidebar.") | ftxui::dim |
                ftxui::center | ftxui::flex;
     }));
 
-    ftxui::Component content_tab =
-        ftxui::Container::Tab(content_views, &selected_tab);
+    auto content_tab = ftxui::Container::Tab(content_views, &selected_tab);
 
-    // Nav buttons — also update selected_tab
     std::vector<ftxui::Component> nav_buttons;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < N; ++i) {
         int idx = i;
         nav_buttons.push_back(Button(
             nav_labels[i],
-            [&selected, &selected_tab, idx] {
+            [&selected, &selected_tab, &content_tab, idx] {
                 selected = idx;
                 selected_tab = idx;
+                content_tab->TakeFocus();  // <-- add this
             },
             ftxui::ButtonOption::Simple()));
     }
 
-    ftxui::Component logout_btn = Button("Log Out", screen.ExitLoopClosure(),
-                                         ftxui::ButtonOption::Simple());
+    auto logout_btn = Button("Log Out", screen.ExitLoopClosure(),
+                             ftxui::ButtonOption::Simple());
 
-    ftxui::Component container = ftxui::Container::Horizontal({
-        ftxui::Container::Vertical({
-            nav_buttons[0],
-            nav_buttons[1],
-            nav_buttons[2],
-            nav_buttons[3],
-            logout_btn,
-        }),
-        content_tab,
+    auto nav_container = ftxui::Container::Vertical({
+        nav_buttons[0],
+        nav_buttons[1],
+        nav_buttons[2],
+        nav_buttons[3],
+        nav_buttons[4],
+        nav_buttons[5],
+        logout_btn,
     });
 
-    ftxui::Component renderer = Renderer(container, [&]() -> ftxui::Element {
-        // Nav buttons
+    auto container = ftxui::Container::Horizontal({nav_container, content_tab});
+
+    auto renderer = Renderer(container, [&]() -> ftxui::Element {
         ftxui::Elements nav_elems;
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < N; ++i) {
             ftxui::Element e =
                 nav_buttons[i]->Render() | size(ftxui::WIDTH, ftxui::EQUAL, 20);
             if (i == selected) e = e | ftxui::inverted;
             nav_elems.push_back(e);
         }
 
-        // Sidebar
         ftxui::Element sidebar =
             ftxui::vbox({
-                vbox(nav_elems),
+                ftxui::vbox(nav_elems),
                 ftxui::filler(),
-                ftxui::vbox({ftxui::text("user") | ftxui::dim,
-                             ftxui::text("Administrator") | ftxui::bold}),
+                ftxui::vbox({ftxui::text("user") | ftxui::bold,
+                             ftxui::text("Administrator") | ftxui::dim}),
                 ftxui::separator(),
                 logout_btn->Render() | size(ftxui::WIDTH, ftxui::EQUAL, 20),
             }) |
             ftxui::border | size(ftxui::WIDTH, ftxui::EQUAL, 22);
 
-        // Title
         ftxui::Element title_bar =
             ftxui::text("SkyBridge Airlines - Admin TUI") | ftxui::bold |
             ftxui::hcenter | ftxui::bgcolor(ftxui::Color::GrayLight) |
-            color(ftxui::Color::Black);
+            ftxui::color(ftxui::Color::Black);
 
         return ftxui::vbox({
             title_bar,

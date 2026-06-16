@@ -6,6 +6,7 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <string>
 
+#include "../api/api.h"
 #include "../main.h"
 
 namespace Skybridge::Display {
@@ -16,8 +17,10 @@ void printDivider();
 std::string bookingStatusToStr(Structs::BookingStatus s);
 Structs::BookingStatus strToBookingStatus(const std::string& s);
 void Table(std::vector<std::vector<std::string>>& data);
-ftxui::Component TableInteractiveComponent(
-    std::vector<std::vector<std::string>>& data, std::function<void()> on_quit);
+ftxui::Component TableInteractiveComponent(Skybridge::API::APIEntity entity,
+                                           std::function<void()> on_quit);
+
+
 }  // namespace Skybridge::Display
 
 namespace Skybridge::Menu {
