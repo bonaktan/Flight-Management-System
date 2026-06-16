@@ -2,12 +2,18 @@
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/dom/table.hpp>
 #include <ftxui/screen/screen.hpp>
+#include <functional>
 #include <iostream>
+#include <memory>
+#include <string>
 #include <type_traits>
+#include <vector>
 
 #include "../api/api.h"
 #include "../controls/controls.h"
 #include "./display.h"
+#include "ftxui/component/component.hpp"
+#include "ftxui/component/screen_interactive.hpp"
 
 using namespace Skybridge;
 using namespace API;
@@ -21,68 +27,6 @@ bool Menu::contains(std::vector<std::string>& vector, std::string value) {
     }
 }
 
-void Menu::subMenu(auto& apiCaller) {
-    int choice = -1;
-    bool hasAdd =
-        !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"add"});
-    bool hasView =
-        !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"view"});
-    bool hasModify =
-        !Menu::contains(apiCaller.UNSUPPORTED_OPS, std::string{"modify"});
-
-    while (choice != 0) {
-        if (!((choice == -1) || (choice == 1))) Display::pause();
-        Display::clearScreen();
-        Display::printHeader(apiCaller.name + " - TABLE MENU");
-        if (hasView) std::cout << "  [1] View All\n";
-        if (hasAdd) std::cout << "  [2] Add New\n";
-        if (hasModify) std::cout << "  [3] Modify\n";
-        std::cout << "  [4] Delete\n";
-        std::cout << "  [0] Back to Main Menu\n\n";
-        std::string ch = Input::getInput("Choice: ");
-        try {
-            choice = std::stoi(ch);
-        } catch (const std::invalid_argument&) {
-            std::cerr << "Error: Invalid input. Please enter a valid integer."
-                      << std::endl;
-            Display::pause();
-            continue;
-        } catch (const std::out_of_range&) {
-            std::cerr << "Error: Input out of range." << std::endl;
-            Display::pause();
-            continue;
-        }
-
-        Display::clearScreen();
-        if (hasView && choice == 1) {
-            std::vector<std::vector<std::string>> data = apiCaller.view();
-            Display::TableInteractive(data);
-        } else if (hasAdd && choice == 2) {
-            apiCaller.add();
-        } else if (hasModify && choice == 3) {
-            std::string id = Input::getInput(apiCaller.name + "ID: ");
-            try {
-                std::vector<std::vector<std::string>> data =
-                    apiCaller.view_one(id);
-                Display::Table(data);
-                std::string field = Input::getInput("Field to Modify: ");
-                std::string value = Input::getInput("New Value: ");
-                std::vector<std::vector<std::string>> newData =
-                    apiCaller.modify(id, field, value);
-                Display::Table(newData);
-            } catch (const std::runtime_error& e) {
-                std::cerr << "Error: " << e.what() << std::endl;
-            }
-        } else if (choice == 4) {
-            apiCaller.remove();
-        } else if (choice == 0) {
-            break;
-        } else {
-            std::cout << "\n  Invalid choice.\n";
-        }
-    }
-}
-
 void Menu::mainMenu() {
     Account& account = Account::getInstance();
     Airplane& airplane = Airplane::getInstance();
@@ -90,75 +34,110 @@ void Menu::mainMenu() {
     Booking& booking = Booking::getInstance();
     Flight& flight = Flight::getInstance();
     Passenger& passenger = Passenger::getInstance();
-    int choice = -1;
-    while (choice != 0) {
-        Display::clearScreen();
-        std::cout << "\n";
-        std::cout << "  *------------------------------------------*\n";
-        std::cout << "  |      AIRLINE MANAGEMENT SYSTEM           |\n";
-        std::cout << "  |           Main Menu                      |\n";
-        std::cout << "  *------------------------------------------*\n\n";
-        std::cout << "  Select a table to manage:\n\n";
-        std::cout << "   [1]  Account\n";
-        std::cout << "   [2]  Airport\n";
-        // std::cout << "   [3]  Passenger\n";
-        std::cout << "   [4]  Flight\n";
-        std::cout << "   [5]  Airplane\n";
-        std::cout << "   [6]  Booking\n";
-        std::cout << "\n   [0]  Exit\n\n";
+    ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 
-        std::string ch = Input::getInput("Choice: ");
+    const std::vector<std::string> nav_labels = {"Airports", "Airplanes",
+                                                 "Flights", "Booking"};
+    int selected = -1;
+    int selected_tab = 4;  // 4 = placeholder (no selection)
 
-        try {
-            choice = std::stoi(ch);
-        } catch (const std::invalid_argument&) {
-            std::cerr << "Error: Invalid input. Please enter a valid integer."
-                      << std::endl;
-            Display::pause();
-            continue;
-        } catch (const std::out_of_range&) {
-            std::cerr << "Error: Input out of range." << std::endl;
-            Display::pause();
-            continue;
-        }
+    // Sample data per section — replace with your real data
+    std::vector<std::vector<std::vector<std::string>>> section_data = {
+        {{"IATA", "Name", "City"},
+         {"MNL", "Ninoy Aquino Intl", "Manila"},
+         {"CEB", "Mactan-Cebu Intl", "Cebu"}},
+        {{"Tail", "Model", "Seats"},
+         {"RP-C001", "A320", "180"},
+         {"RP-C002", "B737", "160"}},
+        {{"No.", "From", "To", "Dep"},
+         {"SK101", "MNL", "CEB", "08:00"},
+         {"SK202", "CEB", "MNL", "14:00"}},
+        {{"ID", "Passenger", "Flight"},
+         {"B001", "Juan Dela Cruz", "SK101"},
+         {"B002", "Maria Santos", "SK202"}},
+    };
 
-        switch (choice) {
-            case 1: {
-                Menu::subMenu(account);
-                break;
-            }
-            case 2: {
-                Menu::subMenu(airport);
-                break;
-            }
-            // case 3: {
-            //     Menu::subMenu(passenger);
-            //     break;
-            // }
-            case 4: {
-                Menu::subMenu(flight);
-                break;
-            }
-            case 5: {
-                Menu::subMenu(airplane);
-                break;
-            }
-            case 6: {
-                Menu::subMenu(booking);
-                break;
-            }
-            case 0: {
-                std::cout << "\n  Goodbye!\n\n";
-                break;
-            }
-            default: {
-                Display::clearScreen();
-                std::cout << "\n  Invalid choice.\n";
-                Display::pause();
-                break;
-            }
-        }
+    // Build content views (one per section + placeholder)
+    std::vector<ftxui::Component> content_views;
+    for (int i = 0; i < 4; ++i) {
+        content_views.push_back(Display::TableInteractiveComponent(
+            section_data[i], [&selected, &selected_tab] {
+                selected = -1;
+                selected_tab = 4;
+            }));
     }
+    content_views.push_back(ftxui::Renderer([] {  // placeholder at index 4
+        return ftxui::text("Select a section from the sidebar.") | ftxui::dim |
+               ftxui::center | ftxui::flex;
+    }));
+
+    ftxui::Component content_tab =
+        ftxui::Container::Tab(content_views, &selected_tab);
+
+    // Nav buttons — also update selected_tab
+    std::vector<ftxui::Component> nav_buttons;
+    for (int i = 0; i < 4; ++i) {
+        int idx = i;
+        nav_buttons.push_back(Button(
+            nav_labels[i],
+            [&selected, &selected_tab, idx] {
+                selected = idx;
+                selected_tab = idx;
+            },
+            ftxui::ButtonOption::Simple()));
+    }
+
+    ftxui::Component logout_btn = Button("Log Out", screen.ExitLoopClosure(),
+                                         ftxui::ButtonOption::Simple());
+
+    ftxui::Component container = ftxui::Container::Horizontal({
+        ftxui::Container::Vertical({
+            nav_buttons[0],
+            nav_buttons[1],
+            nav_buttons[2],
+            nav_buttons[3],
+            logout_btn,
+        }),
+        content_tab,
+    });
+
+    ftxui::Component renderer = Renderer(container, [&]() -> ftxui::Element {
+        // Nav buttons
+        ftxui::Elements nav_elems;
+        for (int i = 0; i < 4; ++i) {
+            ftxui::Element e =
+                nav_buttons[i]->Render() | size(ftxui::WIDTH, ftxui::EQUAL, 20);
+            if (i == selected) e = e | ftxui::inverted;
+            nav_elems.push_back(e);
+        }
+
+        // Sidebar
+        ftxui::Element sidebar =
+            ftxui::vbox({
+                vbox(nav_elems),
+                ftxui::filler(),
+                ftxui::vbox({ftxui::text("user") | ftxui::dim,
+                             ftxui::text("Administrator") | ftxui::bold}),
+                ftxui::separator(),
+                logout_btn->Render() | size(ftxui::WIDTH, ftxui::EQUAL, 20),
+            }) |
+            ftxui::border | size(ftxui::WIDTH, ftxui::EQUAL, 22);
+
+        // Title
+        ftxui::Element title_bar =
+            ftxui::text("SkyBridge Airlines - Admin TUI") | ftxui::bold |
+            ftxui::hcenter | ftxui::bgcolor(ftxui::Color::GrayLight) |
+            color(ftxui::Color::Black);
+
+        return ftxui::vbox({
+            title_bar,
+            ftxui::hbox({sidebar,
+                         content_tab->Render() | ftxui::flex | ftxui::border}) |
+                ftxui::flex,
+        });
+    });
+
+    screen.Loop(renderer);
 }
 
 bool Menu::authenticate() {

@@ -118,57 +118,50 @@ void Display::Table(std::vector<std::vector<std::string>>& data) {
     std::cout << screen.ToString() << std::endl;
 }
 
-void Display::TableInteractive(std::vector<std::vector<std::string>>& data) {
-    auto screen = ftxui::ScreenInteractive::Fullscreen();
-    int scroll_x = 0;
-    int scroll_y = 0;
+ftxui::Component Display::TableInteractiveComponent(
+    std::vector<std::vector<std::string>>& data,
+    std::function<void()> on_quit) {
+    auto scroll_x = std::make_shared<int>(0);
+    auto scroll_y = std::make_shared<int>(0);
     int max_y = static_cast<int>(data.size()) - 1;
     int max_x = static_cast<int>(data[0].size()) - 1;
-    auto component = ftxui::CatchEvent(
-        ftxui::Renderer([&] {
-            ftxui::Table table = ftxui::Table(data);
+
+    return CatchEvent(
+        ftxui::Renderer([&data, scroll_x, scroll_y] {
+            ftxui::Table table(data);
             table.SelectAll().Border(ftxui::LIGHT);
             table.SelectAll().Separator(ftxui::LIGHT);
             table.SelectRow(0).Decorate(ftxui::bold);
             table.SelectRow(0).SeparatorVertical(ftxui::LIGHT);
             table.SelectRow(0).Border(ftxui::LIGHT);
             return ftxui::vbox({
-                table.Render() | ftxui::focusPosition(scroll_x, scroll_y) |
+                table.Render() | ftxui::focusPosition(*scroll_x, *scroll_y) |
                     ftxui::frame | ftxui::flex,
                 ftxui::separator(),
-                ftxui::text("Arrow keys: scroll | q: quit") | ftxui::dim,
+                ftxui::text("Arrow keys: scroll | q: back") | ftxui::dim,
             });
         }),
-        [&](ftxui::Event event) {
-            int half_y = screen.dimy() / 2;
-            int half_x = screen.dimx() / 2;
-
+        [scroll_x, scroll_y, max_x, max_y, on_quit](ftxui::Event event) {
             if (event == ftxui::Event::ArrowUp) {
-                scroll_y -= half_y;
-                scroll_y = std::max(0, scroll_y);
+                *scroll_y = std::max(0, *scroll_y - 1);
                 return true;
             }
             if (event == ftxui::Event::ArrowDown) {
-                scroll_y += half_y;
-                scroll_y = std::min(max_y, scroll_y);
+                *scroll_y = std::min(max_y, *scroll_y + 1);
                 return true;
             }
             if (event == ftxui::Event::ArrowLeft) {
-                scroll_x -= half_x;
-                scroll_x = std::max(0, scroll_x);
+                *scroll_x = std::max(0, *scroll_x - 1);
                 return true;
             }
             if (event == ftxui::Event::ArrowRight) {
-                scroll_x += half_x;
-                scroll_x = std::min(max_x, scroll_x);
+                *scroll_x = std::min(max_x, *scroll_x + 1);
                 return true;
             }
             if (event == ftxui::Event::Character('q')) {
-                screen.ExitLoopClosure()();
+                on_quit();
                 return true;
             }
             return false;
         });
-
-    screen.Loop(component);
 }
