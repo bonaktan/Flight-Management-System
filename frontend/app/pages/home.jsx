@@ -244,8 +244,9 @@ function HomepageCard({ places }) {
             </div>
             <div className="absolute top-0 left-0 lg:h-full lg:w-full w-full h-1/2 lg:bg-linear-to-r bg-linear-to-b from-cloud-warm lg:from-30% from-80% to-transparent">
                 <div className="ml-10 p-6">
-                    <h1 className="text-2xl font-bold text-cloud-pop">{places[selectedPlace].name}</h1>
-                    <p className="mt-2 lg:w-1/2 lg:h-auto h-1/2 text-altitude-ink">{places[selectedPlace].description}</p>
+                    <div className="text-altitude-ink text-3xl font-bold">Places to Visit</div>
+                    <h1 className="text-5xl font-bold text-cloud-pop">{places[selectedPlace].name}</h1>
+                    <p className="mt-2 lg:w-1/2 lg:h-auto h-1/2 text-altitude-ink text-3xl">{places[selectedPlace].description}</p>
                 </div>
             </div>
             <button
