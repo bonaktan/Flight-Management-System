@@ -53,7 +53,7 @@ function SeatButton({ row, column }) {
         <button
             onClick={onClick}
             type="button"
-            className={`text-sm rounded-sm aspect-square h-4/5 border text-altitude-ink ${isOccupied ? "bg-red-300" : bookingContext.passengers[seatmapLayout.selectedPassenger].selected_seat == seatId ? "bg-orange-300" : isOccupiedByOthers ? "bg-orange-200" : "bg-green-300"}`}
+            className={`transition text-sm rounded-sm aspect-square h-4/5 border text-altitude-ink ${isOccupied ? "bg-red-300" : bookingContext.passengers[seatmapLayout.selectedPassenger].selected_seat == seatId ? "bg-orange-300" : isOccupiedByOthers ? "bg-orange-200" : "bg-green-300"}`}
             disabled={isOccupied || isOccupiedByOthers}>
             {row}
         </button>

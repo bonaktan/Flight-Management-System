@@ -1,7 +1,9 @@
 import { Meta, Outlet, Scripts, ScrollRestoration, Links } from "react-router";
+import LoadingSprite from "./components/loadingSprite";
 import "./app.css";
 import { UserContext } from "./middleware/context";
 import { userMiddleware } from "./middleware/auth.middleware";
+import { useNavigation } from "react-router";
 
 export const middleware = [userMiddleware];
 
@@ -17,6 +19,8 @@ export async function loader({ context }) {
 }
 
 export default function Root({ loaderData }) {
+    const navigation = useNavigation();
+    const isLoading = navigation.state === "loading";
     const cspNonce = loaderData.cspNonce;
     return (
         <UserContext value={loaderData.user}>
@@ -29,6 +33,7 @@ export default function Root({ loaderData }) {
                     <Links nonce={cspNonce} />
                 </head>
                 <body>
+                    {isLoading && <LoadingSprite />}
                     <Outlet />
                     <ScrollRestoration nonce={cspNonce} />
                     <Scripts nonce={cspNonce} />

@@ -86,3 +86,47 @@ body {
             1
         );
 }
+@keyframes sb-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes sb-fadein {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.sb-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(2px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    animation: sb-fadein 0.2s ease forwards;
+    z-index: 9999;
+}
+
+.sb-ring {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e8621a28;
+    border-top-color: #e8621a;
+    border-radius: 50%;
+    animation: sb-spin 0.75s linear infinite;
+}
+
+.sb-label {
+    font-size: 13px;
+    color: #e8621a;
+    letter-spacing: 0.08em;
+    opacity: 0.85;
+}
