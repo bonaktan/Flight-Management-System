@@ -63,7 +63,7 @@ function Dashboard({ account }) {
     const userContext = use(UserContext);
     async function logout() {
         const user = await axios.post("/api/auth/logout");
-        navigate("/auth/login");
+        navigate("/", { reloadDocument: true });
     }
     return (
         <div className="flex flex-col gap-4">

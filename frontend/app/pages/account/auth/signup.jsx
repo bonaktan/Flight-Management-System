@@ -2,6 +2,7 @@ import { NavLink, Form, useNavigate } from "react-router";
 import { InputField } from "../../../components/input";
 import { useState } from "react";
 import axios from "axios";
+import LoadingSprite from "../../../components/loadingSprite";
 
 export default function Signup() {
     const [name, setName] = useState("");
@@ -10,6 +11,7 @@ export default function Signup() {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     function signup(e) {
         e.preventDefault();
@@ -17,6 +19,7 @@ export default function Signup() {
             setError("Passwords do not match.");
             return;
         }
+        setLoading(true);
         // TODO: sanity checking sa password, atleast 1 lowercase, uppercase, number, and special character, 8-127 chars long
         axios
             .post("/api/auth/signup", {
@@ -25,9 +28,11 @@ export default function Signup() {
                 password: password,
             })
             .then((e) => {
-                navigate("/"); // TODO: this shall be replaced w/ the last went link
+                setLoading(false);
+                navigate("/", { reloadDocument: true }); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
+                setLoading(false);
                 const status = e.response?.status;
                 if (status === 400) {
                     setError("Inputs are misformatted.");
@@ -87,6 +92,7 @@ export default function Signup() {
                 </span>
                 .
             </p>
+            {loading && <LoadingSprite />}
         </>
     );
 }

@@ -2,24 +2,29 @@ import { NavLink, useNavigate } from "react-router";
 import { InputField } from "../../../components/input";
 import { useState } from "react";
 import axios from "axios";
+import LoadingSprite from "../../../components/loadingSprite";
 
 export default function Login() {
     const [username, setUsername] = useState("");
     const [passwordvis, setPasswordvis] = useState(false);
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     function login(e) {
         e.preventDefault();
+        setLoading(true);
         axios
             .post("/api/auth/login", {
                 email: username,
                 password: password,
             })
             .then((e) => {
-                navigate("/"); // TODO: this shall be replaced w/ the last went link
+                setLoading(false);
+                navigate("/", { reloadDocument: true }); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
+                setLoading(false);
                 if (e.response?.status === 401) {
                     setError("Invalid Credentials.");
                 } else {
@@ -53,7 +58,7 @@ export default function Login() {
                     </div>
                 </div>
                 <button onClick={login} className="p-3 bg-blaze-core text-cloud-warm font-bold">
-                    Login
+                    <p>Login</p>
                 </button>
             </div>
             <p className="text-center pt-10">
@@ -64,6 +69,7 @@ export default function Login() {
                 .
             </p>
             <p className="text-center">{error}</p>
+            {loading && <LoadingSprite />}
         </>
     );
 }

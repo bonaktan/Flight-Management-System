@@ -20,7 +20,7 @@ export async function clientLoader({ context }) {
 
 export default function Root({ loaderData }) {
     const navigation = useNavigation();
-    const isLoading = navigation.state === "loading";
+    const isLoading = navigation.state !== "idle";
     const cspNonce = loaderData.cspNonce;
     return (
         <UserContext value={loaderData.user}>

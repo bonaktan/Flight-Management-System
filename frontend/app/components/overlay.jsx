@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { use } from "react";
 import OverlayContext from "./context/overlayContext";
 
 export function OverlayBase({ children, open, setOpen }) {
@@ -17,7 +17,7 @@ export function OverlayBase({ children, open, setOpen }) {
 }
 
 export function OverlaySidebar({ children, className }) {
-    const { open, setOpen } = useContext(OverlayContext);
+    const { open, setOpen } = use(OverlayContext);
     return (
         <div
             className={`absolute flex flex-col bg-white h-full w-1/3 ${className || ""}`}
@@ -40,7 +40,7 @@ export function OverlaySidebar({ children, className }) {
 }
 
 export function OverlayModal({ children, className }) {
-    const { open, setOpen } = useContext(OverlayContext);
+    const { open, setOpen } = use(OverlayContext);
     return (
         <div
             className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col bg-white max-h-3/4 ${className || ""}`}
