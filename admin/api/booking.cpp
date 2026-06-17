@@ -68,7 +68,8 @@ std::vector<std::vector<std::string>> API::Booking::view_one(std::string id) {
 bool API::Booking::add(const std::map<std::string, std::string>& fields) {
     nlohmann::json booking(fields);
     static const std::unordered_set<std::string> intFields = {"account_id"};
-    static const std::unordered_set<std::string> jsonFields = {"payment_detail"};
+    static const std::unordered_set<std::string> jsonFields = {
+        "payment_detail"};
 
     for (auto& [key, val] : fields) {
         if (intFields.count(key))
@@ -88,40 +89,22 @@ bool API::Booking::add(const std::map<std::string, std::string>& fields) {
     return false;
 }
 
-std::vector<std::vector<std::string>> API::Booking::modify(std::string id,
-                                                           std::string field,
-                                                           std::string value) {
+bool API::Booking::modify(
+    std::string id, std::map<std::string, std::string> fields) {
     API::ApiClient& client = API::ApiClient::getInstance();
+
+    nlohmann::json payload = nlohmann::json::array();
+    for (const auto& [field, value] : fields) {
+        payload.push_back({{"field", field}, {"value", value}});
+    }
+
     cpr::Response apiReturn =
-        client.patch("/admin/booking/update/" + id,
-                     nlohmann::json{{"field", field}, {"value", value}});
+        client.patch("/admin/booking/update/" + id, payload);
+
     if (apiReturn.status_code != 200) {
-        throw std::runtime_error("Request failed with status: " +
-                                 std::to_string(apiReturn.status_code));
+        return false;
     }
-
-    std::vector<std::vector<std::string>> data = {
-        {"ID", "Flight ID", "Account ID", "Payment Option", "Payment Detail",
-         "Status", "Departure Date", "Created At", "Updated At"}};
-    nlohmann::json newData;
-
-    try {
-        newData = nlohmann::json::parse(apiReturn.text);
-    } catch (const nlohmann::json::parse_error& e) {
-        throw std::runtime_error(std::string("Failed to parse response: ") +
-                                 e.what());
-    }
-
-    data.push_back({std::to_string(newData["id"].get<long long>()),
-                    newData["flight_id"].get<std::string>(),
-                    std::to_string(newData["account_id"].get<long long>()),
-                    newData["payment_option"].get<std::string>(),
-                    newData["payment_detail"].dump(),
-                    newData["booking_status"].get<std::string>(),
-                    newData["departure_date"].get<std::string>(),
-                    newData["created_at"].get<std::string>(),
-                    newData["updated_at"].get<std::string>()});
-    return data;
+    return true;
 }
 
 bool API::Booking::remove(std::string id) {

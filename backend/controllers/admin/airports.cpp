@@ -97,6 +97,9 @@ void api::admin::view_single_airport(
 }
 
 static const std::regex idPattern("^[A-Z]{3}$");
+static const std::set<std::string> ALLOWED_AIRPORT = {"name", "capacity",
+                                                      "country", "city"};
+
 void api::admin::update_airport(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)>&& callback, std::string id) {
@@ -104,48 +107,82 @@ void api::admin::update_airport(
         callback(Skybridge::Utils::error("Invalid ID", k400BadRequest));
         return;
     }
+
     std::shared_ptr<Json::Value> json = req->getJsonObject();
     if (!json) {
         callback(Skybridge::Utils::error("Invalid JSON", k400BadRequest));
         return;
     }
+
     std::vector<std::string> errors =
         Skybridge::Utils::validateRequest(*json, api::admin::update_schema());
     if (!errors.empty()) {
         Json::Value body;
-        for (std::basic_string<char>& e : errors) body["details"].append(e);
+        for (std::string& e : errors) body["details"].append(e);
         callback(Skybridge::Utils::error("Validation failed", k400BadRequest,
                                          body["details"]));
         return;
     }
-    const std::set<std::string> ALLOWED = {"name", "capacity", "country",
-                                           "city"};
-    std::string field = (*json)["field"].asString();
-    if (!ALLOWED.count(field)) {
-        callback(Skybridge::Utils::error("Invalid field", k400BadRequest, {}));
-        return;
+
+    for (const auto& item : *json) {
+        if (!ALLOWED_AIRPORT.count(item["field"].asString())) {
+            callback(Skybridge::Utils::error(
+                "Invalid field: " + item["field"].asString(), k400BadRequest));
+            return;
+        }
     }
-    std::string sql = "UPDATE airport SET " + field +
-                      " = $1 WHERE id = $2 RETURNING id, name, capacity, "
-                      "country, city";
+
     orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
-    dbClient->execSqlAsync(
-        sql,
-        [callback](const drogon::orm::Result& result) {
-            Json::Value jsonResponse;
-            jsonResponse["id"] = result[0]["id"].as<std::string>();
-            jsonResponse["name"] = result[0]["name"].as<std::string>();
-            jsonResponse["capacity"] = result[0]["capacity"].as<int>();
-            jsonResponse["country"] = result[0]["country"].as<std::string>();
-            jsonResponse["city"] = result[0]["city"].as<std::string>();
-            callback(HttpResponse::newHttpJsonResponse(jsonResponse));
-        },
-        [callback](const drogon::orm::DrogonDbException& e) {
-            callback(Skybridge::Utils::error("Database error",
-                                             k500InternalServerError,
-                                             Json::Value(e.base().what())));
-        },
-        (*json)["value"].asString(), id);
+
+    auto results = std::make_shared<Json::Value>(Json::arrayValue);
+    auto total = std::make_shared<int>((int)json->size());
+    auto completed = std::make_shared<std::atomic<int>>(0);
+    auto hadError = std::make_shared<std::atomic<bool>>(false);
+
+    for (const auto& item : *json) {
+        std::string field = item["field"].asString();
+        std::string value = item["value"].asString();
+
+        std::string sql =
+            "UPDATE airport SET " + field +
+            " = $1 WHERE id = $2 RETURNING id, name, capacity, country, city";
+
+        dbClient->execSqlAsync(
+            sql,
+            [callback, results, total, completed, hadError,
+             field](const drogon::orm::Result& result) {
+                if (result.empty()) {
+                    Json::Value row;
+                    row["field"] = field;
+                    row["status"] = "not_found";
+                    results->append(row);
+                } else {
+                    Json::Value row;
+                    row["field"] = field;
+                    row["status"] = "updated";
+                    row["id"] = result[0]["id"].as<std::string>();
+                    row["name"] = result[0]["name"].as<std::string>();
+                    row["capacity"] = result[0]["capacity"].as<int>();
+                    row["country"] = result[0]["country"].as<std::string>();
+                    row["city"] = result[0]["city"].as<std::string>();
+                    results->append(row);
+                }
+
+                if (++(*completed) == *total && !hadError->load()) {
+                    callback(HttpResponse::newHttpJsonResponse(*results));
+                }
+            },
+            [callback, results, total, completed, hadError,
+             field](const drogon::orm::DrogonDbException& e) {
+                if (!hadError->exchange(true)) {
+                    callback(Skybridge::Utils::error(
+                        "Database error on field: " + field,
+                        k500InternalServerError, Json::Value(e.base().what())));
+                }
+                ++(*completed);
+            },
+            value, id);
+    }
 }
 
 void api::admin::delete_airport(

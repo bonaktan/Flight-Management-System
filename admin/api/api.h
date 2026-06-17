@@ -17,8 +17,8 @@ struct APIEntity {
     std::vector<std::string> ADD_HEADERS;
     std::function<std::vector<std::vector<std::string>>()> view;
     std::function<bool(const std::map<std::string, std::string>&)> add;
-    std::function<std::vector<std::vector<std::string>>(
-        std::string, std::string, std::string)>
+    std::function<bool(
+        std::string, std::map<std::string, std::string>)>
         modify;
     std::function<bool(std::string id)> remove;
 };
@@ -28,8 +28,8 @@ class ApiClient {
     static ApiClient* instance;
     cpr::Cookies cookies;
     const std::string base_url =
-        // "http://localhost:8080/api";  // TODO: flags for dev/prod
-        "https://skybridge.bonnybonnybonaktan.xyz/api";
+        "http://localhost:8080/api";  // TODO: flags for dev/prod
+    // "https://skybridge.bonnybonnybonaktan.xyz/api";
     ApiClient() = default;
     void checkSession(const cpr::Cookies& updated_cookies);
 
@@ -82,9 +82,8 @@ class Account {
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
+    static bool modify(
+        std::string id, std::map<std::string, std::string> fields);
     static bool remove(std::string id);
 };
 
@@ -108,9 +107,8 @@ class Airplane {
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
+    static bool modify(
+        std::string id, std::map<std::string, std::string> fields);
     static bool remove(std::string id);
 };
 
@@ -134,9 +132,8 @@ class Airport {
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
+    static bool modify(
+        std::string id, std::map<std::string, std::string> fields);
     static bool remove(std::string id);
 };
 
@@ -161,9 +158,8 @@ class Booking {
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
+    static bool modify(
+        std::string id, std::map<std::string, std::string> fields);
     static bool remove(std::string id);
 };
 
@@ -190,9 +186,8 @@ class Flight {
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
+    static bool modify(
+        std::string id, std::map<std::string, std::string> fields);
     static bool remove(std::string id);
 };
 
@@ -227,9 +222,8 @@ class Passenger {
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
+    static bool modify(
+        std::string id, std::map<std::string, std::string> fields);
     static bool remove(std::string id);
 };
 }  // namespace Skybridge::API

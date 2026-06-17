@@ -75,35 +75,22 @@ bool API::Airport::add(const std::map<std::string, std::string>& fields) {
     return r.status_code == 200 || r.status_code == 201;
 }
 
-std::vector<std::vector<std::string>> API::Airport::modify(std::string id,
-                                                           std::string field,
-                                                           std::string value) {
+bool API::Airport::modify(
+    std::string id, std::map<std::string, std::string> fields) {
     API::ApiClient& client = API::ApiClient::getInstance();
+
+    nlohmann::json payload = nlohmann::json::array();
+    for (const auto& [field, value] : fields) {
+        payload.push_back({{"field", field}, {"value", value}});
+    }
+
     cpr::Response apiReturn =
-        client.patch("/admin/airport/update/" + id,
-                     nlohmann::json{{"field", field}, {"value", value}});
+        client.patch("/admin/airport/update/" + id, payload);
+
     if (apiReturn.status_code != 200) {
-        throw std::runtime_error("Request failed with status: " +
-                                 std::to_string(apiReturn.status_code));
+        return false;
     }
-
-    std::vector<std::vector<std::string>> data = {
-        {"ID", "Name", "Capacity", "Country", "City"}};
-    nlohmann::json newData;
-
-    try {
-        newData = nlohmann::json::parse(apiReturn.text);
-    } catch (const nlohmann::json::parse_error& e) {
-        throw std::runtime_error(std::string("Failed to parse response: ") +
-                                 e.what());
-    }
-
-    data.push_back({newData["id"].get<std::string>(),
-                    newData["name"].get<std::string>(),
-                    std::to_string(newData["capacity"].get<int>()),
-                    newData["country"].get<std::string>(),
-                    newData["city"].get<std::string>()});
-    return data;
+    return true;
 }
 
 bool API::Airport::remove(std::string id) {

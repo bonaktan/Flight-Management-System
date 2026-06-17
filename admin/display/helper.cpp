@@ -211,16 +211,32 @@ ftxui::Component Display::TableInteractiveComponent(
             "Confirm",
             [=] {
                 if (*form_mode == 1) {
-                    // build map from headers + form values
                     std::map<std::string, std::string> fields;
-                    for (int i = 0; i < entity.ADD_HEADERS.size(); ++i)
+                    for (int i = 0; i < (int)entity.ADD_HEADERS.size(); ++i)
                         fields[entity.ADD_HEADERS[i]] = (*form_fields)[i];
 
-                    if (entity.add(fields))
-                        data->push_back(
-                            *form_fields);  // only append if API succeeded
+                    if (entity.add(fields)) data->push_back(*form_fields);
                 } else if (*form_mode == 2) {
-                    // modify stays the same, or similar map approach
+                    if (*selected_row >= 1 &&
+                        *selected_row < (int)data->size()) {
+                        const auto& original = (*data)[*selected_row];
+                        std::string id = original[0];  // first col is ID
+
+                        std::map<std::string, std::string> changed;
+                        for (int i = 0; i < (int)entity.ADD_HEADERS.size();
+                             ++i) {
+                            if ((*form_fields)[i] != original[i])
+                                changed[entity.ADD_HEADERS[i]] =
+                                    (*form_fields)[i];
+                        }
+
+                        if (!changed.empty() && entity.modify(id, changed)) {
+                            // Commit changes to local data
+                            for (int i = 0; i < (int)entity.ADD_HEADERS.size();
+                                 ++i)
+                                (*data)[*selected_row][i] = (*form_fields)[i];
+                        }
+                    }
                 }
                 *form_mode = 0;
             },
