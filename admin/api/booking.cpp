@@ -65,16 +65,18 @@ std::vector<std::vector<std::string>> API::Booking::view_one(std::string id) {
     return data;
 }
 
-void API::Booking::add() {
-    Display::printHeader("ADD BOOKING");
-    nlohmann::json booking;
-    booking["flight_id"] = Input::getInput("Flight ID (e.g. SKY001): ");
-    booking["account_id"] = std::stoll(Input::getInput("Account ID: "));
-    booking["payment_option"] = Input::getInput("Payment Option: ");
-    booking["payment_detail"] = nlohmann::json{};
-    booking["booking_status"] = Input::getInput("Booking Status: ");
-    booking["departure_date"] = Input::getInput("Departure Date (): ");
+bool API::Booking::add(const std::map<std::string, std::string>& fields) {
+    nlohmann::json booking(fields);
+    static const std::unordered_set<std::string> intFields = {"account_id"};
+    static const std::unordered_set<std::string> jsonFields = {
+        "payment_detail"};
 
+    for (auto& [key, val] : fields) {
+        if (intFields.count(key))
+            booking[key] = std::stoi(val);
+        else if (jsonFields.count(key))
+            booking[key] = nlohmann::json::parse(val);
+    }
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.post("/admin/booking/add", booking);
     if (apiReturn.status_code == 200 || apiReturn.status_code == 201) {
@@ -84,54 +86,33 @@ void API::Booking::add() {
         std::cerr << "\n  [ERROR] Failed to add booking: "
                   << errorResponse.value("message", "Unknown error") << "\n";
     }
+    return false;
 }
 
-std::vector<std::vector<std::string>> API::Booking::modify(std::string id,
-                                                           std::string field,
-                                                           std::string value) {
+bool API::Booking::modify(
+    std::string id, std::map<std::string, std::string> fields) {
     API::ApiClient& client = API::ApiClient::getInstance();
+
+    nlohmann::json payload = nlohmann::json::array();
+    for (const auto& [field, value] : fields) {
+        payload.push_back({{"field", field}, {"value", value}});
+    }
+
     cpr::Response apiReturn =
-        client.patch("/admin/booking/update/" + id,
-                     nlohmann::json{{"field", field}, {"value", value}});
+        client.patch("/admin/booking/update/" + id, payload);
+
     if (apiReturn.status_code != 200) {
-        throw std::runtime_error("Request failed with status: " +
-                                 std::to_string(apiReturn.status_code));
+        return false;
     }
-
-    std::vector<std::vector<std::string>> data = {
-        {"ID", "Flight ID", "Account ID", "Payment Option", "Payment Detail",
-         "Status", "Departure Date", "Created At", "Updated At"}};
-    nlohmann::json newData;
-
-    try {
-        newData = nlohmann::json::parse(apiReturn.text);
-    } catch (const nlohmann::json::parse_error& e) {
-        throw std::runtime_error(std::string("Failed to parse response: ") +
-                                 e.what());
-    }
-
-    data.push_back({std::to_string(newData["id"].get<long long>()),
-                    newData["flight_id"].get<std::string>(),
-                    std::to_string(newData["account_id"].get<long long>()),
-                    newData["payment_option"].get<std::string>(),
-                    newData["payment_detail"].dump(),
-                    newData["booking_status"].get<std::string>(),
-                    newData["departure_date"].get<std::string>(),
-                    newData["created_at"].get<std::string>(),
-                    newData["updated_at"].get<std::string>()});
-    return data;
+    return true;
 }
 
-void API::Booking::remove() {
-    Display::printHeader("DELETE BOOKING");
-    std::string id = Input::getInput("Enter Booking ID to delete: ");
+bool API::Booking::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/booking/delete/" + id);
     if (apiReturn.status_code == 200) {
-        std::cout << "\n  [OK] Booking deleted.\n";
+        return true;
     } else {
-        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
-        std::cerr << "\n  [ERROR] Failed to delete booking: "
-                  << errorResponse.value("message", "Unknown error") << "\n";
+        return false;
     }
 }

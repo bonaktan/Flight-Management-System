@@ -51,7 +51,7 @@ std::vector<std::vector<std::string>> API::Account::view_one(std::string id) {
         throw std::runtime_error(std::string("Failed to parse response: ") +
                                  e.what());
     }
-    
+
     std::vector<std::vector<std::string>> data = {
         {"id", "account_name", "email", "permissions"}};
     data.push_back({std::to_string(apiReturn["id"].get<int>()),
@@ -61,7 +61,7 @@ std::vector<std::vector<std::string>> API::Account::view_one(std::string id) {
     return data;
 }
 
-void API::Account::add() {
+bool API::Account::add(const std::map<std::string, std::string>& fields) {
     Display::printHeader("ADD ACCOUNT");
     Structs::Account a;
     a.id = API::Account::nextId();
@@ -72,41 +72,29 @@ void API::Account::add() {
     a.created_at = a.updated_at = "NOW()";
     Data::accounts.push_back(a);
     std::cout << "\n  [OK] Account added with ID " << a.id << "\n";
+    return false;
 }
 
-std::vector<std::vector<std::string>> API::Account::modify(std::string id,
-                                                           std::string field,
-                                                           std::string value) {
+bool API::Account::modify(
+    std::string id, std::map<std::string, std::string> fields) {
     API::ApiClient& client = API::ApiClient::getInstance();
-    cpr::Response apiReturn = client.patch(
-        "/admin/account/update/" + id,  nlohmann::json{{"field", field}, {"value", value}});
+
+    nlohmann::json payload = nlohmann::json::array();
+    for (const auto& [field, value] : fields) {
+        payload.push_back({{"field", field}, {"value", value}});
+    }
+
+    cpr::Response apiReturn =
+        client.patch("/admin/account/update/" + id, payload);
+
     if (apiReturn.status_code != 200) {
-        throw std::runtime_error("Request failed with status: " +
-                                 std::to_string(apiReturn.status_code));
+        return false;
     }
-
-    std::vector<std::vector<std::string>> data = {
-        {"ID", "Account Name", "Email", "Permissions"}};
-    
-    nlohmann::json newData;
-    
-    try {
-        newData = nlohmann::json::parse(apiReturn.text);
-    } catch (const nlohmann::json::parse_error& e) {
-        throw std::runtime_error(std::string("Failed to parse response: ") + e.what());
-    }
-
-    data.push_back({std::to_string(newData["id"].get<int>()),
-                    newData["account_name"].get<std::string>(),
-                    newData["email"].get<std::string>(),
-                    newData["permissions"].dump()});
-    return data;
+    return true;
 }
 
-void API::Account::remove() {
-    Display::printHeader("DELETE ACCOUNT");
-    std::string id = Input::getInput("Enter Account ID to delete: ");
+bool API::Account::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/account/delete/" + id);
-    std::cout << "\n  [OK] Account deleted.\n";
+    return true;
 }

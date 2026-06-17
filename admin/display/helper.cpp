@@ -8,8 +8,8 @@
 #include <iostream>
 #include <numeric>
 
+#include "../api/api.h"
 #include "./display.h"
-
 using namespace Skybridge;
 // UTILITIES
 void Display::clearScreen() {
@@ -118,57 +118,289 @@ void Display::Table(std::vector<std::vector<std::string>>& data) {
     std::cout << screen.ToString() << std::endl;
 }
 
-void Display::TableInteractive(std::vector<std::vector<std::string>>& data) {
-    auto screen = ftxui::ScreenInteractive::Fullscreen();
-    int scroll_x = 0;
-    int scroll_y = 0;
-    int max_y = static_cast<int>(data.size()) - 1;
-    int max_x = static_cast<int>(data[0].size()) - 1;
-    auto component = ftxui::CatchEvent(
-        ftxui::Renderer([&] {
-            ftxui::Table table = ftxui::Table(data);
-            table.SelectAll().Border(ftxui::LIGHT);
-            table.SelectAll().Separator(ftxui::LIGHT);
-            table.SelectRow(0).Decorate(ftxui::bold);
-            table.SelectRow(0).SeparatorVertical(ftxui::LIGHT);
-            table.SelectRow(0).Border(ftxui::LIGHT);
-            return ftxui::vbox({
-                table.Render() | ftxui::focusPosition(scroll_x, scroll_y) |
-                    ftxui::frame | ftxui::flex,
-                ftxui::separator(),
-                ftxui::text("Arrow keys: scroll | q: quit") | ftxui::dim,
-            });
-        }),
-        [&](ftxui::Event event) {
-            int half_y = screen.dimy() / 2;
-            int half_x = screen.dimx() / 2;
+// hey, if you're reaading this, just know that only god knows how this thing
+// works
+ftxui::Component Display::TableInteractiveComponent(
+    Skybridge::API::APIEntity entity, std::function<void()> on_quit) {
+    // Shared state — heap allocated so lambdas stay valid
+    auto data = std::make_shared<std::vector<std::vector<std::string>>>();
+    auto loaded = std::make_shared<bool>(false);
+    auto scroll_x = std::make_shared<int>(0);
+    auto scroll_y = std::make_shared<int>(1);
+    auto selected_row = std::make_shared<int>(1);
+    auto edit_mode = std::make_shared<bool>(false);
+    auto form_mode = std::make_shared<int>(0);  // 0=none 1=add 2=edit
+    auto form_fields = std::make_shared<std::vector<std::string>>();
+    auto inputs = std::make_shared<std::vector<ftxui::Component>>();
 
-            if (event == ftxui::Event::ArrowUp) {
-                scroll_y -= half_y;
-                scroll_y = std::max(0, scroll_y);
-                return true;
-            }
-            if (event == ftxui::Event::ArrowDown) {
-                scroll_y += half_y;
-                scroll_y = std::min(max_y, scroll_y);
-                return true;
-            }
-            if (event == ftxui::Event::ArrowLeft) {
-                scroll_x -= half_x;
-                scroll_x = std::max(0, scroll_x);
-                return true;
-            }
-            if (event == ftxui::Event::ArrowRight) {
-                scroll_x += half_x;
-                scroll_x = std::min(max_x, scroll_x);
-                return true;
-            }
-            if (event == ftxui::Event::Character('q')) {
-                screen.ExitLoopClosure()();
-                return true;
-            }
-            return false;
+    // Rebuilt when data is loaded
+    auto form_container = std::make_shared<ftxui::Component>(
+        ftxui::Renderer([] { return ftxui::text(""); }));
+    auto sidebar_container = std::make_shared<ftxui::Component>(
+        ftxui::Renderer([] { return ftxui::text(""); }));
+    auto full_container = std::make_shared<ftxui::Component>(
+        ftxui::Renderer([] { return ftxui::text(""); }));
+
+    auto toggle_edit_btn = std::make_shared<ftxui::Component>();
+    auto add_btn = std::make_shared<ftxui::Component>();
+    auto edit_btn = std::make_shared<ftxui::Component>();
+    auto delete_btn = std::make_shared<ftxui::Component>();
+    auto confirm_btn = std::make_shared<ftxui::Component>();
+    auto cancel_btn = std::make_shared<ftxui::Component>();
+
+    auto build_components = [=, unsupported = entity.unsupported_ops,
+                             modify_fn = entity.modify]() {
+        int col_count = entity.ADD_HEADERS.size();
+        form_fields->assign(col_count, "");
+        form_fields->shrink_to_fit();  // optional, force capacity == size
+        // Now all addresses are stable — no reallocation can happen below
+        inputs->clear();
+        for (int i = 0; i < col_count; ++i) {
+            ftxui::InputOption opt;
+            opt.multiline = false;
+            inputs->push_back(
+                ftxui::Input(&(*form_fields)[i], entity.ADD_HEADERS[i], opt));
+        }
+
+        *form_container = ftxui::Container::Vertical(*inputs);
+
+        bool add_disabled =
+            Menu::contains(const_cast<std::vector<std::string>&>(unsupported),
+                           std::string("add"));
+
+        *add_btn = Button(
+            "Add",
+            [=] {
+                if (add_disabled) return;
+                *form_mode = 1;
+                std::fill(form_fields->begin(), form_fields->end(), "");
+            },
+            ftxui::ButtonOption::Simple());
+
+        *edit_btn = Button(
+            "Edit",
+            [=] {
+                if (*selected_row >= 1 && *selected_row < (int)data->size()) {
+                    *form_mode = 2;
+                    for (int i = 0; i < (int)(*form_fields).size(); ++i) {
+                        std::string test = (*data)[*selected_row][i];
+                        (*form_fields)[i] = (*data)[*selected_row][i];
+                    }
+                }
+            },
+            ftxui::ButtonOption::Simple());
+
+        *delete_btn = Button(
+            "Delete",
+            [=] {
+                if (*selected_row >= 1 && *selected_row < (int)data->size()) {
+                    // first col is assumed to be ID
+                    std::string id = (*data)[*selected_row][0];
+                    if (entity.remove(id)) {
+                        data->erase(data->begin() + *selected_row);
+                        if (*selected_row >= (int)data->size())
+                            *selected_row = (int)data->size() - 1;
+                        *scroll_y = *selected_row;
+                    }
+                }
+                *form_mode = 0;
+            },
+            ftxui::ButtonOption::Simple());
+
+        *confirm_btn = Button(
+            "Confirm",
+            [=] {
+                if (*form_mode == 1) {
+                    std::map<std::string, std::string> fields;
+                    for (int i = 0; i < (int)entity.ADD_HEADERS.size(); ++i)
+                        fields[entity.ADD_HEADERS[i]] = (*form_fields)[i];
+
+                    if (entity.add(fields)) data->push_back(*form_fields);
+                } else if (*form_mode == 2) {
+                    if (*selected_row >= 1 &&
+                        *selected_row < (int)data->size()) {
+                        const auto& original = (*data)[*selected_row];
+                        std::string id = original[0];  // first col is ID
+
+                        std::map<std::string, std::string> changed;
+                        for (int i = 0; i < (int)entity.ADD_HEADERS.size();
+                             ++i) {
+                            if ((*form_fields)[i] != original[i])
+                                changed[entity.ADD_HEADERS[i]] =
+                                    (*form_fields)[i];
+                        }
+
+                        if (!changed.empty() && entity.modify(id, changed)) {
+                            // Commit changes to local data
+                            for (int i = 0; i < (int)entity.ADD_HEADERS.size();
+                                 ++i)
+                                (*data)[*selected_row][i] = (*form_fields)[i];
+                        }
+                    }
+                }
+                *form_mode = 0;
+            },
+            ftxui::ButtonOption::Simple());
+
+        *cancel_btn = Button(
+            "Cancel", [=] { *form_mode = 0; }, ftxui::ButtonOption::Simple());
+
+        *toggle_edit_btn = Button(
+            "[ Edit Mode ]",
+            [=] {
+                *edit_mode = !*edit_mode;
+                if (!*edit_mode) *form_mode = 0;
+            },
+            ftxui::ButtonOption::Simple());
+
+        *sidebar_container =
+            ftxui::Container::Vertical({*add_btn, *edit_btn, *delete_btn});
+
+        *full_container = ftxui::Container::Vertical({
+            *toggle_edit_btn,
+            ftxui::Container::Horizontal({
+                *sidebar_container,
+                ftxui::Container::Vertical(
+                    {*form_container, *confirm_btn, *cancel_btn}),
+            }),
         });
+    };
 
-    screen.Loop(component);
+    // Initial placeholder container (replaced after load)
+    auto placeholder = ftxui::Renderer([] {
+        return ftxui::text("Loading...") | ftxui::dim | ftxui::center |
+               ftxui::flex;
+    });
+
+    auto outer = std::make_shared<ftxui::Component>(placeholder);
+
+    // The real renderer — only used after data is loaded
+    auto make_renderer = [=]() -> ftxui::Component {
+        return CatchEvent(
+            Renderer(
+                *full_container,
+                [=]() -> ftxui::Element {
+                    auto display_data = *data;
+                    if (*selected_row >= 1 &&
+                        *selected_row < (int)display_data.size()) {
+                        for (auto& cell : display_data[*selected_row])
+                            cell = "> " + cell;
+                    }
+
+                    ftxui::Table table(display_data);
+                    table.SelectAll().Border(ftxui::LIGHT);
+                    table.SelectAll().Separator(ftxui::LIGHT);
+                    table.SelectRow(0).Decorate(ftxui::bold);
+                    table.SelectRow(0).Border(ftxui::LIGHT);
+
+                    ftxui::Element table_elem =
+                        table.Render() |
+                        ftxui::focusPosition(*scroll_x, *scroll_y) |
+                        ftxui::frame | ftxui::flex;
+
+                    ftxui::Element edit_panel = ftxui::vbox({});
+                    if (*edit_mode) {
+                        ftxui::Element panel =
+                            ftxui::vbox({
+                                ftxui::text("Actions") | ftxui::bold |
+                                    ftxui::hcenter,
+                                ftxui::separator(),
+                                (*sidebar_container)->Render(),
+                            }) |
+                            ftxui::border |
+                            size(ftxui::WIDTH, ftxui::EQUAL, 14);
+
+                        if (*form_mode != 0) {
+                            std::string form_title =
+                                (*form_mode == 1) ? "Add Row" : "Edit Row";
+                            ftxui::Elements field_elems;
+                            for (int i = 0; i < entity.ADD_HEADERS.size();
+                                 ++i) {
+                                field_elems.push_back(ftxui::hbox({
+                                    ftxui::text(entity.ADD_HEADERS[i] + ": ") |
+                                        size(ftxui::WIDTH, ftxui::EQUAL, 20),
+                                    (*inputs)[i]->Render() | ftxui::flex,
+                                }));
+                            }
+                            field_elems.push_back(ftxui::separator());
+                            field_elems.push_back(ftxui::hbox(
+                                {(*confirm_btn)->Render(), ftxui::text(" "),
+                                 (*cancel_btn)->Render()}));
+                            ftxui::Element form =
+                                ftxui::vbox({
+                                    ftxui::text(form_title) | ftxui::bold |
+                                        ftxui::hcenter,
+                                    ftxui::separator(),
+                                    ftxui::vbox(field_elems),
+                                }) |
+                                ftxui::border |
+                                size(ftxui::WIDTH, ftxui::EQUAL, 50);
+
+                            edit_panel = ftxui::hbox({panel, form});
+                        } else {
+                            edit_panel = panel;
+                        }
+                    }
+
+                    return ftxui::vbox({
+                        ftxui::hbox(
+                            {ftxui::filler(), (*toggle_edit_btn)->Render()}),
+                        ftxui::hbox(
+                            {table_elem,
+                             (*edit_mode ? edit_panel : ftxui::vbox({}))}),
+                        ftxui::separator(),
+                        ftxui::text("↑↓: select row | ←→: scroll | Tab: switch "
+                                    "focus | q: back") |
+                            ftxui::dim,
+                    });
+                }),
+            [=](ftxui::Event event) -> bool {
+                if (*form_mode != 0) return false;
+                int max_y = (int)data->size() - 1;
+                int max_x = (int)(*data)[0].size() - 1;
+                if (event == ftxui::Event::ArrowUp) {
+                    *selected_row = std::max(1, *selected_row - 1);
+                    *scroll_y = *selected_row;
+                    return true;
+                }
+                if (event == ftxui::Event::ArrowDown) {
+                    *selected_row = std::min(max_y, *selected_row + 1);
+                    *scroll_y = *selected_row;
+                    return true;
+                }
+                if (event == ftxui::Event::ArrowLeft) {
+                    *scroll_x = std::max(0, *scroll_x - 1);
+                    return true;
+                }
+                if (event == ftxui::Event::ArrowRight) {
+                    *scroll_x = std::min(max_x, *scroll_x + 1);
+                    return true;
+                }
+                if (event == ftxui::Event::Character('q')) {
+                    on_quit();
+                    return true;
+                }
+                return false;
+            });
+    };
+
+    // Wrapper that lazy-loads on first render
+
+    auto view_fn = entity.view;
+    auto wrapper = ftxui::Container::Vertical({placeholder});
+
+    return ftxui::Renderer(wrapper, [=]() mutable -> ftxui::Element {
+        if (!*loaded) {
+            *data = view_fn();
+            *loaded = true;
+            if (data->empty())
+                return ftxui::text("No data returned from API.") | ftxui::dim |
+                       ftxui::center | ftxui::flex;
+            build_components();
+            *outer = make_renderer();
+            wrapper->DetachAllChildren();
+            wrapper->Add(*outer);
+        }
+        return (*outer)->Render();
+    });
 }

@@ -71,9 +71,10 @@ target_link_libraries(SkyBridgeAirways-AdminTUI
 
 
 # --- Release Optimizations -----------------------------------------------------
-set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+# set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
 target_compile_options(SkyBridgeAirways-AdminTUI PRIVATE
     $<$<CONFIG:Release>:-O2 -DNDEBUG>
+    $<$<CONFIG:Debug>:-g -O0>
 )
 
 # --- Static linking (no external deps on target machine) ----------------------

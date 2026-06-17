@@ -1,5 +1,7 @@
 #include "../../utils/utils.h"
 #include "../api_admin.h"
+#include "bcrypt/BCrypt.hpp"
+
 void api::admin::view_account(
     const HttpRequestPtr& req,
     std::function<void(const HttpResponsePtr&)>&& callback) {
@@ -62,66 +64,107 @@ void api::admin::view_single_account(
         id);
 }
 static const std::regex idPattern("^[0-9]+$");
+static const std::set<std::string> ALLOWED = {"account_name", "email",
+                                              "permissions", "password"};
 void api::admin::update_account(
     const HttpRequestPtr& req,
-
     std::function<void(const HttpResponsePtr&)>&& callback, std::string id) {
     if (!Skybridge::Utils::is_valid_input(id, idPattern)) {
         callback(Skybridge::Utils::error("Invalid ID", k400BadRequest));
         return;
     }
+
     std::shared_ptr<Json::Value> json = req->getJsonObject();
     if (!json) {
         callback(Skybridge::Utils::error("Invalid JSON", k400BadRequest));
         return;
     }
+
     std::vector<std::string> errors =
         Skybridge::Utils::validateRequest(*json, api::admin::update_schema());
     if (!errors.empty()) {
         Json::Value body;
-        for (std::basic_string<char>& e : errors) body["details"].append(e);
-
+        for (std::string& e : errors) body["details"].append(e);
         callback(Skybridge::Utils::error("Validation failed", k400BadRequest,
                                          body["details"]));
         return;
     }
-    const std::set<std::string> ALLOWED = {"account_name", "email",
-                                           "permissions"};
-    std::string field = (*json)["field"].asString();
-    if (!ALLOWED.count(field)) {
-        callback(Skybridge::Utils::error("Invalid field", k400BadRequest, {}));
-        return;
+
+    // Validate all fields before touching the DB
+    for (const auto& item : *json) {
+        if (!ALLOWED.count(item["field"].asString())) {
+            callback(Skybridge::Utils::error(
+                "Invalid field: " + item["field"].asString(), k400BadRequest));
+            return;
+        }
     }
-    std::string sql;
-    if (field == "permissions") {
-        sql =
-            "UPDATE account SET permissions = $1::jsonb WHERE id = $2 "
-            "RETURNING id, account_name, email, permissions";
-    } else {
-        sql = "UPDATE account SET " + field +
-              " = $1 WHERE id = $2 RETURNING id, account_name, email, "
-              "permissions";
-    }
+
     orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
-    dbClient->execSqlAsync(
-        sql,
-        [callback](const drogon::orm::Result& result) {
-            Json::Value jsonResponse;
-            jsonResponse["id"] = (Json::Int64)result[0]["id"].as<long long>();
-            jsonResponse["account_name"] =
-                result[0]["account_name"].as<std::string>();
-            jsonResponse["email"] = result[0]["email"].as<std::string>();
-            Json::Value jsonPerms = Skybridge::Utils::parseJsonField(
-                result[0]["permissions"].as<std::string>());
-            jsonResponse["permissions"] = jsonPerms;
-            callback(HttpResponse::newHttpJsonResponse(jsonResponse));
-        },
-        [callback](const drogon::orm::DrogonDbException& e) {
-            callback(Skybridge::Utils::error("Database error",
-                                             k500InternalServerError,
-                                             Json::Value(e.base().what())));
-        },
-        (*json)["value"].asString(), id);
+
+    // Shared state across async callbacks
+    auto results = std::make_shared<Json::Value>(Json::arrayValue);
+    auto total = std::make_shared<int>((int)json->size());
+    auto completed = std::make_shared<std::atomic<int>>(0);
+    auto hadError = std::make_shared<std::atomic<bool>>(false);
+
+    for (const auto& item : *json) {
+        std::string field = item["field"].asString();
+        std::string value;
+        if (field == "password") {
+            value = BCrypt::generateHash(item["value"].asString(), 12);
+            field = "password_hash";
+        } else
+            value = item["value"].asString();
+
+        std::string sql =
+            (field == "permissions")
+                ? "UPDATE account SET permissions = $1::jsonb WHERE id = "
+                  "$2 "
+                  "RETURNING id, account_name, email, permissions"
+                : "UPDATE account SET " + field +
+                      " = $1 WHERE id = $2 RETURNING id, account_name, "
+                      "email, "  // $2a$12$p0IpL8Z0LRELto2OuASBW.hjUazoSDpWqUOHLiyCcQEjXLRtAfkaq
+                      "permissions";
+
+        dbClient->execSqlAsync(
+            sql,
+            [callback, results, total, completed, hadError,
+             field](const drogon::orm::Result& result) {
+                if (result.empty()) {
+                    // row not found — still count it
+                    Json::Value row;
+                    row["field"] = field;
+                    row["status"] = "not_found";
+                    results->append(row);
+                } else {
+                    Json::Value row;
+                    row["field"] = field;
+                    row["status"] = "updated";
+                    row["id"] = (Json::Int64)result[0]["id"].as<long long>();
+                    row["account_name"] =
+                        result[0]["account_name"].as<std::string>();
+                    row["email"] = result[0]["email"].as<std::string>();
+                    row["permissions"] = Skybridge::Utils::parseJsonField(
+                        result[0]["permissions"].as<std::string>());
+                    results->append(row);
+                }
+
+                if (++(*completed) == *total && !hadError->load()) {
+                    callback(HttpResponse::newHttpJsonResponse(*results));
+                }
+            },
+            [callback, results, total, completed, hadError,
+             field](const drogon::orm::DrogonDbException& e) {
+                // Only send the error response once
+                if (!hadError->exchange(true)) {
+                    callback(Skybridge::Utils::error(
+                        "Database error on field: " + field,
+                        k500InternalServerError, Json::Value(e.base().what())));
+                }
+                ++(*completed);
+            },
+            value, id);
+    }
 }
 
 void api::admin::delete_account(

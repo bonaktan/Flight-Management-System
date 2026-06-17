@@ -10,17 +10,26 @@
 #include "../main.h"
 
 namespace Skybridge::API {
+
+struct APIEntity {
+    std::string name;
+    std::vector<std::string> unsupported_ops;
+    std::vector<std::string> ADD_HEADERS;
+    std::function<std::vector<std::vector<std::string>>()> view;
+    std::function<bool(const std::map<std::string, std::string>&)> add;
+    std::function<bool(std::string, std::map<std::string, std::string>)> modify;
+    std::function<bool(std::string id)> remove;
+};
+
 class ApiClient {
    private:
     static ApiClient* instance;
     cpr::Cookies cookies;
-    const std::string base_url =
-        // "http://localhost:8080/api";  // TODO: flags for dev/prod
-        "https://skybridge.bonnybonnybonaktan.xyz/api";
     ApiClient() = default;
     void checkSession(const cpr::Cookies& updated_cookies);
 
    public:
+    std::string base_url;
     ApiClient(const ApiClient&) = delete;
     ApiClient& operator=(const ApiClient&) = delete;
     static ApiClient& getInstance();
@@ -39,7 +48,7 @@ class Auth {
    public:
     Auth(const Auth&) = delete;
     Auth& operator=(const Auth&) = delete;
-
+    std::string user;
     static Auth& getInstance() {
         if (!instance) instance = new Auth();
         return *instance;
@@ -63,14 +72,15 @@ class Account {
     }
     std::string name = "Account";
     std::vector<std::string> UNSUPPORTED_OPS = {"add"};
+    std::vector<std::string> ADD_HEADERS = {"id", "account_name", "email",
+                                            "permissions"};
     static long long nextId();
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
-    static void remove();
+    static bool add(const std::map<std::string, std::string>& fields);
+    static bool modify(std::string id,
+                       std::map<std::string, std::string> fields);
+    static bool remove(std::string id);
 };
 
 class Airplane {
@@ -88,13 +98,14 @@ class Airplane {
     }
     std::string name = "Airplane";
     std::vector<std::string> UNSUPPORTED_OPS = {};
+    std::vector<std::string> ADD_HEADERS = {"airplane_id", "location", "model",
+                                            "seatmap"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
-    static void remove();
+    static bool add(const std::map<std::string, std::string>& fields);
+    static bool modify(std::string id,
+                       std::map<std::string, std::string> fields);
+    static bool remove(std::string id);
 };
 
 class Airport {
@@ -112,13 +123,14 @@ class Airport {
     }
     std::string name = "Airport";
     std::vector<std::string> UNSUPPORTED_OPS = {};
+    std::vector<std::string> ADD_HEADERS = {"airport_id", "name", "capacity",
+                                            "country", "city"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
-    static void remove();
+    static bool add(const std::map<std::string, std::string>& fields);
+    static bool modify(std::string id,
+                       std::map<std::string, std::string> fields);
+    static bool remove(std::string id);
 };
 
 class Booking {
@@ -136,14 +148,15 @@ class Booking {
     }
     std::string name = "Booking";
     std::vector<std::string> UNSUPPORTED_OPS = {};
-
+    std::vector<std::string> ADD_HEADERS = {"flight_id",      "account_id",
+                                            "payment_option", "payment_detail",
+                                            "booking_status", "departure_date"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
-    static void remove();
+    static bool add(const std::map<std::string, std::string>& fields);
+    static bool modify(std::string id,
+                       std::map<std::string, std::string> fields);
+    static bool remove(std::string id);
 };
 
 class Flight {
@@ -161,13 +174,17 @@ class Flight {
     }
     std::string name = "Flight";
     std::vector<std::string> UNSUPPORTED_OPS = {};
+    std::vector<std::string> ADD_HEADERS = {
+        "flight_id",          "departure_airport_id",
+        "arrival_airport_id", "flight_time",
+        "base_ticket_price",  "start_of_operations",
+        "frequency",          "airplane"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
-    static void remove();
+    static bool add(const std::map<std::string, std::string>& fields);
+    static bool modify(std::string id,
+                       std::map<std::string, std::string> fields);
+    static bool remove(std::string id);
 };
 
 class Passenger {
@@ -185,14 +202,25 @@ class Passenger {
     }
     std::string name = "Passenger";
     std::vector<std::string> UNSUPPORTED_OPS = {"add"};
-
+    std::vector<std::string> ADD_HEADERS = {"id",
+                                            "frequent_flyer_code",
+                                            "title",
+                                            "first_name",
+                                            "middle_name",
+                                            "last_name",
+                                            "birthdate",
+                                            "gender",
+                                            "contact_email",
+                                            "phone_number",
+                                            "emergency_contact_name",
+                                            "emergency_contact_phone",
+                                            "associated_to"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
-    static void add();
-    static std::vector<std::vector<std::string>> modify(std::string id,
-                                                        std::string field,
-                                                        std::string value);
-    static void remove();
+    static bool add(const std::map<std::string, std::string>& fields);
+    static bool modify(std::string id,
+                       std::map<std::string, std::string> fields);
+    static bool remove(std::string id);
 };
 }  // namespace Skybridge::API
 #endif

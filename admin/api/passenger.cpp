@@ -58,7 +58,7 @@ std::vector<std::vector<std::string>> API::Passenger::view_one(std::string id) {
         throw std::runtime_error(std::string("Failed to parse response: ") +
                                  e.what());
     }
-    
+
     std::vector<std::vector<std::string>> data = {
         {"id", "frequent_flyer_code", "title", "first_name", "middle_name",
          "last_name", "birthdate", "gender", "contact_email", "phone_number",
@@ -82,7 +82,7 @@ std::vector<std::vector<std::string>> API::Passenger::view_one(std::string id) {
     return data;
 }
 
-void API::Passenger::add() {
+bool API::Passenger::add(const std::map<std::string, std::string>& fields) {
     Display::printHeader("ADD PASSENGER");
     nlohmann::json passenger;
     passenger["frequent_flyer_code"] = Input::getInput("Frequent Flyer Code: ");
@@ -110,61 +110,33 @@ void API::Passenger::add() {
         std::cerr << "\n  [ERROR] Failed to add passenger: "
                   << errorResponse.value("message", "Unknown error") << "\n";
     }
+    return false;
 }
 
-std::vector<std::vector<std::string>> API::Passenger::modify(
-    std::string id, std::string field, std::string value) {
+bool API::Passenger::modify(
+    std::string id, std::map<std::string, std::string> fields) {
     API::ApiClient& client = API::ApiClient::getInstance();
+
+    nlohmann::json payload = nlohmann::json::array();
+    for (const auto& [field, value] : fields) {
+        payload.push_back({{"field", field}, {"value", value}});
+    }
+
     cpr::Response apiReturn =
-        client.patch("/admin/passenger/update/" + id,
-                     nlohmann::json{{"field", field}, {"value", value}});
+        client.patch("/admin/passenger/update/" + id, payload);
+
     if (apiReturn.status_code != 200) {
-        throw std::runtime_error("Request failed with status: " +
-                                 std::to_string(apiReturn.status_code));
+        return false;
     }
-
-    std::vector<std::vector<std::string>> data = {
-        {"ID", "Frequent Flyer", "Title", "First Name", "Middle Name",
-         "Last Name", "Birthdate", "Gender", "Email", "Phone",
-         "Emergency Contact", "Emergency Phone", "Associated To", "Created At",
-         "Updated At"}};
-    nlohmann::json newData;
-
-    try {
-        newData = nlohmann::json::parse(apiReturn.text);
-    } catch (const nlohmann::json::parse_error& e) {
-        throw std::runtime_error(std::string("Failed to parse response: ") +
-                                 e.what());
-    }
-
-    data.push_back({std::to_string(newData["id"].get<long long>()),
-                    newData["frequent_flyer_code"].get<std::string>(),
-                    newData["title"].get<std::string>(),
-                    newData["first_name"].get<std::string>(),
-                    newData["middle_name"].get<std::string>(),
-                    newData["last_name"].get<std::string>(),
-                    newData["birthdate"].get<std::string>(),
-                    newData["gender"].get<std::string>(),
-                    newData["contact_email"].get<std::string>(),
-                    newData["phone_number"].get<std::string>(),
-                    newData["emergency_contact_name"].get<std::string>(),
-                    newData["emergency_contact_phone"].get<std::string>(),
-                    std::to_string(newData["associated_to"].get<long long>()),
-                    newData["created_at"].get<std::string>(),
-                    newData["updated_at"].get<std::string>()});
-    return data;
+    return true;
 }
 
-void API::Passenger::remove() {
-    Display::printHeader("DELETE PASSENGER");
-    std::string id = Input::getInput("Enter Passenger ID to delete: ");
+bool API::Passenger::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/passenger/delete/" + id);
     if (apiReturn.status_code == 200) {
-        std::cout << "\n  [OK] Passenger deleted.\n";
+        return true;
     } else {
-        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
-        std::cerr << "\n  [ERROR] Failed to delete passenger: "
-                  << errorResponse.value("message", "Unknown error") << "\n";
+        return false;
     }
 }

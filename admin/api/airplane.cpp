@@ -60,57 +60,39 @@ std::vector<std::vector<std::string>> API::Airplane::view_one(std::string id) {
     return data;
 }
 
-void API::Airplane::add() {
-    Display::printHeader("ADD AIRPLANE");
-    nlohmann::json airplane;
-    airplane["airplane_id"] = Input::getInput("Airplane ID (e.g. SB-xxxx): ");
-    airplane["model"] = Input::getInput("Model (e.g. Boeing 737): ");
-    airplane["location"] = Input::getInput("Initial Location (Airport ID): ");
+bool API::Airplane::add(const std::map<std::string, std::string>& fields) {
+    nlohmann::json airplane(fields);
+    static const std::unordered_set<std::string> jsonFields = {"seatmap",
+                                                               "seat_class"};
 
-    API::ApiClient& client = API::ApiClient::getInstance();
-    cpr::Response apiReturn = client.post("/admin/airplane/add", airplane);
-    if (apiReturn.status_code == 201 || apiReturn.status_code == 200) {
-        nlohmann::json response = nlohmann::json::parse(apiReturn.text);
-        std::cout << "\n  [OK] Airplane added.\n";
-    } else {
-        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
-        std::cerr << "\n  [ERROR] Failed to add airplane: "
-                  << errorResponse.value("message", "Unknown error") << "\n";
+    for (auto& [key, val] : fields) {
+        if (jsonFields.count(key)) airplane[key] = nlohmann::json::parse(val);
     }
+    auto& client = API::ApiClient::getInstance();
+    cpr::Response r = client.post("/admin/airplane/add", airplane);
+    return r.status_code == 200 || r.status_code == 201;
 }
 
-std::vector<std::vector<std::string>> API::Airplane::modify(std::string id,
-                                                            std::string field,
-                                                            std::string value) {
+bool API::Airplane::modify(
+    std::string id, std::map<std::string, std::string> fields) {
     API::ApiClient& client = API::ApiClient::getInstance();
+
+    nlohmann::json payload = nlohmann::json::array();
+    for (const auto& [field, value] : fields) {
+        payload.push_back({{"field", field}, {"value", value}});
+    }
+
     cpr::Response apiReturn =
-        client.patch("/admin/airplane/update/" + id,
-                     nlohmann::json{{"field", field}, {"value", value}});
+        client.patch("/admin/airplane/update/" + id, payload);
+
     if (apiReturn.status_code != 200) {
-        throw std::runtime_error("Request failed with status: " +
-                                 std::to_string(apiReturn.status_code));
+        return false;
     }
-
-    std::vector<std::vector<std::string>> data = {
-        {"ID", "Location", "Model", "Seatmap", "Seat Class"}};
-    nlohmann::json newData;
-    try {
-        newData = nlohmann::json::parse(apiReturn.text);
-    } catch (const nlohmann::json::parse_error& e) {
-        throw std::runtime_error(std::string("Failed to parse response: ") +
-                                 e.what());
-    }
-
-    data.push_back({newData["id"].get<std::string>(),
-                    newData["location"].get<std::string>(),
-                    newData["model"].get<std::string>(),
-                    newData["seatmap"].dump(), newData["seat_class"].dump()});
-    return data;
+    return true;
 }
-void API::Airplane::remove() {
-    Display::printHeader("DELETE AIRPLANE");
-    std::string id = Input::getInput("Enter Airplane ID to delete: ");
+
+bool API::Airplane::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/airplane/delete/" + id);
-    std::cout << "\n  [OK] Airplane deleted.\n";
+    return true;
 }
