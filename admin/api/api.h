@@ -12,12 +12,15 @@
 namespace Skybridge::API {
 
 struct APIEntity {
-  std::string name;
-  std::vector<std::string> unsupported_ops;
-  std::function<std::vector<std::vector<std::string>>()> view;
-  std::function<bool(const std::map<std::string, std::string>&)> add;
-  std::function<std::vector<std::vector<std::string>>(std::string, std::string, std::string)> modify;
-  std::function<void()> remove;
+    std::string name;
+    std::vector<std::string> unsupported_ops;
+    std::vector<std::string> ADD_HEADERS;
+    std::function<std::vector<std::vector<std::string>>()> view;
+    std::function<bool(const std::map<std::string, std::string>&)> add;
+    std::function<std::vector<std::vector<std::string>>(
+        std::string, std::string, std::string)>
+        modify;
+    std::function<void()> remove;
 };
 
 class ApiClient {
@@ -73,6 +76,8 @@ class Account {
     }
     std::string name = "Account";
     std::vector<std::string> UNSUPPORTED_OPS = {"add"};
+    std::vector<std::string> ADD_HEADERS = {"id", "account_name", "email",
+                                            "permissions"};
     static long long nextId();
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
@@ -98,6 +103,8 @@ class Airplane {
     }
     std::string name = "Airplane";
     std::vector<std::string> UNSUPPORTED_OPS = {};
+    std::vector<std::string> ADD_HEADERS = {"id", "location", "model",
+                                            "seatmap", "seat_class"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
@@ -122,6 +129,8 @@ class Airport {
     }
     std::string name = "Airport";
     std::vector<std::string> UNSUPPORTED_OPS = {};
+    std::vector<std::string> ADD_HEADERS = {"airport_id", "name", "capacity", "country",
+                                            "city"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
@@ -146,7 +155,13 @@ class Booking {
     }
     std::string name = "Booking";
     std::vector<std::string> UNSUPPORTED_OPS = {};
-
+    std::vector<std::string> ADD_HEADERS = {"id",
+                                            "flight_id",
+                                            "account_id",
+                                            "payment_option",
+                                            "payment_detail",
+                                            "booking_status",
+                                            "departure_date"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
@@ -171,6 +186,13 @@ class Flight {
     }
     std::string name = "Flight";
     std::vector<std::string> UNSUPPORTED_OPS = {};
+    std::vector<std::string> ADD_HEADERS = {"id",
+                                            "flight_id",
+                                            "account_id",
+                                            "payment_option",
+                                            "payment_detail",
+                                            "booking_status",
+                                            "departure_date"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
@@ -195,7 +217,19 @@ class Passenger {
     }
     std::string name = "Passenger";
     std::vector<std::string> UNSUPPORTED_OPS = {"add"};
-
+    std::vector<std::string> ADD_HEADERS = {"id",
+                                            "frequent_flyer_code",
+                                            "title",
+                                            "first_name",
+                                            "middle_name",
+                                            "last_name",
+                                            "birthdate",
+                                            "gender",
+                                            "contact_email",
+                                            "phone_number",
+                                            "emergency_contact_name",
+                                            "emergency_contact_phone",
+                                            "associated_to"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);

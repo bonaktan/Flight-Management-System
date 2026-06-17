@@ -60,9 +60,18 @@ std::vector<std::vector<std::string>> API::Airport::view_one(std::string id) {
 }
 
 bool API::Airport::add(const std::map<std::string, std::string>& fields) {
-    nlohmann::json airplane(fields);
+    nlohmann::json airport(fields);
+    static const std::unordered_set<std::string> intFields = {"capacity"};
+    static const std::unordered_set<std::string> jsonFields = {};
+
+    for (auto& [key, val] : fields) {
+        if (intFields.count(key))
+            airport[key] = std::stoi(val);
+        else if (jsonFields.count(key))
+            airport[key] = nlohmann::json::parse(val);
+    }
     auto& client = API::ApiClient::getInstance();
-    cpr::Response r = client.post("/admin/airport/add", airplane);
+    cpr::Response r = client.post("/admin/airport/add", airport);
     return r.status_code == 200 || r.status_code == 201;
 }
 

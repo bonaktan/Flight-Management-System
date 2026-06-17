@@ -150,15 +150,16 @@ ftxui::Component Display::TableInteractiveComponent(
 
     auto build_components = [=, unsupported = entity.unsupported_ops,
                              modify_fn = entity.modify]() {
-        int col_count = (int)(*data)[0].size();
+        int col_count = entity.ADD_HEADERS.size();
         form_fields->assign(col_count, "");
+        form_fields->shrink_to_fit();  // optional, force capacity == size
+        // Now all addresses are stable — no reallocation can happen below
         inputs->clear();
-
         for (int i = 0; i < col_count; ++i) {
             ftxui::InputOption opt;
             opt.multiline = false;
             inputs->push_back(
-                ftxui::Input(&(*form_fields)[i], (*data)[0][i], opt));
+                ftxui::Input(&(*form_fields)[i], entity.ADD_HEADERS[i], opt));
         }
 
         *form_container = ftxui::Container::Vertical(*inputs);
@@ -181,8 +182,11 @@ ftxui::Component Display::TableInteractiveComponent(
             [=] {
                 if (*selected_row >= 1 && *selected_row < (int)data->size()) {
                     *form_mode = 2;
-                    for (int i = 0; i < (int)(*data)[*selected_row].size(); ++i)
+                    for (int i = 0; i < (int)(*form_fields).size();
+                         ++i) {
+                        std::string test = (*data)[*selected_row][i];
                         (*form_fields)[i] = (*data)[*selected_row][i];
+                    }
                 }
             },
             ftxui::ButtonOption::Simple());
@@ -208,8 +212,8 @@ ftxui::Component Display::TableInteractiveComponent(
                 if (*form_mode == 1) {
                     // build map from headers + form values
                     std::map<std::string, std::string> fields;
-                    for (int i = 0; i < (int)(*data)[0].size(); ++i)
-                        fields[(*data)[0][i]] = (*form_fields)[i];
+                    for (int i = 0; i < entity.ADD_HEADERS.size(); ++i)
+                        fields[entity.ADD_HEADERS[i]] = (*form_fields)[i];
 
                     if (entity.add(fields))
                         data->push_back(
@@ -293,10 +297,11 @@ ftxui::Component Display::TableInteractiveComponent(
                             std::string form_title =
                                 (*form_mode == 1) ? "Add Row" : "Edit Row";
                             ftxui::Elements field_elems;
-                            for (int i = 0; i < (int)(*data)[0].size(); ++i) {
+                            for (int i = 0; i < entity.ADD_HEADERS.size();
+                                 ++i) {
                                 field_elems.push_back(ftxui::hbox({
-                                    ftxui::text((*data)[0][i] + ": ") |
-                                        size(ftxui::WIDTH, ftxui::EQUAL, 12),
+                                    ftxui::text(entity.ADD_HEADERS[i] + ": ") |
+                                        size(ftxui::WIDTH, ftxui::EQUAL, 20),
                                     (*inputs)[i]->Render() | ftxui::flex,
                                 }));
                             }
@@ -312,7 +317,7 @@ ftxui::Component Display::TableInteractiveComponent(
                                     ftxui::vbox(field_elems),
                                 }) |
                                 ftxui::border |
-                                size(ftxui::WIDTH, ftxui::EQUAL, 36);
+                                size(ftxui::WIDTH, ftxui::EQUAL, 50);
 
                             edit_panel = ftxui::hbox({panel, form});
                         } else {

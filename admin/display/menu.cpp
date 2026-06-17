@@ -31,12 +31,14 @@ void Menu::mainMenu() {
     Account& _accountInstance = Account::getInstance();
     APIEntity Account = {
         _accountInstance.name,   _accountInstance.UNSUPPORTED_OPS,
+        _accountInstance.ADD_HEADERS,
         _accountInstance.view,   _accountInstance.add,
         _accountInstance.modify, _accountInstance.remove,
     };
     Airplane& _airplaneInstance = Airplane::getInstance();
     APIEntity Airplane = {
         _airplaneInstance.name,   _airplaneInstance.UNSUPPORTED_OPS,
+        _airplaneInstance.ADD_HEADERS,
         _airplaneInstance.view,   _airplaneInstance.add,
         _airplaneInstance.modify, _airplaneInstance.remove,
     };
@@ -44,6 +46,7 @@ void Menu::mainMenu() {
     Airport& _airportInstance = Airport::getInstance();
     APIEntity Airport = {
         _airportInstance.name,   _airportInstance.UNSUPPORTED_OPS,
+        _airportInstance.ADD_HEADERS,
         _airportInstance.view,   _airportInstance.add,
         _airportInstance.modify, _airportInstance.remove,
     };
@@ -51,6 +54,7 @@ void Menu::mainMenu() {
     Booking& _bookingInstance = Booking::getInstance();
     APIEntity Booking = {
         _bookingInstance.name,   _bookingInstance.UNSUPPORTED_OPS,
+        _bookingInstance.ADD_HEADERS,
         _bookingInstance.view,   _bookingInstance.add,
         _bookingInstance.modify, _bookingInstance.remove,
     };
@@ -58,13 +62,15 @@ void Menu::mainMenu() {
     Flight& _flightInstance = Flight::getInstance();
     APIEntity Flight = {
         _flightInstance.name,   _flightInstance.UNSUPPORTED_OPS,
+        _flightInstance.ADD_HEADERS,
         _flightInstance.view,   _flightInstance.add,
-        _flightInstance.modify, _flightInstance.remove,
+        _flightInstance.modify, _flightInstance.remove
     };
 
     Passenger& _passengerInstance = Passenger::getInstance();
     APIEntity Passenger = {
         _passengerInstance.name,   _passengerInstance.UNSUPPORTED_OPS,
+        _passengerInstance.ADD_HEADERS,
         _passengerInstance.view,   _passengerInstance.add,
         _passengerInstance.modify, _passengerInstance.remove,
     };
