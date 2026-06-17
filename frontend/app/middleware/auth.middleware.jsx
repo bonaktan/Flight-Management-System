@@ -7,10 +7,11 @@ export const userMiddleware = async ({ request, context }, next) => {
     next();
 };
 
-export const authMiddleware = async ({ context }, next) => {
+export const authMiddleware = async ({ context, request }, next) => {
     const user = context.get(UserContext);
     if (!user.logged_in) {
-        return redirect("/auth/login");
+        const returnTo = encodeURIComponent(new URL(request.url).pathname);
+        return redirect(`/auth/login?returnTo=${returnTo}`);
     }
     next();
 };

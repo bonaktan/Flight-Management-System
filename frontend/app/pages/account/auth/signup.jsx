@@ -1,4 +1,4 @@
-import { NavLink, Form, useNavigate } from "react-router";
+import { NavLink, Form, useNavigate, useSearchParams } from "react-router";
 import { InputField } from "../../../components/input";
 import { useState } from "react";
 import axios from "axios";
@@ -13,8 +13,28 @@ export default function Signup() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const searchParams = useSearchParams();
     function signup(e) {
         e.preventDefault();
+        // Email validation
+        const emailRegex = /^(?!\.)(?!.*\.\.)[a-z0-9_'+\-.]*[a-z0-9_+-]@([a-z0-9][a-z0-9-]*\.)+[a-z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            setError("Invalid email address.");
+            return;
+        }
+
+        // Name validation
+        if (name.length < 5 || name.length > 127) {
+            setError("Name must be between 5 and 127 characters.");
+            return;
+        }
+
+        // Password validation
+        if (password.length < 8 || password.length > 127) {
+            setError("Password must be between 8 and 127 characters.");
+            return;
+        }
+
         if (password !== confirmPassword) {
             setError("Passwords do not match.");
             return;
@@ -29,7 +49,8 @@ export default function Signup() {
             })
             .then((e) => {
                 setLoading(false);
-                navigate("/", { reloadDocument: true }); // TODO: this shall be replaced w/ the last went link
+                const returnTo = searchParams.get("returnTo");
+                navigate(returnTo ? decodeURIComponent(returnTo) : "/", { reloadDocument: true }); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
                 setLoading(false);

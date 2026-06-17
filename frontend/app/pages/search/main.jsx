@@ -72,7 +72,7 @@ function FlightCard({ flight, value, selectValue }) {
                     return (
                         <button
                             onClick={() => {
-                                selectValue({ flight: flight.id, seatClass: key });
+                                selectValue({ flight: flight.id, seatClass: key, price: flightPrice });
                             }}
                             key={key}
                             className={`transition border boorder-[#ccc] w-1/5 font-bold ${value.flight == flight.id && value.seatClass == key ? "bg-blaze-core text-cloud-warm" : ""}`}>

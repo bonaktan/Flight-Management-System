@@ -228,9 +228,15 @@ function PassengerForm({ count, selectedPassenger, passenger, setPassenger }) {
 export default function BookingForm() {
     const { state } = useLocation();
     const bookingState = use(BookingContext);
+
     useEffect(() => {
-        if (state != null && bookingState.passengers.length != state.passengers)
-            bookingState.setBookingContext({ field: "passengers", count: 0, subField: "firstInitPassengerCount", value: state });
+        const savedState = sessionStorage.getItem("pendingNavState");
+        const resolvedState = state ?? (savedState ? JSON.parse(savedState) : null);
+
+        if (savedState) sessionStorage.removeItem("pendingNavState");
+
+        if (resolvedState != null && bookingState.passengers.length != resolvedState.passengers)
+            bookingState.setBookingContext({ field: "passengers", count: 0, subField: "firstInitPassengerCount", value: resolvedState });
     }, []);
 
     const [passengerSelected, setPassengerSelected] = useState(0);

@@ -3,6 +3,7 @@ import { BookingContext } from "./context";
 import { use, useEffect, useReducer, useState } from "react";
 import { authMiddleware } from "../../middleware/auth.middleware";
 import { FlightCard } from "../../components/flightCard";
+import axios from "axios";
 export const clientMiddleware = [authMiddleware];
 
 function HeaderLogos({ logo, label, page }) {
@@ -15,6 +16,7 @@ function HeaderLogos({ logo, label, page }) {
 }
 function BillingCard() {
     const bookingContext = use(BookingContext);
+    console.log("billingCard: ", bookingContext);
     const isRoundTrip = false; // WARN: change to true once implemented na yung ano
     return (
         <div className="">
@@ -23,10 +25,15 @@ function BillingCard() {
                     <div>Total to be paid</div>
                     <div className="text-xs">Excluding taxes, fees, and discounts</div>
                 </div>
-                <div>PHP 6,696.96</div>
+                <div>
+                    PHP{" "}
+                    {bookingContext.price
+                        ? bookingContext.price.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                        : "0.00"}
+                </div>
             </div>
             <div className="border"></div>
-            <FlightCard flight={bookingContext.selectedFlight} />
+            <FlightCard flightId={bookingContext.flightId} />
             {isRoundTrip && (
                 <>
                     <div className="border" />
@@ -92,8 +99,7 @@ export async function clientLoader() {
 export default function BookingLayout({ loaderData }) {
     const location = useLocation();
     const isInSeatmap = location.pathname === "/booking/details";
-
-    // Restore on mount
+    const [flightId, setFlightId] = useState(null);
     const [bookingContext, setBookingContext] = useReducer(
         (state, action) => {
             if (action.field == "passengers") {
@@ -112,6 +118,7 @@ export default function BookingLayout({ loaderData }) {
                     let ret = { ...state, passengers: newPassengers };
                     ret["flightId"] = action.value.flightId;
                     ret["departure_date"] = action.value.departure_date;
+                    ret["price"] = action.value.price;
                     return ret;
                 } else {
                     newPassengers = structuredClone(state.passengers);
@@ -137,6 +144,7 @@ export default function BookingLayout({ loaderData }) {
             return {
                 flightId: null,
                 departure_date: null,
+                price: null,
                 passengers: [],
             };
         })(),
@@ -149,7 +157,7 @@ export default function BookingLayout({ loaderData }) {
         return () => window.removeEventListener("beforeunload", handleBeforeUnload);
     }, [bookingContext]);
     return (
-        <BookingContext value={{ ...bookingContext, setBookingContext: setBookingContext, selectedFlight: loaderData }}>
+        <BookingContext value={{ ...bookingContext, setBookingContext: setBookingContext }}>
             <div>
                 <div id="steps" className="flex items-center justify-center gap-4 w-full bg-orange-300 p-2">
                     <HeaderLogos logo="flight_takeoff" label="Flights" page="/search" />

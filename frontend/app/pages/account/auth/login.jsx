@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router";
+import { NavLink, useNavigate, useSearchParams } from "react-router";
 import { InputField } from "../../../components/input";
 import { useState } from "react";
 import axios from "axios";
@@ -11,6 +11,7 @@ export default function Login() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     function login(e) {
         e.preventDefault();
         setLoading(true);
@@ -21,7 +22,8 @@ export default function Login() {
             })
             .then((e) => {
                 setLoading(false);
-                navigate("/", { reloadDocument: true }); // TODO: this shall be replaced w/ the last went link
+                const returnTo = searchParams.get("returnTo");
+                navigate(returnTo ? decodeURIComponent(returnTo) : "/", { reloadDocument: true }); // TODO: this shall be replaced w/ the last went link
             })
             .catch((e) => {
                 setLoading(false);

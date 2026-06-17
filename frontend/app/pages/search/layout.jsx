@@ -12,17 +12,28 @@ function Bookpop() {
     const searchParams = use(SearchParametersContext);
     const navigate = useNavigate();
     function onConfirm() {
+        sessionStorage.setItem(
+            "pendingNavState",
+            JSON.stringify({
+                flightId: searchParams.selectedFlightAndClass.flight,
+                class: searchParams.selectedFlightAndClass.seatClass,
+                price: searchParams.selectedFlightAndClass.price,
+                passengers: searchParams.passengers,
+                departure_date: searchParams.departure_date,
+            }),
+        );
         navigate("/booking/form", {
             state: {
                 flightId: searchParams.selectedFlightAndClass.flight,
                 class: searchParams.selectedFlightAndClass.seatClass,
+                price: searchParams.selectedFlightAndClass.price,
                 passengers: searchParams.passengers,
                 departure_date: searchParams.departure_date,
             },
         });
     }
     const [visible, setVisible] = useState(false);
-
+    console.log("bookpop: ", searchParams);
     useEffect(() => {
         let timer;
         if (searchParams.selectedFlightAndClass.flight) {
@@ -50,15 +61,15 @@ function Bookpop() {
             </div>
             <div className="flex flex-col w-1/5 text-center gap-1">
                 <p className="font-bold">Departure</p>
-                <p className="flex items-center gap-2">{searchParams.selectedFlightAndClass.departure_date}</p>
+                <p className="flex items-center gap-2">{searchParams.departure_date}</p>
             </div>
             <div className="text-center w-1/5">
                 <p className="font-bold">Passengers</p>
-                <p>2</p>
+                <p>{searchParams.passengers}</p>
             </div>
             <div className="text-center w-1/5">
                 <p className="font-bold">Price</p>
-                <p>{1000 * 2}</p>
+                <p>{searchParams.selectedFlightAndClass.price}</p>
             </div>
             <button className="border px-4 w-1/5 rounded-sm bg-blaze-core font-bold text-cloud-warm" onClick={onConfirm}>
                 Book
@@ -97,13 +108,13 @@ export async function clientLoader({ request }) {
 export default function SearchLayout({ loaderData }) {
     const navigate = useNavigate();
     const [selectedFlightAndClass, setSelectedFlightAndClass] = useReducer(
-        (state, { flight, seatClass }) => {
+        (state, { flight, seatClass, price }) => {
             let ret;
-            if (flight == state.flight && seatClass == state.seatClass) ret = { flight: null, seatClass: null };
-            else ret = { flight: flight, seatClass: seatClass };
+            if (flight == state.flight && seatClass == state.seatClass) ret = { flight: null, seatClass: null, price: null };
+            else ret = { flight: flight, seatClass: seatClass, price: price };
             return ret;
         },
-        { flight: null, seatClass: null },
+        { flight: null, seatClass: null, price: null },
     );
     const [searchContext, setSearchContext] = useReducer(
         (state, action) => {

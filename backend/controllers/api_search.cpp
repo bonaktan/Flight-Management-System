@@ -167,3 +167,51 @@ void search::seatmap(const HttpRequestPtr& req,
         },
         flight, departure_date);
 }
+
+static const std::regex flightIdPattern("^[A-Za-z0-9_-]+$");
+void search::flightById(const HttpRequestPtr& req,
+                        std::function<void(const HttpResponsePtr&)>&& callback,
+                        std::string flightId) {
+    if (!Utils::is_valid_input(flightId, flightIdPattern)) {
+        callback(Utils::error("Invalid flight ID", k400BadRequest));
+        return;
+    }
+
+    orm::DbClientPtr dbClient = drogon::app().getDbClient("main");
+    dbClient->execSqlAsync(
+        "SELECT "
+        "  f.id, "
+        "  f.departure_airport_id, "
+        "  f.arrival_airport_id, "
+        "  f.base_ticket_price, "
+        "  EXTRACT(EPOCH FROM f.flight_time)::int AS flight_time, "
+        "  f.airplane_id, "
+        "  f.departure, "
+        "  a.model "
+        "FROM flight f "
+        "JOIN airplane a ON a.id = f.airplane_id "
+        "WHERE f.id = $1;",
+        [callback](const drogon::orm::Result& result) {
+            if (result.empty()) {
+                callback(Utils::error("Flight not found", k404NotFound));
+                return;
+            }
+            const orm::Row& row = result[0];
+            Json::Value res;
+            res["flightId"] = row["id"].as<std::string>();
+            res["origin"] = row["departure_airport_id"].as<std::string>();
+            res["destination"] = row["arrival_airport_id"].as<std::string>();
+            res["base_ticket_price"] = row["base_ticket_price"].as<float>();
+            res["flight_time"] = row["flight_time"].as<int>();
+            res["airplane_id"] = row["airplane_id"].as<std::string>();
+            res["departure"] = row["departure"].as<std::string>();
+            res["model"] = row["model"].as<std::string>();
+            callback(HttpResponse::newHttpJsonResponse(res));
+        },
+        [callback](const drogon::orm::DrogonDbException& e) {
+            callback(Skybridge::Utils::error("Database error",
+                                             k500InternalServerError,
+                                             Json::Value(e.base().what())));
+        },
+        flightId);
+}

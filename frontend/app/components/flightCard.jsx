@@ -1,3 +1,6 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+
 function getDate(str, flightTime) {
     const date = new Date(str);
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -9,7 +12,17 @@ function getDate(str, flightTime) {
     return { dateStr, timeStr, timeArrivalStr };
 }
 
-export function FlightCard({ flight, isReturn }) {
+export function FlightCard({ oldflight, isReturn, flightId }) {
+    const [flight, setFlight] = useState(oldflight);
+    console.log(flightId);
+    useEffect(() => {
+        console.log(flightId);
+        if (flightId == null) return;
+
+        axios.get(`/api/search/flight/${flightId}`).then((res) => setFlight(res.data));
+    }, [flightId]);
+    if (!flight) return <></>;
+    // console.
     const { dateStr, timeStr, timeArrivalStr } = getDate(flight.departure, flight.flight_time);
     return (
         <div className="w-full">
