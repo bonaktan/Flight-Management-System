@@ -58,7 +58,7 @@ std::vector<std::vector<std::string>> API::Passenger::view_one(std::string id) {
         throw std::runtime_error(std::string("Failed to parse response: ") +
                                  e.what());
     }
-    
+
     std::vector<std::vector<std::string>> data = {
         {"id", "frequent_flyer_code", "title", "first_name", "middle_name",
          "last_name", "birthdate", "gender", "contact_email", "phone_number",
@@ -156,16 +156,12 @@ std::vector<std::vector<std::string>> API::Passenger::modify(
     return data;
 }
 
-void API::Passenger::remove() {
-    Display::printHeader("DELETE PASSENGER");
-    std::string id = Input::getInput("Enter Passenger ID to delete: ");
+bool API::Passenger::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/passenger/delete/" + id);
     if (apiReturn.status_code == 200) {
-        std::cout << "\n  [OK] Passenger deleted.\n";
+        return true;
     } else {
-        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
-        std::cerr << "\n  [ERROR] Failed to delete passenger: "
-                  << errorResponse.value("message", "Unknown error") << "\n";
+        return false;
     }
 }

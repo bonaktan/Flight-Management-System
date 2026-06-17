@@ -182,8 +182,7 @@ ftxui::Component Display::TableInteractiveComponent(
             [=] {
                 if (*selected_row >= 1 && *selected_row < (int)data->size()) {
                     *form_mode = 2;
-                    for (int i = 0; i < (int)(*form_fields).size();
-                         ++i) {
+                    for (int i = 0; i < (int)(*form_fields).size(); ++i) {
                         std::string test = (*data)[*selected_row][i];
                         (*form_fields)[i] = (*data)[*selected_row][i];
                     }
@@ -197,10 +196,12 @@ ftxui::Component Display::TableInteractiveComponent(
                 if (*selected_row >= 1 && *selected_row < (int)data->size()) {
                     // first col is assumed to be ID
                     std::string id = (*data)[*selected_row][0];
-                    data->erase(data->begin() + *selected_row);
-                    if (*selected_row >= (int)data->size())
-                        *selected_row = (int)data->size() - 1;
-                    *scroll_y = *selected_row;
+                    if (entity.remove(id)) {
+                        data->erase(data->begin() + *selected_row);
+                        if (*selected_row >= (int)data->size())
+                            *selected_row = (int)data->size() - 1;
+                        *scroll_y = *selected_row;
+                    }
                 }
                 *form_mode = 0;
             },

@@ -104,10 +104,8 @@ std::vector<std::vector<std::string>> API::Account::modify(std::string id,
     return data;
 }
 
-void API::Account::remove() {
-    Display::printHeader("DELETE ACCOUNT");
-    std::string id = Input::getInput("Enter Account ID to delete: ");
+bool API::Account::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/account/delete/" + id);
-    std::cout << "\n  [OK] Account deleted.\n";
+    return true;
 }

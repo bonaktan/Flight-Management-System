@@ -129,11 +129,8 @@ std::vector<std::vector<std::string>> API::Flight::modify(std::string id,
     return data;
 }
 
-void API::Flight::remove() {
-    Display::printHeader("DELETE FLIGHT");
-    std::string id = Input::getInput("Enter Flight ID to delete: ");
+bool API::Flight::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/flight/delete/" + id);
-    // TODO: error handling
-    std::cout << "\n  [OK] Flight deleted.\n";
+    return true;
 }

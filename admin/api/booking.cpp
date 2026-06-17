@@ -124,16 +124,12 @@ std::vector<std::vector<std::string>> API::Booking::modify(std::string id,
     return data;
 }
 
-void API::Booking::remove() {
-    Display::printHeader("DELETE BOOKING");
-    std::string id = Input::getInput("Enter Booking ID to delete: ");
+bool API::Booking::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/booking/delete/" + id);
     if (apiReturn.status_code == 200) {
-        std::cout << "\n  [OK] Booking deleted.\n";
+        return true;
     } else {
-        nlohmann::json errorResponse = nlohmann::json::parse(apiReturn.text);
-        std::cerr << "\n  [ERROR] Failed to delete booking: "
-                  << errorResponse.value("message", "Unknown error") << "\n";
+        return false;
     }
 }

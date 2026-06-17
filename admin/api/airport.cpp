@@ -106,10 +106,8 @@ std::vector<std::vector<std::string>> API::Airport::modify(std::string id,
     return data;
 }
 
-void API::Airport::remove() {
-    Display::printHeader("DELETE AIRPORT");
-    std::string id = Input::getInput("Enter Airport ID to delete: ");
+bool API::Airport::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/airport/delete/" + id);
-    std::cout << "\n  [OK] Airport deleted.\n";
+    return true;
 }

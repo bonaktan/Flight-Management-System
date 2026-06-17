@@ -101,10 +101,8 @@ std::vector<std::vector<std::string>> API::Airplane::modify(std::string id,
                     newData["seatmap"].dump(), newData["seat_class"].dump()});
     return data;
 }
-void API::Airplane::remove() {
-    Display::printHeader("DELETE AIRPLANE");
-    std::string id = Input::getInput("Enter Airplane ID to delete: ");
+bool API::Airplane::remove(std::string id) {
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.del("/admin/airplane/delete/" + id);
-    std::cout << "\n  [OK] Airplane deleted.\n";
+    return true;
 }

@@ -20,7 +20,7 @@ struct APIEntity {
     std::function<std::vector<std::vector<std::string>>(
         std::string, std::string, std::string)>
         modify;
-    std::function<void()> remove;
+    std::function<bool(std::string id)> remove;
 };
 
 class ApiClient {
@@ -85,7 +85,7 @@ class Account {
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
-    static void remove();
+    static bool remove(std::string id);
 };
 
 class Airplane {
@@ -111,7 +111,7 @@ class Airplane {
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
-    static void remove();
+    static bool remove(std::string id);
 };
 
 class Airport {
@@ -137,7 +137,7 @@ class Airport {
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
-    static void remove();
+    static bool remove(std::string id);
 };
 
 class Booking {
@@ -164,7 +164,7 @@ class Booking {
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
-    static void remove();
+    static bool remove(std::string id);
 };
 
 class Flight {
@@ -193,7 +193,7 @@ class Flight {
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
-    static void remove();
+    static bool remove(std::string id);
 };
 
 class Passenger {
@@ -230,7 +230,7 @@ class Passenger {
     static std::vector<std::vector<std::string>> modify(std::string id,
                                                         std::string field,
                                                         std::string value);
-    static void remove();
+    static bool remove(std::string id);
 };
 }  // namespace Skybridge::API
 #endif
