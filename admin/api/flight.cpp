@@ -69,20 +69,16 @@ std::vector<std::vector<std::string>> API::Flight::view_one(std::string id) {
 }
 
 bool API::Flight::add(const std::map<std::string, std::string>& fields) {
-    Display::printHeader("ADD FLIGHT");
-    nlohmann::json flight;
-    flight["flight_id"] = Input::getInput("Flight ID (e.g. SKY421): ");
-    flight["departure_airport_id"] =
-        Input::getInput("Departure Airport ID (e.g. MNL): ");
-    flight["arrival_airport_id"] =
-        Input::getInput("Arrival Airport ID (e.g. CEB): ");
-    flight["flight_time"] = Input::getInput("Flight Time (e.g. 01:30:00): ");
-    flight["base_ticket_price"] =
-        Input::getIntInput("Base Ticket Price (e.g. 4000): ");
-    flight["start_of_operations"] = Input::getInput(
-        "Start of Operations (e.g. 2026-06-05T15:00:00+08:00): ");
-    flight["frequency"] = Input::getInput("Frequency (e.g. P1D): ");
-    flight["airplane"] = Input::getInput("Airplane ID (e.g. SB-W0001): ");
+    nlohmann::json flight(fields);
+    static const std::unordered_set<std::string> intFields = {"account_id"};
+    static const std::unordered_set<std::string> jsonFields = {"base_ticket_price"};
+
+    for (auto& [key, val] : fields) {
+        if (intFields.count(key))
+            flight[key] = std::stoi(val);
+        else if (jsonFields.count(key))
+            flight[key] = nlohmann::json::parse(val);
+    }
 
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.post("/admin/flight/add", flight);

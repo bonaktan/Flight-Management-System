@@ -103,8 +103,8 @@ class Airplane {
     }
     std::string name = "Airplane";
     std::vector<std::string> UNSUPPORTED_OPS = {};
-    std::vector<std::string> ADD_HEADERS = {"id", "location", "model",
-                                            "seatmap", "seat_class"};
+    std::vector<std::string> ADD_HEADERS = {"airplane_id", "location", "model",
+                                            "seatmap"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
@@ -129,8 +129,8 @@ class Airport {
     }
     std::string name = "Airport";
     std::vector<std::string> UNSUPPORTED_OPS = {};
-    std::vector<std::string> ADD_HEADERS = {"airport_id", "name", "capacity", "country",
-                                            "city"};
+    std::vector<std::string> ADD_HEADERS = {"airport_id", "name", "capacity",
+                                            "country", "city"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
@@ -155,13 +155,9 @@ class Booking {
     }
     std::string name = "Booking";
     std::vector<std::string> UNSUPPORTED_OPS = {};
-    std::vector<std::string> ADD_HEADERS = {"id",
-                                            "flight_id",
-                                            "account_id",
-                                            "payment_option",
-                                            "payment_detail",
-                                            "booking_status",
-                                            "departure_date"};
+    std::vector<std::string> ADD_HEADERS = {"flight_id",      "account_id",
+                                            "payment_option", "payment_detail",
+                                            "booking_status", "departure_date"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);
@@ -186,13 +182,11 @@ class Flight {
     }
     std::string name = "Flight";
     std::vector<std::string> UNSUPPORTED_OPS = {};
-    std::vector<std::string> ADD_HEADERS = {"id",
-                                            "flight_id",
-                                            "account_id",
-                                            "payment_option",
-                                            "payment_detail",
-                                            "booking_status",
-                                            "departure_date"};
+    std::vector<std::string> ADD_HEADERS = {
+        "flight_id",          "departure_airport_id",
+        "arrival_airport_id", "flight_time",
+        "base_ticket_price",  "start_of_operations",
+        "frequency",          "airplane"};
     static std::vector<std::vector<std::string>> view();
     static std::vector<std::vector<std::string>> view_one(std::string id);
     static bool add(const std::map<std::string, std::string>& fields);

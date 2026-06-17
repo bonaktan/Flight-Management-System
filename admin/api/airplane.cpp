@@ -62,7 +62,7 @@ std::vector<std::vector<std::string>> API::Airplane::view_one(std::string id) {
 
 bool API::Airplane::add(const std::map<std::string, std::string>& fields) {
     nlohmann::json airplane(fields);
-    static const std::unordered_set<std::string> jsonFields = {"seatmap"};
+    static const std::unordered_set<std::string> jsonFields = {"seatmap", "seat_class"};
 
     for (auto& [key, val] : fields) {
         if (jsonFields.count(key))

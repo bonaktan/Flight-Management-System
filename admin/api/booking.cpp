@@ -66,15 +66,16 @@ std::vector<std::vector<std::string>> API::Booking::view_one(std::string id) {
 }
 
 bool API::Booking::add(const std::map<std::string, std::string>& fields) {
-    Display::printHeader("ADD BOOKING");
-    nlohmann::json booking;
-    booking["flight_id"] = Input::getInput("Flight ID (e.g. SKY001): ");
-    booking["account_id"] = std::stoll(Input::getInput("Account ID: "));
-    booking["payment_option"] = Input::getInput("Payment Option: ");
-    booking["payment_detail"] = nlohmann::json{};
-    booking["booking_status"] = Input::getInput("Booking Status: ");
-    booking["departure_date"] = Input::getInput("Departure Date (): ");
+    nlohmann::json booking(fields);
+    static const std::unordered_set<std::string> intFields = {"account_id"};
+    static const std::unordered_set<std::string> jsonFields = {"payment_detail"};
 
+    for (auto& [key, val] : fields) {
+        if (intFields.count(key))
+            booking[key] = std::stoi(val);
+        else if (jsonFields.count(key))
+            booking[key] = nlohmann::json::parse(val);
+    }
     API::ApiClient& client = API::ApiClient::getInstance();
     cpr::Response apiReturn = client.post("/admin/booking/add", booking);
     if (apiReturn.status_code == 200 || apiReturn.status_code == 201) {
