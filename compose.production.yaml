@@ -1,0 +1,28 @@
+networks:
+    shared_frontend:
+        external: true
+        name: home-server_shared_infra_net
+    shared_database:
+        external: true
+        name: home-server_shared_infra_database
+
+services:
+    cloudflared: !reset null
+    nginx: !reset null
+    frontend:
+        build:
+            context: ./
+            dockerfile: ./frontend/Dockerfile.production
+            args:
+                - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+        restart: no
+    backend:
+        networks:
+            - shared_frontend
+            - shared_database
+        depends_on: !reset null
+    database: !reset null
+    db_migration:
+        depends_on: !reset null
+        networks:
+            - shared_database
